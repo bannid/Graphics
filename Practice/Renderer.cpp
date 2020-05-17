@@ -31,6 +31,9 @@ void Renderer::SetColor(color_t color) {
 }
 
 void Renderer::SetPixel(int x, int y) {
+	if (x < 0 || x > this->videoMemory->bitmapWidth || y < 0 || y > this->videoMemory->bitmapHeight) {
+		return;
+	}
 	int memorySize = this->videoMemory->bitmapHeight * this->videoMemory->bitmapWidth;
 	unsigned int * pixel = (unsigned int *)this->videoMemory->bitmapMemory;
 	unsigned int toPlus = x + this->videoMemory->bitmapWidth * y;
@@ -47,11 +50,11 @@ void Renderer::ClearScreen() {
 	}
 }
 
-void Renderer::DrawLine(int x1, int y1,int x2,int y2) {
+void Renderer::DrawLine(int x1, int y1, int x2, int y2) {
 	bool steep = false;
 	if (std::abs(y2 - y1) > std::abs(x2 - x1)) {
 		steep = true;
-		std::swap(x1,y1);
+		std::swap(x1, y1);
 		std::swap(x2, y2);
 	}
 	if (x1 > x2) {
@@ -60,22 +63,20 @@ void Renderer::DrawLine(int x1, int y1,int x2,int y2) {
 	}
 	float dy = std::abs(y2 - y1);
 	float dx = std::abs(x2 - x1);
-	if (dx > dy) {
-		float slope = dy / dx;
-		float delta = 0.0;
-		unsigned int y = y1;
-		for (int x = x1; x < x2; x++) {
-			if (!steep) {
-				SetPixel(x, y);
-			}
-			else {
-				SetPixel(y, x);
-			}
-			delta += slope;
-			if (delta > 0.5) {
-				delta -= 1;
-				y += (y2 - y1) > 0 ? 1 : -1;
-			}
+	float slope = dy / dx;
+	float delta = 0.0;
+	unsigned int y = y1;
+	for (int x = x1; x < x2; x++) {
+		if (!steep) {
+			SetPixel(x, y);
+		}
+		else {
+			SetPixel(y, x);
+		}
+		delta += slope;
+		if (delta > 0.5) {
+			delta -= 1;
+			y += (y2 - y1) > 0 ? 1 : -1;
 		}
 	}
 }
