@@ -1,14 +1,12 @@
 #include<iostream>
+#include<vector>
 #include "Renderer.h"
 #include "Common.h"
 namespace rr {
 	Renderer::Renderer(videoMemory_t * videoMemory, int pixelDim)
 	{
 		this->videoMemoryInfo = videoMemory;
-		this->clearColor.red = 255;
-		this->clearColor.green = 255;
-		this->clearColor.blue = 255;
-		this->valid = true;
+		SetClearColor(rr::WHITE);
 		this->pixelDimension = pixelDim;
 	}
 
@@ -84,7 +82,6 @@ namespace rr {
 		for (int x = x1; x < x2; x++) {
 			if (!steep) {
 				SetPixel(x, y);
-
 			}
 			else {
 				SetPixel(y, x);
@@ -94,6 +91,62 @@ namespace rr {
 				delta -= 1;
 				y += (y2 - y1) > 0 ? 1 : -1;
 			}
+		}
+	}
+	math2d::Vec2 Renderer::QuadraticBezierCurve(math2d::Vec2 p1,
+		math2d::Vec2 cp,
+		math2d::Vec2 p2,
+		float t) {
+		auto s = GetTwoLinearPointsFromThreePoints(p1, cp, p2, t);
+		math2d::Vec2 finalVector = s[1] - s[0];
+		math2d::Vec2 finalVectorScaled = finalVector * t;
+		return s[0] + finalVectorScaled;
+	}
+	//Helper function to draw Bezier Curve.  Given three points, we get two points back
+	//in respect the value of t
+	std::vector<math2d::Vec2> Renderer::GetTwoLinearPointsFromThreePoints(math2d::Vec2 p1, math2d::Vec2 p2, math2d::Vec2 p3, float t) {
+		std::vector<math2d::Vec2> toReturn;
+		//Get first vector
+		math2d::Vec2 vectorFromP1ToP2 = p2 - p1;
+		//Get second vector
+		math2d::Vec2 vectorFromP2ToP3 = p3 - p2;
+		//Scale both of the vectors in respect to t
+		math2d::Vec2 vectorFromP1ToP2Scaled = vectorFromP1ToP2 * t;
+		math2d::Vec2 vectorFromP2ToP3Scaled = vectorFromP2ToP3 * t;
+		//Add the scaled vector to the starting points to get a new point.
+		//Remember, we need to add them because we have directions not positions.
+		//We get positions by adding the directional vectors on the original positions
+		math2d::Vec2 point1 = p1 + vectorFromP1ToP2Scaled;
+		math2d::Vec2 point2 = p2 + vectorFromP2ToP3Scaled;
+		//Return the two points
+		toReturn.push_back(point1);
+		toReturn.push_back(point2);
+		return toReturn;
+	}
+	void Renderer::BezierCurveRecursive(std::vector<math2d::Vec2> points,
+		float t,
+		math2d::Vec2 & output) {
+		if (points.size() == 3) {
+			math2d::Vec2 toReturn = QuadraticBezierCurve(points[0], points[1], points[2], t);
+			output.x = toReturn.x;
+			output.y = toReturn.y;
+		}
+		else if (points.size() > 3) {
+			std::vector<math2d::Vec2> run;
+			for (int i = 0; i < points.size() - 2; i++) {
+				auto temp = GetTwoLinearPointsFromThreePoints(points[i], points[i + 1], points[i + 2], t);
+				if (i == 0) {
+					for (int i = 0; i < temp.size(); i++) {
+						run.push_back(temp[i]);
+					}
+				}
+				else {
+					for (int i = 1; i < temp.size(); i++) {
+						run.push_back(temp[i]);
+					}
+				}
+			}
+			BezierCurveRecursive(run, t, output);
 		}
 	}
 }
