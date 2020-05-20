@@ -151,11 +151,9 @@
   <ItemGroup>
     <ClInclude Include="BEngine.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Platform.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
