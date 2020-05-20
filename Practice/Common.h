@@ -12,7 +12,9 @@ struct color_t {
 	int green;
 	int blue;
 	color_t() {
-		this->red = 0; this->green = 0; this->blue = 0;
+		this->red = 0;
+		this->green = 0; 
+		this->blue = 0;
 	}
 	color_t(int red,int green, int blue) {
 		this->green = green;

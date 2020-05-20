@@ -1,6 +1,6 @@
 #pragma once
+#include <vector>
 #include "Common.h"
-#include <WinUser.h>
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
 namespace NSInput {
 	struct Key {
@@ -93,6 +93,9 @@ namespace NSRender {
 	{
 	public:
 		Renderer(videoMemory_t*, int pixelDim);
+		Renderer() {
+
+		}
 		~Renderer();
 		//Setters
 		void SetClearColor(color_t);
