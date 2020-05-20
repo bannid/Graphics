@@ -1,12 +1,14 @@
 #include<iostream>
 #include<vector>
+#include<assert.h>
+
 #include "Renderer.h"
 #include "Common.h"
-namespace rr {
+namespace NSRender {
 	Renderer::Renderer(videoMemory_t * videoMemory, int pixelDim)
 	{
 		this->videoMemoryInfo = videoMemory;
-		SetClearColor(rr::WHITE);
+		SetClearColor(NSRender::WHITE);
 		this->pixelDimension = pixelDim;
 	}
 
@@ -18,7 +20,29 @@ namespace rr {
 	void Renderer::SetColor(color_t color) {
 		this->color = color;
 	}
+	int Renderer::GetScreenHeight() {
+		return this->videoMemoryInfo->bitmapHeight;
+	}
+	int Renderer::GetScreenWidth() {
+		return this->videoMemoryInfo->bitmapWidth;
+	}
+	color_t Renderer::GetClearColor() {
+		return this->clearColor;
+	}
+	color_t Renderer::GetColor() {
+		return this->color;
+	}
+	POINT Renderer::GetMouseInfo() {
+		return this->mouseInfo;
+	}
+	unsigned int Renderer::GetColorRGBPacked() {
+		return this->RGBPackedColor;
+	}
+	unsigned int Renderer::GetClearColorRGBPacked() {
+		return this->RGBPackedClearColor;
+	}
 	void Renderer::SetColor(int rgb) {
+		this->RGBPackedColor = rgb;
 		int red = rgb >> 16 & 0xFF;
 		int green = rgb >> 8 & 0xFF;
 		int blue = rgb & 0xFF;
@@ -29,7 +53,11 @@ namespace rr {
 	void Renderer::SetClearColor(color_t color) {
 		this->clearColor = color;
 	}
+	float Renderer::Lerp(float a, float b, float t){
+		return ((1 - t) * a) + (t * b);
+	}
 	void Renderer::SetClearColor(int rgb) {
+		this->RGBPackedClearColor = rgb;
 		int red = rgb >> 16 & 0xFF;
 		int green = rgb >> 8 & 0xFF;
 		int blue = rgb & 0xFF;
@@ -38,7 +66,7 @@ namespace rr {
 		this->clearColor.green = green;
 	}
 	void Renderer::SetPixelInternal(int x, int y) {
-		if (x < 0 || x > this->videoMemoryInfo->bitmapWidth || y < 0 || y > this->videoMemoryInfo->bitmapHeight) {
+		if (x < 0 || x >= this->videoMemoryInfo->bitmapWidth || y < 0 || y >= this->videoMemoryInfo->bitmapHeight) {
 			return;
 		}
 		int memorySize = this->videoMemoryInfo->bitmapHeight * this->videoMemoryInfo->bitmapWidth;
@@ -93,46 +121,46 @@ namespace rr {
 			}
 		}
 	}
-	math2d::Vec2 Renderer::QuadraticBezierCurve(math2d::Vec2 p1,
-		math2d::Vec2 cp,
-		math2d::Vec2 p2,
+	NSMath2d::Vec2 Renderer::QuadraticBezierCurve(NSMath2d::Vec2 p1,
+		NSMath2d::Vec2 cp,
+		NSMath2d::Vec2 p2,
 		float t) {
 		auto s = GetTwoLinearPointsFromThreePoints(p1, cp, p2, t);
-		math2d::Vec2 finalVector = s[1] - s[0];
-		math2d::Vec2 finalVectorScaled = finalVector * t;
+		NSMath2d::Vec2 finalVector = s[1] - s[0];
+		NSMath2d::Vec2 finalVectorScaled = finalVector * t;
 		return s[0] + finalVectorScaled;
 	}
 	//Helper function to draw Bezier Curve.  Given three points, we get two points back
 	//in respect the value of t
-	std::vector<math2d::Vec2> Renderer::GetTwoLinearPointsFromThreePoints(math2d::Vec2 p1, math2d::Vec2 p2, math2d::Vec2 p3, float t) {
-		std::vector<math2d::Vec2> toReturn;
+	std::vector<NSMath2d::Vec2> Renderer::GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t) {
+		std::vector<NSMath2d::Vec2> toReturn;
 		//Get first vector
-		math2d::Vec2 vectorFromP1ToP2 = p2 - p1;
+		NSMath2d::Vec2 vectorFromP1ToP2 = p2 - p1;
 		//Get second vector
-		math2d::Vec2 vectorFromP2ToP3 = p3 - p2;
+		NSMath2d::Vec2 vectorFromP2ToP3 = p3 - p2;
 		//Scale both of the vectors in respect to t
-		math2d::Vec2 vectorFromP1ToP2Scaled = vectorFromP1ToP2 * t;
-		math2d::Vec2 vectorFromP2ToP3Scaled = vectorFromP2ToP3 * t;
+		NSMath2d::Vec2 vectorFromP1ToP2Scaled = vectorFromP1ToP2 * t;
+		NSMath2d::Vec2 vectorFromP2ToP3Scaled = vectorFromP2ToP3 * t;
 		//Add the scaled vector to the starting points to get a new point.
 		//Remember, we need to add them because we have directions not positions.
 		//We get positions by adding the directional vectors on the original positions
-		math2d::Vec2 point1 = p1 + vectorFromP1ToP2Scaled;
-		math2d::Vec2 point2 = p2 + vectorFromP2ToP3Scaled;
+		NSMath2d::Vec2 point1 = p1 + vectorFromP1ToP2Scaled;
+		NSMath2d::Vec2 point2 = p2 + vectorFromP2ToP3Scaled;
 		//Return the two points
 		toReturn.push_back(point1);
 		toReturn.push_back(point2);
 		return toReturn;
 	}
-	void Renderer::BezierCurveRecursive(std::vector<math2d::Vec2> points,
+	void Renderer::BezierCurveRecursive(std::vector<NSMath2d::Vec2> points,
 		float t,
-		math2d::Vec2 & output) {
+		NSMath2d::Vec2 & output) {
 		if (points.size() == 3) {
-			math2d::Vec2 toReturn = QuadraticBezierCurve(points[0], points[1], points[2], t);
+			NSMath2d::Vec2 toReturn = QuadraticBezierCurve(points[0], points[1], points[2], t);
 			output.x = toReturn.x;
 			output.y = toReturn.y;
 		}
 		else if (points.size() > 3) {
-			std::vector<math2d::Vec2> run;
+			std::vector<NSMath2d::Vec2> run;
 			for (int i = 0; i < points.size() - 2; i++) {
 				auto temp = GetTwoLinearPointsFromThreePoints(points[i], points[i + 1], points[i + 2], t);
 				if (i == 0) {
@@ -148,5 +176,34 @@ namespace rr {
 			}
 			BezierCurveRecursive(run, t, output);
 		}
+	}
+	NSMath2d::Vec2 Renderer::Lerp(NSMath2d::Vec2 a, NSMath2d::Vec2 b, float t) {
+		NSMath2d::Vec2 vectorFromAToB = b - a;
+		NSMath2d::Vec2 vectorFromAToBScaled = vectorFromAToB * t;
+		return a + vectorFromAToBScaled;
+	}
+	void Renderer::ProcessKeys() {
+		for (int key = 0; key < 0xff; key++) {
+			if (!this->keys[key].keyDown) {
+				this->keys[key].keyDown = 0x1 & (GetAsyncKeyState(key) >> 15);
+				this->keys[key].keyReleased = false;
+			}
+			else {
+				this->keys[key].keyDown = (0x1 & (GetAsyncKeyState(key) >> 15));
+				if (this->keys[key].keyDown) {
+					this->keys[key].keyHeld = true;
+					this->keys[key].keyReleased = false;
+				}
+				else {
+					this->keys[key].keyHeld = false;
+					this->keys[key].keyReleased = true;
+				}
+			}
+		}
+		GetCursorPos(&this->mouseInfo);
+	}
+	NSInput::Key Renderer::GetKey(unsigned int key) {
+		assert(key > 0 && key<0xFF);
+		return this->keys[key];
 	}
 }

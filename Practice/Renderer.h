@@ -1,10 +1,18 @@
 #pragma once
 #include "Common.h"
+#include <WinUser.h>
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
-namespace math2d {
+namespace NSInput {
+	struct Key {
+		bool keyDown = false;
+		bool keyReleased = false;
+		bool keyHeld = false;
+	};
+}
+namespace NSMath2d {
 	struct Vec2 {
 		float x, y;
-		Vec2(float x, float y):x(x),y(y) {
+		Vec2(float x, float y) :x(x), y(y) {
 		}
 		float Magnitude() {
 			return std::sqrtf(x * x + y * y);
@@ -36,24 +44,24 @@ namespace math2d {
 		}
 	};
 }
-namespace shapes {
+namespace NSShapes {
 	struct Triangle {
-		math2d::Vec2 vertice1;
-		math2d::Vec2 vertice2;
-		math2d::Vec2 vertice3;
-		Triangle(math2d::Vec2 vertice1,
-			math2d::Vec2 vertice2,
-			math2d::Vec2 vertice3):vertice1(vertice1),vertice2(vertice2),vertice3(vertice3) {
+		NSMath2d::Vec2 vertice1;
+		NSMath2d::Vec2 vertice2;
+		NSMath2d::Vec2 vertice3;
+		Triangle(NSMath2d::Vec2 vertice1,
+			NSMath2d::Vec2 vertice2,
+			NSMath2d::Vec2 vertice3) :vertice1(vertice1), vertice2(vertice2), vertice3(vertice3) {
 
 		}
 	};
 	struct Rectangle {
 		//We just need the upper left and lower right edge
 		//to draw rectangles
-		math2d::Vec2 vertice1;
-		math2d::Vec2 vertice2;
-		Rectangle(math2d::Vec2 vertice1,
-			math2d::Vec2 vertice2) :vertice1(vertice1), vertice2(vertice2) {
+		NSMath2d::Vec2 vertice1;
+		NSMath2d::Vec2 vertice2;
+		Rectangle(NSMath2d::Vec2 vertice1,
+			NSMath2d::Vec2 vertice2) :vertice1(vertice1), vertice2(vertice2) {
 
 		}
 	};
@@ -64,15 +72,15 @@ namespace shapes {
 		}
 	};
 	struct Line {
-		math2d::Vec2 origin;
-		math2d::Vec2 destination;
-		Line(math2d::Vec2 origin,
-			math2d::Vec2 destination) :origin(origin), destination(destination) {
+		NSMath2d::Vec2 origin;
+		NSMath2d::Vec2 destination;
+		Line(NSMath2d::Vec2 origin,
+			NSMath2d::Vec2 destination) :origin(origin), destination(destination) {
 
 		}
 	};
 }
-namespace rr {
+namespace NSRender {
 	enum COLORS {
 		BLACK = 0,
 		RED = RGBC(255, 0, 0),
@@ -84,28 +92,44 @@ namespace rr {
 	class Renderer
 	{
 	public:
-		Renderer(videoMemory_t*,int pixelDim);
+		Renderer(videoMemory_t*, int pixelDim);
 		~Renderer();
-		void SetPixel(int x, int y);
-		void ClearScreen();
-		void SetClearColor(color_t color);
-		void SetClearColor(int rgb);
-		void SetColor(color_t color);
-		void SetColor(int rgb);
-
+		//Setters
+		void SetClearColor(color_t);
+		void SetClearColor(int);
+		void SetColor(color_t);
+		void SetColor(int);
+		//Getters
+		int GetScreenWidth();
+		int GetScreenHeight();
+		NSInput::Key GetKey(unsigned int);
+		color_t GetColor();
+		color_t GetClearColor();
+		unsigned int GetColorRGBPacked();
+		unsigned int GetClearColorRGBPacked();
+		POINT GetMouseInfo();
+		float Lerp(float , float, float);
+		NSMath2d::Vec2 Lerp(NSMath2d::Vec2, NSMath2d::Vec2, float);
 		//Drawing routines
 		void DrawLine(int, int, int, int);
-		math2d::Vec2 QuadraticBezierCurve(math2d::Vec2, math2d::Vec2, math2d::Vec2, float);
-		void BezierCurveRecursive(std::vector<math2d::Vec2>, float, math2d::Vec2&);
-	
+		void SetPixel(int, int);
+		NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2, NSMath2d::Vec2, NSMath2d::Vec2, float);
+		void BezierCurveRecursive(std::vector<NSMath2d::Vec2>, float, NSMath2d::Vec2&);
+		void ClearScreen();
+		//Input
+		void ProcessKeys();
 	private:
 		//Private functions
 		void SetPixelInternal(int x, int y);
-		std::vector<math2d::Vec2>GetTwoLinearPointsFromThreePoints(math2d::Vec2 p1, math2d::Vec2 p2, math2d::Vec2 p3, float t);
+		std::vector<NSMath2d::Vec2>GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t);
 	private:
 		videoMemory_t * videoMemoryInfo;
 		color_t color;
 		color_t clearColor;
+		unsigned int RGBPackedColor;
+		unsigned int RGBPackedClearColor;
+		NSInput::Key keys[0xFF];
 		int pixelDimension;
+		POINT mouseInfo;
 	};
 }
