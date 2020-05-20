@@ -130,7 +130,8 @@ bool BEngine::Start() {
 		int windowWidth = clientRect.right - clientRect.left;
 		int windowHeight = clientRect.bottom - clientRect.top;
 		renderer.ProcessKeys();
-		Render(renderer);
+		OnUpdate();
+		//Render(renderer);
 		HDC DeviceContext = GetDC(window);
 		Win32UpdateWindow(DeviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DeviceContext);
@@ -141,7 +142,7 @@ bool BEngine::Start() {
 bool BEngine::Construct() {
 	running = true;
 	static_enginePtr = this;
-	renderer = NSRender::Renderer(&this->screenInfo, 1);
+	renderer = NSRender::Renderer(&this->screenInfo, 5);
 	windowClass.lpfnWndProc = static_Win32MainWindowCallback;
 	windowClass.hInstance = GetModuleHandle(nullptr);
 	windowClass.lpszClassName = L"ConsoleClass";
