@@ -51,6 +51,10 @@ public:
 	NSMath2d::Vec2 Lerp(NSMath2d::Vec2, NSMath2d::Vec2, float);
 	//Drawing routines
 	void DrawLine(int, int, int, int);
+	void DrawCircle(int, int, int);
+	void DrawRectangle(int, int, int, int);
+	void FillRectangle(int,int,int,int);
+	void FillCircle(int,int,int);
 	void SetPixel(int, int);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2, NSMath2d::Vec2, NSMath2d::Vec2, float);
 	void BezierCurveRecursive(std::vector<NSMath2d::Vec2>, float, NSMath2d::Vec2&);

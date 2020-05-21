@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <cmath>
 #include "BEngine.h"
 
 static BEngine * static_enginePtr = nullptr;
@@ -132,7 +133,7 @@ bool BEngine::Start() {
 		int windowWidth = clientRect.right - clientRect.left;
 		int windowHeight = clientRect.bottom - clientRect.top;
 		ProcessKeys();
-		OnUpdate();
+		running = running && OnUpdate();
 		//Render(renderer);
 		HDC DeviceContext = GetDC(window);
 		Win32UpdateWindow(DeviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
@@ -261,7 +262,40 @@ BEngine::~BEngine()
 			pixel++;
 		}
 	}
-
+	void BEngine::DrawCircle(int x, int y, int radius) {
+		float tau = 6.28318530718;
+		for (float t = 0; t < 1; t += 0.001) {
+			int x1 = std::cos(t * tau) * radius;
+			int y1 = std::sin(t * tau) * radius;
+			SetPixel(x + x1, y + y1);
+		}
+	}
+	void BEngine::FillCircle(int x, int y, int radius) {
+		int x1 = x - radius;
+		int y1 = y - radius;
+		int x2 = radius + x;
+		int y2 = radius + y;
+		for (int xi = x1; xi < x2; xi++) {
+			for (int yi = y1; yi < y2; yi++) {
+				int dx = abs(x - xi);
+				int dy = abs(y - yi);
+				if (sqrt(dx * dx + dy * dy) < radius) {
+					SetPixel(xi,yi);
+				}
+			}
+		}
+	}
+	void BEngine::DrawRectangle(int x1, int y1, int x2, int y2) {
+		DrawLine(x1, y1, x2, y1);
+		DrawLine(x1, y1, x1, y2);
+		DrawLine(x1, y2, x2, y2);
+		DrawLine(x2, y1, x2, y2);
+	}
+	void BEngine::FillRectangle(int x1, int y1,int x2, int y2){
+		for (int y = y1; y < y2; y++) {
+			DrawLine(x1, y, x2, y);
+		}
+	}
 	void BEngine::DrawLine(int x1, int y1, int x2, int y2) {
 		bool steep = false;
 		if (std::abs(y2 - y1) > std::abs(x2 - x1)) {
