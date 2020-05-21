@@ -20,7 +20,7 @@ class BezierCurves : public BEngine {
 		bezierCurves.push_back(b);
 		return true;
 	}
-	virtual bool OnUpdate() override {
+	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen();
 		for (auto b = bezierCurves.begin(); b != bezierCurves.end(); b++) {
 			DrawBezierCurve(b->p1, b->cp, b->p2);

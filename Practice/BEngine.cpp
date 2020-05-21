@@ -131,7 +131,17 @@ bool BEngine::Start() {
 		int windowWidth = clientRect.right - clientRect.left;
 		int windowHeight = clientRect.bottom - clientRect.top;
 		ProcessKeys();
-		running = running && OnUpdate();
+		this->end = std::chrono::steady_clock::now();
+		float elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+		float frameRate = 1000.0f / elapsedTime;
+		char msg[200];
+		sprintf_s(msg,"Frame rate %f", frameRate);
+		SetWindowTextA(
+			window,
+			msg
+		);
+		running = running && OnUpdate(elapsedTime);
+		this->begin = std::chrono::steady_clock::now();
 		HDC DeviceContext = GetDC(window);
 		Win32UpdateWindow(DeviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DeviceContext);

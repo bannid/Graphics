@@ -85,7 +85,7 @@ class Test : public BEngine {
 			}
 		}
 	}
-	virtual bool OnUpdate() override {
+	virtual bool OnUpdate(float elapsedTime) override {
 		TestCodeForGettingColorFromTexture();
 		return true;
 	}

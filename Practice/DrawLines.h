@@ -4,7 +4,7 @@
 #include "Common.h"
 class DrawLines : public BEngine {
 	std::vector<NSMath2d::Vec2> points;
-	virtual bool OnUpdate() override{
+	virtual bool OnUpdate(float elapsedTime) override{
 		SetClearColor(NSColors::BLACK);
 		SetColor(NSColors::YELLOW);
 		ClearScreen();

@@ -1,6 +1,8 @@
 #pragma once
 #include <Windows.h>
 #include <vector>
+#include <chrono>
+
 #include "Common.h"
 #include "lodepng.h"
 #define TEXID int
@@ -32,7 +34,7 @@ public:
 	bool Construct();
 	bool Start();
 	//Virtuals
-	virtual bool OnUpdate() = 0;
+	virtual bool OnUpdate(float) = 0;
 	virtual bool OnCreate() = 0;
 public:
 	bool running;
@@ -86,6 +88,8 @@ private:
 	void SetPixelInternal(int x, int y, color_t);
 	std::vector<NSMath2d::Vec2>GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t);
 private:
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	color_t color;
 	color_t clearColor;
 	unsigned int RGBPackedColor;
