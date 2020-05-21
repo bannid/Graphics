@@ -26,4 +26,8 @@ class DrawLines : public BEngine {
 		}
 		return true;
 	}
+	virtual bool OnCreate() override {
+
+		return true;
+	}
 };

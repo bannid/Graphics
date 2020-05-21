@@ -113,9 +113,7 @@ windowWidth(width){
 	
 }
 bool BEngine::Start() {
-	if (!window) {
-		return false;
-	}
+	assert(window);
 	while (running)
 	{
 		MSG message;
@@ -134,7 +132,6 @@ bool BEngine::Start() {
 		int windowHeight = clientRect.bottom - clientRect.top;
 		ProcessKeys();
 		running = running && OnUpdate();
-		//Render(renderer);
 		HDC DeviceContext = GetDC(window);
 		Win32UpdateWindow(DeviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DeviceContext);
@@ -175,8 +172,14 @@ bool BEngine::Construct(int windowWidth,int windowHeight, int pixelDimensions) {
 				0,
 				GetModuleHandle(nullptr),
 				0);
+		if (!window) {
+			return false;
+		}
 	}
-	return true;
+	else {
+		return false;
+	}
+	return OnCreate();
 }
 BEngine::BEngine()
 {
@@ -187,10 +190,12 @@ BEngine::BEngine()
 BEngine::~BEngine()
 {
 }
-
-
+	//Getters
 	void BEngine::SetColor(color_t color) {
 		this->color = color;
+	}
+	int BEngine::GetPixelDimension() {
+		return this->pixelDimension;
 	}
 	int BEngine::GetScreenHeight() {
 		return this->screenInfo.bitmapHeight;
@@ -213,6 +218,7 @@ BEngine::~BEngine()
 	unsigned int BEngine::GetClearColorRGBPacked() {
 		return this->RGBPackedClearColor;
 	}
+	//Setters
 	void BEngine::SetColor(int rgb) {
 		this->RGBPackedColor = rgb;
 		int red = rgb >> 16 & 0xFF;
@@ -237,7 +243,7 @@ BEngine::~BEngine()
 		this->clearColor.blue = blue;
 		this->clearColor.green = green;
 	}
-	void BEngine::SetPixelInternal(int x, int y) {
+	void BEngine::SetPixelInternal(int x, int y, color_t color) {
 		if (x < 0 || x >= this->screenInfo.bitmapWidth || y < 0 || y >= this->screenInfo.bitmapHeight) {
 			return;
 		}
@@ -245,12 +251,19 @@ BEngine::~BEngine()
 		unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 		unsigned int toPlus = x + this->screenInfo.bitmapWidth * y;
 		pixel += toPlus;
-		*pixel = (((this->color.red << 8) | this->color.green) << 8) | this->color.blue;
+		*pixel = (((color.red << 8) | color.green) << 8) | color.blue;
 	}
 	void BEngine::SetPixel(int x, int y) {
 		for (int i = x; i < x + this->pixelDimension; i++) {
 			for (int k = y; k < y + this->pixelDimension; k++) {
-				SetPixelInternal(i, k);
+				SetPixelInternal(i, k,this->color);
+			}
+		}
+	}
+	void BEngine::SetPixel(int x, int y, color_t color) {
+		for (int i = x; i < x + this->pixelDimension; i++) {
+			for (int k = y; k < y + this->pixelDimension; k++) {
+				SetPixelInternal(i, k, color);
 			}
 		}
 	}
@@ -269,6 +282,9 @@ BEngine::~BEngine()
 			int y1 = std::sin(t * tau) * radius;
 			SetPixel(x + x1, y + y1);
 		}
+	}
+	void BEngine::DrawCircle(NSMath2d::Vec2 & point, int radius) {
+		DrawCircle(point.x, point.y, radius);
 	}
 	void BEngine::FillCircle(int x, int y, int radius) {
 		int x1 = x - radius;
@@ -326,6 +342,15 @@ BEngine::~BEngine()
 			}
 		}
 	}
+	void BEngine::DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2) {
+		auto currentPoint = p1;
+		for (float t = 0; t < 1; t += 0.01) {
+			NSMath2d::Vec2 temp2(0, 0);
+			temp2 = QuadraticBezierCurve(p1, cp, p2,t);
+			DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y);
+			currentPoint = temp2;
+		}
+	}
 	NSMath2d::Vec2 BEngine::QuadraticBezierCurve(NSMath2d::Vec2 p1,
 		NSMath2d::Vec2 cp,
 		NSMath2d::Vec2 p2,
@@ -337,7 +362,9 @@ BEngine::~BEngine()
 	}
 	//Helper function to draw Bezier Curve.  Given three points, we get two points back
 	//in respect the value of t
-	std::vector<NSMath2d::Vec2> BEngine::GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t) {
+	std::vector<NSMath2d::Vec2> BEngine::GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1,
+		NSMath2d::Vec2 p2,
+		NSMath2d::Vec2 p3, float t) {
 		std::vector<NSMath2d::Vec2> toReturn;
 		//Get first vector
 		NSMath2d::Vec2 vectorFromP1ToP2 = p2 - p1;
@@ -406,7 +433,52 @@ BEngine::~BEngine()
 			}
 		}
 		GetCursorPos(&this->mouseInfo);
+		ScreenToClient(this->window, &this->mouseInfo);
 	}
+	bool BEngine::LoadTexturePNG(const char * fileName,
+		TEXID & id,
+		bool loadAlpha = true) {
+		Texture tex;
+		if (!loadAlpha) {
+			bool success = lodepng_decode24_file(&tex.data,
+				&tex.width,
+				&tex.height,
+				fileName) == 0;
+			tex.bytesPerPixel = 3;
+			tex.id = id = textures.size();
+			if (success) {
+				textures.push_back(tex);
+			}
+			return success;
+		}
+		else {
+			bool success = lodepng_decode32_file(&tex.data,
+				&tex.width,
+				&tex.height,
+				fileName) == 0;
+			tex.bytesPerPixel = 4;
+			tex.id = id = textures.size() + 1;
+			if (success) {
+				textures.push_back(tex);
+			}
+			return success;
+		}
+	}
+	color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {
+		assert(normalizedX >= 0 && normalizedX <= 1 && normalizedY >= 0 && normalizedY <= 1);
+		assert(textureID > 0 && textureID <= textures.size());
+		Texture * texture = &textures[textureID - 1];
+		color_t color;
+		int mappedX = normalizedX * (texture->width - 1);
+		int mappedY = normalizedY * (texture->height - 1);
+		unsigned int index = (mappedY * texture->width * texture->bytesPerPixel) + mappedX * texture->bytesPerPixel;
+		unsigned char * data = &texture->data[index];
+		color.red = (unsigned int)(*data);
+		color.green = (unsigned int)(*(data + 1));
+		color.blue = (unsigned int)(*(data + 2));
+		return color;
+	}
+
 	NSInput::Key BEngine::GetKey(unsigned int key) {
 		assert(key > 0 && key < 0xFF);
 		return this->keys[key];

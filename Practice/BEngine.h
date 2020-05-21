@@ -2,6 +2,16 @@
 #include <Windows.h>
 #include <vector>
 #include "Common.h"
+#include "lodepng.h"
+#define TEXID int
+
+struct Texture {
+	unsigned char * data;
+	unsigned int width;
+	unsigned int height;
+	unsigned int bytesPerPixel;
+	TEXID id;
+};
 class BEngine
 {
 public:
@@ -21,9 +31,12 @@ public:
 	bool Construct(int,int,int);
 	bool Construct();
 	bool Start();
+	//Virtuals
 	virtual bool OnUpdate() = 0;
+	virtual bool OnCreate() = 0;
 public:
 	bool running;
+	POINT mouseInfo;
 private:
 	//Window construction
 	LPCWSTR windowName;
@@ -41,6 +54,7 @@ public:
 	//Getters
 	int GetScreenWidth();
 	int GetScreenHeight();
+	int GetPixelDimension();
 	NSInput::Key GetKey(unsigned int);
 	color_t GetColor();
 	color_t GetClearColor();
@@ -49,13 +63,19 @@ public:
 	POINT GetMouseInfo();
 	float Lerp(float, float, float);
 	NSMath2d::Vec2 Lerp(NSMath2d::Vec2, NSMath2d::Vec2, float);
+	//Assets
+	bool LoadTexturePNG(const char *, TEXID&,bool);
+	color_t GetColorFromTexture(float, float, TEXID);
 	//Drawing routines
 	void DrawLine(int, int, int, int);
+	void DrawBezierCurve(NSMath2d::Vec2,NSMath2d::Vec2,NSMath2d::Vec2);
 	void DrawCircle(int, int, int);
+	void DrawCircle(NSMath2d::Vec2 &, int);
 	void DrawRectangle(int, int, int, int);
 	void FillRectangle(int,int,int,int);
 	void FillCircle(int,int,int);
 	void SetPixel(int, int);
+	void SetPixel(int, int, color_t);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2, NSMath2d::Vec2, NSMath2d::Vec2, float);
 	void BezierCurveRecursive(std::vector<NSMath2d::Vec2>, float, NSMath2d::Vec2&);
 	void ClearScreen();
@@ -63,7 +83,7 @@ public:
 	void ProcessKeys();
 private:
 	//Private functions
-	void SetPixelInternal(int x, int y);
+	void SetPixelInternal(int x, int y, color_t);
 	std::vector<NSMath2d::Vec2>GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t);
 private:
 	color_t color;
@@ -72,7 +92,7 @@ private:
 	unsigned int RGBPackedClearColor;
 	NSInput::Key keys[0xFF];
 	int pixelDimension;
-	POINT mouseInfo;
+	std::vector<Texture> textures;
 };
 
 

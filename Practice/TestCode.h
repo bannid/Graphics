@@ -15,6 +15,13 @@ class Test : public BEngine {
 		}
 		ClearScreen();
 	}
+	void TestCodeForTextureLoading() {
+		bool textureLoaded = LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\SpaceImage.png",
+			space,true);
+		if (textureLoaded) {
+			OutputDebugString(L"Texture loaded");
+		}
+	}
 	void TestDrawCircle() {
 		SetClearColor(NSColors::BLACK);
 		SetColor(NSColors::YELLOW);
@@ -43,8 +50,8 @@ class Test : public BEngine {
 		SetClearColor(NSColors::BLACK);
 		ClearScreen();
 		SetColor(NSColors::WHITE);
-		float screenHeight = GetScreenHeight();
-		float screenWidth = GetScreenWidth();
+		int screenHeight = GetScreenHeight();
+		int screenWidth = GetScreenWidth();
 		std::vector<NSMath2d::Vec2> temp = {
 				{0,screenHeight / 2},
 				{0,0},
@@ -66,8 +73,26 @@ class Test : public BEngine {
 		ClearScreen();
 		DrawLine(0, 0, mouseCoords.x, mouseCoords.y - 31);
 	}
+	void TestCodeForGettingColorFromTexture() {
+		int pixelDimensions = GetPixelDimension();
+		for (int x = 0; x < GetScreenWidth(); x+= pixelDimensions) {
+			for (int y = 0; y < GetScreenHeight(); y+=pixelDimensions) {
+				float normalizedX =(float) x / GetScreenWidth();
+				float normalizedY = (float)y / GetScreenHeight();
+				
+				color_t color = GetColorFromTexture(normalizedX, normalizedY, space);
+				SetPixel(x, y, color);
+			}
+		}
+	}
 	virtual bool OnUpdate() override {
-		TestDrawCircle();
+		TestCodeForGettingColorFromTexture();
 		return true;
 	}
+	virtual bool OnCreate() override {
+		TestCodeForTextureLoading();
+		return true;
+	}
+private:
+	TEXID space;
 };
