@@ -151,10 +151,12 @@
   <ItemGroup>
     <ClInclude Include="BEngine.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="DrawBezierCurves.h" />
     <ClInclude Include="DrawLines.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="TestCode.h" />
+    <ClInclude Include="Timing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp" />

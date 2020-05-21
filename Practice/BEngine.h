@@ -2,8 +2,10 @@
 #include <Windows.h>
 #include <vector>
 #include <chrono>
-
+#include <assert.h>
+#include <cmath>
 #include "Common.h"
+#include "Debug.h"
 #include "lodepng.h"
 #define TEXID int
 
@@ -97,6 +99,8 @@ private:
 	NSInput::Key keys[0xFF];
 	int pixelDimension;
 	std::vector<Texture> textures;
+	//Debug
+	std::map<std::string, std::vector<int>> timingData;
 };
 
 

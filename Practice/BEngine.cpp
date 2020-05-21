@@ -1,7 +1,4 @@
-#include <assert.h>
-#include <cmath>
 #include "BEngine.h"
-
 static BEngine * static_enginePtr = nullptr;
 static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 	UINT message,
@@ -199,6 +196,7 @@ BEngine::BEngine()
 
 BEngine::~BEngine()
 {
+	//TODO: Write the timing data to ouptut file
 }
 	//Getters
 	void BEngine::SetColor(color_t color) {
@@ -278,6 +276,7 @@ BEngine::~BEngine()
 		}
 	}
 	void BEngine::ClearScreen() {
+		TIMED_DATA;
 		unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 		unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 		for (unsigned int i = 0; i < memorySize; i++) {

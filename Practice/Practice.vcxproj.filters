@@ -19,6 +19,15 @@
     <Filter Include="3rdParty">
       <UniqueIdentifier>{f4babb72-ed9d-48cc-937e-43ea99a0269e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{e8abe811-b99a-422b-9817-cf544d6b2724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Testing">
+      <UniqueIdentifier>{35588aed-cf5c-4740-92eb-439f7f30b0ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timings">
+      <UniqueIdentifier>{e2bd9e8f-93ac-4fb0-9a64-b9a5b13aae8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -26,9 +35,6 @@
     </ClInclude>
     <ClInclude Include="BEngine.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TestCode.h">
-      <Filter>Examples</Filter>
     </ClInclude>
     <ClInclude Include="DrawLines.h">
       <Filter>Examples</Filter>
@@ -38,6 +44,15 @@
     </ClInclude>
     <ClInclude Include="DrawBezierCurves.h">
       <Filter>Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCode.h">
+      <Filter>Testing</Filter>
+    </ClInclude>
+    <ClInclude Include="Timing.h">
+      <Filter>Timings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
