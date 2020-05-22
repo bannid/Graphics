@@ -33,7 +33,7 @@ public:
 	void Win32UpdateWindow(HDC, RECT*, int, int, int, int);
 	void Win32ResizeDIBSection(int, int);
 	bool Construct(int,int,int);
-	bool Construct();
+	bool Construct(int);
 	bool Start();
 	//Virtuals
 	virtual bool OnUpdate(float) = 0;

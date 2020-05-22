@@ -139,9 +139,9 @@ bool BEngine::Start() {
 		MILISECONDS_TO_SEC(elapsedTime);
 		running = running && OnUpdate(elapsedTime);
 		this->uct1 = this->uct2;
-		HDC DeviceContext = GetDC(window);
-		Win32UpdateWindow(DeviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
-		ReleaseDC(window, DeviceContext);
+		HDC DC = GetDC(window);
+		Win32UpdateWindow(DC, &clientRect, 0, 0, windowWidth, windowHeight);
+		ReleaseDC(window, DC);
 		//Lock the frame rate
 		this->fct2 = std::chrono::steady_clock::now();
 		float durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
@@ -153,25 +153,18 @@ bool BEngine::Start() {
 	}
 	return true;
 }
-bool BEngine::Construct() {
+bool BEngine::Construct(int pixelDimensions) {
 	//This will cover the whole screen with our window.
-	return this->Construct(0, 0, 1);
+	GetDesktopResolution(this->windowWidth, this->windowHeight);
+	return this->Construct(this->windowWidth, this->windowHeight, pixelDimensions);
 }
 bool BEngine::Construct(int windowWidth,int windowHeight, int pixelDimensions) {
-	timeBeginPeriod(1);
 	pixelDimension = pixelDimensions;
 	running = true;
 	static_enginePtr = this;
 	windowClass.lpfnWndProc = static_Win32MainWindowCallback;
 	windowClass.hInstance = GetModuleHandle(nullptr);
 	windowClass.lpszClassName = L"ConsoleClass";
-	if (windowHeight == 0 || windowWidth == 0) {
-		GetDesktopResolution(this->windowWidth, this->windowHeight);
-	}
-	else {
-		this->windowHeight = windowHeight;
-		this->windowWidth = windowWidth;
-	}
 	if (RegisterClass(&windowClass))
 	{
 		window =
