@@ -8,7 +8,7 @@
 #include "Debug.h"
 #include "lodepng.h"
 #define TEXID int
-
+#define MILISECONDS_TO_SEC(VAL) VAL /= 1000.0f
 struct Texture {
 	unsigned char * data;
 	unsigned int width;
@@ -93,8 +93,12 @@ private:
 	void SetPixelInternal(int x, int y, color_t);
 	std::vector<NSMath2d::Vec2>GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t);
 private:
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	//Timers to control frame rate
+	std::chrono::steady_clock::time_point fct1;
+	std::chrono::steady_clock::time_point fct2;
+	//Timers to calculate elapsed time for OnUpdate
+	std::chrono::steady_clock::time_point uct1;
+	std::chrono::steady_clock::time_point uct2;
 	color_t color;
 	color_t clearColor;
 	unsigned int RGBPackedColor;

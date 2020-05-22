@@ -21,6 +21,8 @@ class BezierCurves : public BEngine {
 		return true;
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
+		std::string s(std::to_string(elapsedTime));
+		SetWindowTextA(window, s.c_str());
 		ClearScreen();
 		for (auto b = bezierCurves.begin(); b != bezierCurves.end(); b++) {
 			DrawBezierCurve(b->p1, b->cp, b->p2);

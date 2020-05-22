@@ -112,6 +112,10 @@ windowWidth(width){
 }
 bool BEngine::Start() {
 	assert(window);
+	this->fct1 = std::chrono::steady_clock::now();
+	this->fct2 = std::chrono::steady_clock::now();
+	this->uct1 = std::chrono::steady_clock::now();
+	this->uct2 = std::chrono::steady_clock::now();
 	while (running)
 	{
 		TIMED_DATA;
@@ -130,26 +134,22 @@ bool BEngine::Start() {
 		int windowWidth = clientRect.right - clientRect.left;
 		int windowHeight = clientRect.bottom - clientRect.top;
 		ProcessKeys();
-		
-		/*float frameRate = 1000.0f / elapsedTime;
-		char msg[200];
-		sprintf_s(msg, "Frame rate %f", frameRate);
-		SetWindowTextA(
-			window,
-			msg
-		);*/
-		running = running && OnUpdate(0.0f);
+		this->uct2 = std::chrono::steady_clock::now();
+		float elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(uct2 - uct1).count();
+		MILISECONDS_TO_SEC(elapsedTime);
+		running = running && OnUpdate(elapsedTime);
+		this->uct1 = this->uct2;
 		HDC DeviceContext = GetDC(window);
 		Win32UpdateWindow(DeviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DeviceContext);
 		//Lock the frame rate
-		this->end = std::chrono::steady_clock::now();
-		float elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-		while (elapsedTime < 16) {
-			this->end = std::chrono::steady_clock::now();
-			elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+		this->fct2 = std::chrono::steady_clock::now();
+		float durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
+		while (durationSinceLastFrame < 16) {
+			this->fct2 = std::chrono::steady_clock::now();
+			durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
 		}
-		this->begin = this->end;
+		this->fct1 = this->fct2;
 	}
 	return true;
 }
