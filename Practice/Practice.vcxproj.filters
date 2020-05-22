@@ -65,5 +65,8 @@
     <ClCompile Include="Platform.cpp">
       <Filter>3rdParty</Filter>
     </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

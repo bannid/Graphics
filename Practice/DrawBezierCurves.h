@@ -24,10 +24,10 @@ class BezierCurves : public BEngine {
 		ClearScreen();
 		for (auto b = bezierCurves.begin(); b != bezierCurves.end(); b++) {
 			DrawBezierCurve(b->p1, b->cp, b->p2);
-			DrawCircle(b->p1, 10);
-			DrawCircle(b->p2, 10);
-			DrawCircle(b->cp, 10);
-			DrawCircle(mouseInfo.x, mouseInfo.y, 5);
+			FillCircle(b->p1, 10);
+			FillCircle(b->p2, 10);
+			FillCircle(b->cp, 10);
+			FillCircle(mouseInfo.x, mouseInfo.y, 5);
 			if (GetKey(VK_LBUTTON).keyDown &&
 				selector == nullptr) {
 				NSMath2d::Vec2 coords = { mouseInfo.x,mouseInfo.y };

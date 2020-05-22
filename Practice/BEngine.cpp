@@ -20,6 +20,7 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 	}break;
 	case WM_CLOSE:
 	{
+		static_enginePtr->WriteTimingOutput();
 		static_enginePtr->running = false;
 	} break;
 
@@ -30,7 +31,7 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 
 	case WM_DESTROY:
 	{
-		static_enginePtr = false;
+		static_enginePtr->running = false;
 	} break;
 
 	case WM_PAINT:
@@ -113,6 +114,7 @@ bool BEngine::Start() {
 	assert(window);
 	while (running)
 	{
+		TIMED_DATA;
 		MSG message;
 		while (PeekMessage(&message, 0, 0, 0, PM_REMOVE))
 		{
@@ -128,20 +130,26 @@ bool BEngine::Start() {
 		int windowWidth = clientRect.right - clientRect.left;
 		int windowHeight = clientRect.bottom - clientRect.top;
 		ProcessKeys();
-		this->end = std::chrono::steady_clock::now();
-		float elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-		float frameRate = 1000.0f / elapsedTime;
+		
+		/*float frameRate = 1000.0f / elapsedTime;
 		char msg[200];
-		sprintf_s(msg,"Frame rate %f", frameRate);
+		sprintf_s(msg, "Frame rate %f", frameRate);
 		SetWindowTextA(
 			window,
 			msg
-		);
-		running = running && OnUpdate(elapsedTime);
-		this->begin = std::chrono::steady_clock::now();
+		);*/
+		running = running && OnUpdate(0.0f);
 		HDC DeviceContext = GetDC(window);
 		Win32UpdateWindow(DeviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DeviceContext);
+		//Lock the frame rate
+		this->end = std::chrono::steady_clock::now();
+		float elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+		while (elapsedTime < 16) {
+			this->end = std::chrono::steady_clock::now();
+			elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+		}
+		this->begin = this->end;
 	}
 	return true;
 }
@@ -150,6 +158,7 @@ bool BEngine::Construct() {
 	return this->Construct(0, 0, 1);
 }
 bool BEngine::Construct(int windowWidth,int windowHeight, int pixelDimensions) {
+	timeBeginPeriod(1);
 	pixelDimension = pixelDimensions;
 	running = true;
 	static_enginePtr = this;
@@ -196,7 +205,7 @@ BEngine::BEngine()
 
 BEngine::~BEngine()
 {
-	//TODO: Write the timing data to ouptut file
+	
 }
 	//Getters
 	void BEngine::SetColor(color_t color) {
@@ -276,7 +285,6 @@ BEngine::~BEngine()
 		}
 	}
 	void BEngine::ClearScreen() {
-		TIMED_DATA;
 		unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 		unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 		for (unsigned int i = 0; i < memorySize; i++) {
@@ -294,6 +302,9 @@ BEngine::~BEngine()
 	}
 	void BEngine::DrawCircle(NSMath2d::Vec2 & point, int radius) {
 		DrawCircle(point.x, point.y, radius);
+	}
+	void BEngine::FillCircle(const NSMath2d::Vec2 & point, int radius) {
+		this->FillCircle(point.x, point.y, radius);
 	}
 	void BEngine::FillCircle(int x, int y, int radius) {
 		int x1 = x - radius;
@@ -353,7 +364,7 @@ BEngine::~BEngine()
 	}
 	void BEngine::DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2) {
 		auto currentPoint = p1;
-		for (float t = 0; t < 1; t += 0.01) {
+		for (float t = 0; t <= 1.05; t += 0.05) {
 			NSMath2d::Vec2 temp2(0, 0);
 			temp2 = QuadraticBezierCurve(p1, cp, p2,t);
 			DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y);
@@ -424,6 +435,10 @@ BEngine::~BEngine()
 		return a + vectorFromAToBScaled;
 	}
 	void BEngine::ProcessKeys() {
+		//Note: This function sometimes can take upto 5ms even in release mode,
+		//and may lead to drop in frame rate.  Maybe we should
+		//only cater for less keys or run this function in a 
+		//completely different thread.
 		for (int key = 0; key < 0xff; key++) {
 			if (!this->keys[key].keyDown) {
 				this->keys[key].keyDown = 0x1 & (GetAsyncKeyState(key) >> 15);
@@ -491,4 +506,7 @@ BEngine::~BEngine()
 	NSInput::Key BEngine::GetKey(unsigned int key) {
 		assert(key > 0 && key < 0xFF);
 		return this->keys[key];
+	}
+	void BEngine::WriteTimingOutput() {
+		NSDebug::WriteTimingDataOut(&this->timingData);
 	}

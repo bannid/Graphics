@@ -78,6 +78,7 @@ public:
 	void DrawRectangle(int, int, int, int);
 	void FillRectangle(int,int,int,int);
 	void FillCircle(int,int,int);
+	void FillCircle(const NSMath2d::Vec2 &, int);
 	void SetPixel(int, int);
 	void SetPixel(int, int, color_t);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2, NSMath2d::Vec2, NSMath2d::Vec2, float);
@@ -85,6 +86,8 @@ public:
 	void ClearScreen();
 	//Input
 	void ProcessKeys();
+	//Debug
+	void WriteTimingOutput();
 private:
 	//Private functions
 	void SetPixelInternal(int x, int y, color_t);
