@@ -12,15 +12,24 @@ struct color_t {
 	int red;
 	int green;
 	int blue;
+	int alpha;
 	color_t() {
 		this->red = 0;
 		this->green = 0; 
 		this->blue = 0;
+		this->alpha = 0xFF;
 	}
 	color_t(int red,int green, int blue) {
 		this->green = green;
 		this->blue = blue;
 		this->red = red;
+		this->alpha = 0xFF;
+	}
+	color_t(int red, int green, int blue, int alpha) {
+		this->green = green;
+		this->blue = blue;
+		this->red = red;
+		this->alpha = alpha;
 	}
 };
 namespace NSInput {

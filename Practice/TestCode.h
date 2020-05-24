@@ -73,7 +73,7 @@ class Test : public BEngine {
 		}
 	}
 	void TestCodeForDrawingSprite() {
-		color_t black = { 0,0,0 };
+		color_t black = { 255,255,255 };
 		ClearScreen(black);
 		int velocity = 3;
 		DrawSprite(*spaceShip);

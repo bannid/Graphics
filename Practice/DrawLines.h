@@ -5,7 +5,7 @@
 class DrawLines : public BEngine {
 	std::vector<NSMath2d::Vec2> points;
 	color_t black = { 0,0,0 };
-	color_t white = { 255,255,255 };
+	color_t white = { 255,255,255,125 };
 	virtual bool OnUpdate(float elapsedTime) override{
 		ClearScreen(black);
 		auto mouseInfo = GetMouseInfo();
@@ -15,7 +15,7 @@ class DrawLines : public BEngine {
 		}
 		int pointsSize = points.size();
 		for (int i = 0; i < pointsSize - 1; i++) {
-			DrawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y,white);
+			DrawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, white);
 		}
 		if (pointsSize > 0) {
 			DrawLine(points[pointsSize - 1].x, points[pointsSize - 1].y,

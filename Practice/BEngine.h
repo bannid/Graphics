@@ -31,6 +31,7 @@ struct Sprite {
 	Sprite(Texture *, NSMath2d::Vec2 pos, int height, int width, float scale);
 	void ScaleSprite(float newScaleValue);
 };
+enum MODE {ALPHA, NORMAL};
 class BEngine
 {
 public:
@@ -84,18 +85,27 @@ public:
 	Texture * GetTexture(TEXID tId);
 	//Drawing routines
 	void DrawLine(int x1, int y1, int x2, int y2, color_t & color);
+	void DrawLine(int x1, int y1, int x2, int y2, int color);
 	void DrawCircle(int x, int y, int radius, color_t & color);
+	void DrawCircle(int x, int y, int radius, int colorPacked);
 	void DrawCircle(NSMath2d::Vec2 & pos, int radius, color_t & color);
+	void DrawCircle(NSMath2d::Vec2 & pos, int radius, int colorPacked);
 	void FillCircle(int x, int y, int radius, color_t & color);
 	void FillCircle(const NSMath2d::Vec2 & pos, int radius, color_t & color);
+	void FillCircle(int x, int y, int radius, int colorPacked);
+	void FillCircle(const NSMath2d::Vec2 & pos, int radius, int colorPacked);
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
+	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
+	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	void DrawSprite(Sprite & sprite);
 	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);
 	void BezierCurveRecursive(std::vector<NSMath2d::Vec2> points, float t, NSMath2d::Vec2 & ouput);
 	void ClearScreen(color_t & color);
 	void SetPixel(int x, int y, color_t & color);
+	//Helper functions
+	color_t IntToColor(int color);
 	//Input
 	void ProcessKeys();
 	//Debug
@@ -115,6 +125,7 @@ private:
 	int pixelDimension;
 	std::vector<Texture> textures;
 	GLuint blitTextureHandle;
+	MODE blendMode = ALPHA;
 };
 
 
