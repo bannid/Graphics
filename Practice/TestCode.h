@@ -3,18 +3,6 @@
 #include "Debug.h"
 //Extend the BEngine class
 class Test : public BEngine {
-	void TestCodeForKeys() {
-		NSInput::Key keyA = GetKey(VK_LBUTTON);
-		if (keyA.keyReleased) {
-			if (GetClearColorRGBPacked() == NSColors::YELLOW) {
-				SetClearColor(NSColors::WHITE);
-			}
-			else {
-				SetClearColor(NSColors::YELLOW);
-			}
-		}
-		ClearScreen();
-	}
 	void TestCodeForTextureLoading() {
 		bool textureLoaded = LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\SpaceShip.png",
 			space,true);
@@ -23,33 +11,31 @@ class Test : public BEngine {
 		}
 	}
 	void TestDrawCircle() {
-		SetClearColor(NSColors::BLACK);
-		SetColor(NSColors::YELLOW);
-		//DrawCircle(GetScreenWidth()/2, GetScreenHeight()/2, 70);
-		FillCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 50);
+		color_t c = { 255,255,255 };
+		FillCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 50, c);
 	}
 	void TestDrawRectangle() {
-		SetClearColor(NSColors::BLACK);
-		SetColor(NSColors::YELLOW);
+		
 		int x = GetScreenWidth()/2;
 		int y = GetScreenHeight()/2;
-		DrawRectangle(x,y,x+100,y+100);
+		color_t c = { 255,255,255 };
+		DrawRectangle(x,y,x+100,y+100,c);
 	}
 	void TestCodeForLerp() {
 		NSMath2d::Vec2 point1 = { 0,500 };
 		NSMath2d::Vec2 point2 = { 500,500 };
 		for (float t = 0; t < 1; t += 0.001) {
 			auto temp = Lerp(point1, point2, t);
-			SetColor(NSColors::YELLOW);
-			SetPixel(temp.x, temp.y);
+			color_t c = { 255,255,255 };
+			SetPixel(temp.x, temp.y,c);
 		}
-		SetColor(NSColors::RED);
-		DrawLine(0, 500, 500, 500);
+		color_t r = { 255,0,0 };
+		DrawLine(0, 500, 500, 500,r);
 	}
 	void TestCodeForBezierCurveRecursive() {
-		SetClearColor(NSColors::BLACK);
-		ClearScreen();
-		SetColor(NSColors::WHITE);
+		color_t b = { 0,0,0 };
+		color_t white = { 255,255,255 };
+		ClearScreen(b);
 		int screenHeight = GetScreenHeight();
 		int screenWidth = GetScreenWidth();
 		std::vector<NSMath2d::Vec2> temp = {
@@ -62,16 +48,16 @@ class Test : public BEngine {
 		for (float t = 0; t < 1; t += 0.01) {
 			NSMath2d::Vec2 temp2(0, 0);
 			BezierCurveRecursive(temp, t, temp2);
-			DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y);
+			DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y, white);
 			currentPoint = temp2;
 		}
 	}
 	void TestCodeForMousePos() {
-		SetColor(NSColors::WHITE);
-		SetClearColor(NSColors::BLACK);
+		color_t black = { 0,0,0 };
+		color_t white = { 255,255,255 };
 		auto mouseCoords = GetMouseInfo();
-		ClearScreen();
-		DrawLine(0, 0, mouseCoords.x, mouseCoords.y - 31);
+		ClearScreen(black);
+		DrawLine(0, 0, mouseCoords.x, mouseCoords.y - 31, white);
 	}
 	void TestCodeForGettingColorFromTexture() {
 		int pixelDimensions = GetPixelDimension();
@@ -87,7 +73,8 @@ class Test : public BEngine {
 		}
 	}
 	void TestCodeForDrawingSprite() {
-		ClearScreen();
+		color_t black = { 0,0,0 };
+		ClearScreen(black);
 		int velocity = 3;
 		DrawSprite(*spaceShip);
 		if (GetKey(VK_RIGHT).keyHeld) {

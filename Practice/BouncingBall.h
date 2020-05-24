@@ -5,12 +5,12 @@
 
 class BouncingBall : public BEngine {
 	NSMath2d::Vec2 pos;
+	color_t black = { 0,0,0 };
+	color_t ballColor = { 0,255,0 };
 	int radius;
 	NSMath2d::Vec2 velocity;
 	float angle = 0;
 	virtual bool OnCreate() {
-		SetClearColor(NSColors::BLACK);
-		SetColor(NSColors::BLUE);
 		pos.x = GetScreenWidth() / 2;
 		pos.y = GetScreenHeight() / 2;
 		velocity.x = 200.0f;
@@ -21,8 +21,8 @@ class BouncingBall : public BEngine {
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen();
-		FillCircle(pos.x, pos.y, radius);
+		ClearScreen(black);
+		FillCircle(pos.x, pos.y, radius, ballColor);
 		NSMath2d::Vec2 velocityScaled = velocity * elapsedTime;
 		pos.Add(velocityScaled);
 		angle += 0.1;

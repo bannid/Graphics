@@ -69,42 +69,33 @@ private:
 
 	//Rendering
 public:
-	//Setters
-	void SetClearColor(color_t);
-	void SetClearColor(int);
-	void SetColor(color_t);
-	void SetColor(int);
 	//Getters
 	int GetScreenWidth();
 	int GetScreenHeight();
 	int GetPixelDimension();
-	NSInput::Key GetKey(unsigned int);
-	color_t GetColor();
-	color_t GetClearColor();
-	unsigned int GetColorRGBPacked();
-	unsigned int GetClearColorRGBPacked();
+	//Returns the state of the key - key -> 0 to 0xff
+	NSInput::Key GetKey(unsigned int key);
 	POINT GetMouseInfo();
 	float Lerp(float, float, float);
-	NSMath2d::Vec2 Lerp(NSMath2d::Vec2, NSMath2d::Vec2, float);
+	NSMath2d::Vec2 Lerp(NSMath2d::Vec2 pointOne, NSMath2d::Vec2 pointTwo, float t);
 	//Assets
-	bool LoadTexturePNG(const char *, TEXID&, bool);
-	color_t GetColorFromTexture(float, float, TEXID);
+	bool LoadTexturePNG(const char * fileName, TEXID& idOutput, bool loadAlpha);
+	color_t GetColorFromTexture(float xNormalized, float yNormalized, TEXID textureId);
 	Texture * GetTexture(TEXID tId);
 	//Drawing routines
-	void DrawLine(int x1, int y1, int x2, int y2);
-	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2);
-	void DrawCircle(int x, int y, int radius);
-	void DrawCircle(NSMath2d::Vec2 & pos, int radius);
-	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom);
-	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom);
-	void FillCircle(int x, int y, int radius);
-	void FillCircle(const NSMath2d::Vec2 & pos, int radius);
+	void DrawLine(int x1, int y1, int x2, int y2, color_t & color);
+	void DrawCircle(int x, int y, int radius, color_t & color);
+	void DrawCircle(NSMath2d::Vec2 & pos, int radius, color_t & color);
+	void FillCircle(int x, int y, int radius, color_t & color);
+	void FillCircle(const NSMath2d::Vec2 & pos, int radius, color_t & color);
+	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
+	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
 	void DrawSprite(Sprite & sprite);
-	void SetPixel(int x, int y);
-	void SetPixel(int x, int y, color_t & color);
+	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);
 	void BezierCurveRecursive(std::vector<NSMath2d::Vec2> points, float t, NSMath2d::Vec2 & ouput);
-	void ClearScreen();
+	void ClearScreen(color_t & color);
+	void SetPixel(int x, int y, color_t & color);
 	//Input
 	void ProcessKeys();
 	//Debug
@@ -120,10 +111,6 @@ private:
 	//Timers to calculate elapsed time for OnUpdate
 	std::chrono::steady_clock::time_point uct1;
 	std::chrono::steady_clock::time_point uct2;
-	color_t color;
-	color_t clearColor;
-	unsigned int RGBPackedColor;
-	unsigned int RGBPackedClearColor;
 	NSInput::Key keys[0xFF];
 	int pixelDimension;
 	std::vector<Texture> textures;

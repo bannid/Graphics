@@ -297,9 +297,6 @@ BEngine::~BEngine()
 	
 }
 	//Getters
-	void BEngine::SetColor(color_t color) {
-		this->color = color;
-	}
 	int BEngine::GetPixelDimension() {
 		return this->pixelDimension;
 	}
@@ -309,45 +306,11 @@ BEngine::~BEngine()
 	int BEngine::GetScreenWidth() {
 		return this->screenInfo.bitmapWidth;
 	}
-	color_t BEngine::GetClearColor() {
-		return this->clearColor;
-	}
-	color_t BEngine::GetColor() {
-		return this->color;
-	}
 	POINT BEngine::GetMouseInfo() {
 		return this->mouseInfo;
 	}
-	unsigned int BEngine::GetColorRGBPacked() {
-		return this->RGBPackedColor;
-	}
-	unsigned int BEngine::GetClearColorRGBPacked() {
-		return this->RGBPackedClearColor;
-	}
-	//Setters
-	void BEngine::SetColor(int rgb) {
-		this->RGBPackedColor = rgb;
-		int red = rgb >> 16 & 0xFF;
-		int green = rgb >> 8 & 0xFF;
-		int blue = rgb & 0xFF;
-		this->color.red = red;
-		this->color.blue = blue;
-		this->color.green = green;
-	}
-	void BEngine::SetClearColor(color_t color) {
-		this->clearColor = color;
-	}
 	float BEngine::Lerp(float a, float b, float t) {
 		return ((1 - t) * a) + (t * b);
-	}
-	void BEngine::SetClearColor(int rgb) {
-		this->RGBPackedClearColor = rgb;
-		int red = rgb >> 16 & 0xFF;
-		int green = rgb >> 8 & 0xFF;
-		int blue = rgb & 0xFF;
-		this->clearColor.red = red;
-		this->clearColor.blue = blue;
-		this->clearColor.green = green;
 	}
 	void BEngine::SetPixelInternal(int x, int y, color_t & color) {
 		if (x < 0 || x >= this->screenInfo.bitmapWidth || y < 0 || y >= this->screenInfo.bitmapHeight) {
@@ -359,13 +322,6 @@ BEngine::~BEngine()
 		pixel += toPlus;
 		*pixel = (((color.red << 8) | color.green) << 8) | color.blue;
 	}
-	void BEngine::SetPixel(int x, int y) {
-		for (int i = x; i < x + this->pixelDimension; i++) {
-			for (int k = y; k < y + this->pixelDimension; k++) {
-				SetPixelInternal(i, k,this->color);
-			}
-		}
-	}
 	void BEngine::SetPixel(int x, int y, color_t & color) {
 		for (int i = x; i < x + this->pixelDimension; i++) {
 			for (int k = y; k < y + this->pixelDimension; k++) {
@@ -373,29 +329,29 @@ BEngine::~BEngine()
 			}
 		}
 	}
-	void BEngine::ClearScreen() {
+	void BEngine::ClearScreen(color_t & color) {
 		unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 		unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 		for (unsigned int i = 0; i < memorySize; i++) {
-			*pixel = (((this->clearColor.red << 8) | this->clearColor.green) << 8) | this->clearColor.blue;
+			*pixel = (((color.red << 8) | color.green) << 8) | color.blue;
 			pixel++;
 		}
 	}
-	void BEngine::DrawCircle(int x, int y, int radius) {
+	void BEngine::DrawCircle(int x, int y, int radius, color_t & color) {
 		float tau = 6.28318530718;
 		for (float t = 0; t < 1; t += 0.001) {
 			int x1 = std::cos(t * tau) * radius;
 			int y1 = std::sin(t * tau) * radius;
-			SetPixel(x + x1, y + y1);
+			SetPixel(x + x1, y + y1, color);
 		}
 	}
-	void BEngine::DrawCircle(NSMath2d::Vec2 & point, int radius) {
-		DrawCircle(point.x, point.y, radius);
+	void BEngine::DrawCircle(NSMath2d::Vec2 & point, int radius, color_t & color) {
+		DrawCircle(point.x, point.y, radius, color);
 	}
-	void BEngine::FillCircle(const NSMath2d::Vec2 & point, int radius) {
-		this->FillCircle(point.x, point.y, radius);
+	void BEngine::FillCircle(const NSMath2d::Vec2 & point, int radius, color_t & color) {
+		this->FillCircle(point.x, point.y, radius, color);
 	}
-	void BEngine::FillCircle(int x, int y, int radius) {
+	void BEngine::FillCircle(int x, int y, int radius, color_t & color) {
 		int x1 = x - radius;
 		int y1 = y - radius;
 		int x2 = radius + x;
@@ -405,23 +361,23 @@ BEngine::~BEngine()
 				int dx = abs(x - xi);
 				int dy = abs(y - yi);
 				if (sqrt(dx * dx + dy * dy) < radius) {
-					SetPixel(xi,yi);
+					SetPixel(xi,yi,color);
 				}
 			}
 		}
 	}
-	void BEngine::DrawRectangle(int x1, int y1, int x2, int y2) {
-		DrawLine(x1, y1, x2, y1);
-		DrawLine(x1, y1, x1, y2);
-		DrawLine(x1, y2, x2, y2);
-		DrawLine(x2, y1, x2, y2);
+	void BEngine::DrawRectangle(int x1, int y1, int x2, int y2, color_t & color) {
+		DrawLine(x1, y1, x2, y1, color);
+		DrawLine(x1, y1, x1, y2, color);
+		DrawLine(x1, y2, x2, y2, color);
+		DrawLine(x2, y1, x2, y2, color);
 	}
-	void BEngine::FillRectangle(int x1, int y1,int x2, int y2){
+	void BEngine::FillRectangle(int x1, int y1,int x2, int y2, color_t & color){
 		for (int y = y1; y < y2; y++) {
-			DrawLine(x1, y, x2, y);
+			DrawLine(x1, y, x2, y, color);
 		}
 	}
-	void BEngine::DrawLine(int x1, int y1, int x2, int y2) {
+	void BEngine::DrawLine(int x1, int y1, int x2, int y2, color_t & color) {
 		bool steep = false;
 		if (std::abs(y2 - y1) > std::abs(x2 - x1)) {
 			steep = true;
@@ -439,10 +395,10 @@ BEngine::~BEngine()
 		unsigned int y = y1;
 		for (int x = x1; x < x2; x++) {
 			if (!steep) {
-				SetPixel(x, y);
+				SetPixel(x, y,color);
 			}
 			else {
-				SetPixel(y, x);
+				SetPixel(y, x,color);
 			}
 			delta += slope;
 			if (delta > 0.5) {
@@ -451,12 +407,12 @@ BEngine::~BEngine()
 			}
 		}
 	}
-	void BEngine::DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2) {
+	void BEngine::DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color) {
 		auto currentPoint = p1;
 		for (float t = 0; t <= 1.05; t += 0.05) {
 			NSMath2d::Vec2 temp2(0, 0);
 			temp2 = QuadraticBezierCurve(p1, cp, p2,t);
-			DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y);
+			DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y, color);
 			currentPoint = temp2;
 		}
 	}

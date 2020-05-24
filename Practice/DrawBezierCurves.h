@@ -10,9 +10,9 @@ struct Bezier {
 class BezierCurves : public BEngine {
 	std::vector<Bezier> bezierCurves;
 	NSMath2d::Vec2 * selector = nullptr;
+	color_t black = { 0,0,0 };
+	color_t white = { 255,255,255 };
 	virtual bool OnCreate() override {
-		SetClearColor(NSColors::BLACK);
-		SetColor(NSColors::WHITE);
 		Bezier b;
 		b.p1 = NSMath2d::Vec2(10, GetScreenHeight() / 2);
 		b.p2 = NSMath2d::Vec2(GetScreenWidth() - 50, GetScreenHeight() / 2);
@@ -23,13 +23,13 @@ class BezierCurves : public BEngine {
 	virtual bool OnUpdate(float elapsedTime) override {
 		std::string s(std::to_string(elapsedTime));
 		SetWindowTextA(window, s.c_str());
-		ClearScreen();
+		ClearScreen(black);
 		for (auto b = bezierCurves.begin(); b != bezierCurves.end(); b++) {
-			DrawBezierCurve(b->p1, b->cp, b->p2);
-			FillCircle(b->p1, 10);
-			FillCircle(b->p2, 10);
-			FillCircle(b->cp, 10);
-			FillCircle(mouseInfo.x, mouseInfo.y, 5);
+			DrawBezierCurve(b->p1, b->cp, b->p2,white);
+			FillCircle(b->p1, 10,white);
+			FillCircle(b->p2, 10,white);
+			FillCircle(b->cp, 10,white);
+			FillCircle(mouseInfo.x, mouseInfo.y, 5,white);
 			if (GetKey(VK_LBUTTON).keyDown &&
 				selector == nullptr) {
 				NSMath2d::Vec2 coords = { mouseInfo.x,mouseInfo.y };
