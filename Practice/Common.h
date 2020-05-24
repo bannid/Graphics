@@ -45,6 +45,14 @@ namespace NSMath2d {
 		float Magnitude() {
 			return std::sqrtf(x * x + y * y);
 		}
+		void Add(Vec2 & that) {
+			this->x += that.x;
+			this->y += that.y;
+		}
+		void Subtract(Vec2 & that) {
+			this->x -= that.x;
+			this->y -= that.y;
+		}
 		float operator*(Vec2 & that) {
 			return x * that.x + y * that.y;
 		}

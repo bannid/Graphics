@@ -1,4 +1,5 @@
 #include "BEngine.h"
+
 static BEngine * static_enginePtr = nullptr;
 static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 	UINT message,
@@ -63,6 +64,7 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 
 	return(result);
 }
+
 void BEngine::GetDesktopResolution(int& horizontal, int& vertical)
 {
 	RECT desktop;
@@ -76,16 +78,105 @@ void BEngine::GetDesktopResolution(int& horizontal, int& vertical)
 	horizontal = desktop.right;
 	vertical = desktop.bottom;
 }
+void BEngine::InitOpenGl()
+{
+	HDC WindowDC = GetDC(window);
+
+	// TODO(casey): Hey Raymond Chen - what's the deal here?
+	// Is cColorBits ACTUALLY supposed to exclude the alpha bits, like MSDN says, or not?
+	PIXELFORMATDESCRIPTOR DesiredPixelFormat = {};
+	DesiredPixelFormat.nSize = sizeof(DesiredPixelFormat);
+	DesiredPixelFormat.nVersion = 1;
+	DesiredPixelFormat.iPixelType = PFD_TYPE_RGBA;
+	DesiredPixelFormat.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
+	DesiredPixelFormat.cColorBits = 32;
+	DesiredPixelFormat.cAlphaBits = 8;
+	DesiredPixelFormat.iLayerType = PFD_MAIN_PLANE;
+
+	int SuggestedPixelFormatIndex = ChoosePixelFormat(WindowDC, &DesiredPixelFormat);
+	PIXELFORMATDESCRIPTOR SuggestedPixelFormat;
+	DescribePixelFormat(WindowDC, SuggestedPixelFormatIndex,
+		sizeof(SuggestedPixelFormat), &SuggestedPixelFormat);
+	SetPixelFormat(WindowDC, SuggestedPixelFormatIndex, &SuggestedPixelFormat);
+
+	HGLRC OpenGLRC = wglCreateContext(WindowDC);
+	if (wglMakeCurrent(WindowDC, OpenGLRC))
+	{
+		glGenTextures(1, &blitTextureHandle);
+	}
+	else
+	{
+
+	}
+	ReleaseDC(window, WindowDC);
+}
 void BEngine::Win32UpdateWindow(HDC deviceContext, RECT* clientRect, int x, int y, int width, int height)
 {
 	int windowWidth = clientRect->right - clientRect->left;
 	int windowHeight = clientRect->bottom - clientRect->top;
+#if 0
 	StretchDIBits(deviceContext,
 		0, 0, screenInfo.bitmapWidth, screenInfo.bitmapHeight,
 		0, 0, windowWidth, windowHeight,
 		screenInfo.bitmapMemory,
 		&screenInfo.bitmapInfo,
 		DIB_RGB_COLORS, SRCCOPY);
+#else
+	glViewport(0, 0, windowWidth, windowHeight);
+
+	glBindTexture(GL_TEXTURE_2D, blitTextureHandle);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, screenInfo.bitmapWidth, screenInfo.bitmapHeight, 0,
+		GL_BGRA_EXT, GL_UNSIGNED_BYTE, screenInfo.bitmapMemory);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	glEnable(GL_TEXTURE_2D);
+
+	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glBegin(GL_TRIANGLES);
+
+	float P = 1.0f;
+
+	// NOTE(casey): Lower triangle
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex2f(-P, -P);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex2f(P, -P);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex2f(P, P);
+
+	// NOTE(casey): Upper triangle
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex2f(-P, -P);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex2f(P, P);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2f(-P, P);
+
+	glEnd();
+
+	SwapBuffers(deviceContext);
+#endif
 }
 void BEngine::Win32ResizeDIBSection(int Width, int Height)
 {
@@ -112,6 +203,7 @@ windowWidth(width){
 }
 bool BEngine::Start() {
 	assert(window);
+	InitOpenGl();
 	this->fct1 = std::chrono::steady_clock::now();
 	this->fct2 = std::chrono::steady_clock::now();
 	this->uct1 = std::chrono::steady_clock::now();
@@ -145,10 +237,10 @@ bool BEngine::Start() {
 		//Lock the frame rate
 		this->fct2 = std::chrono::steady_clock::now();
 		float durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
-		while (durationSinceLastFrame < 16) {
+		/*while (durationSinceLastFrame < FPS_60) {
 			this->fct2 = std::chrono::steady_clock::now();
 			durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
-		}
+		}*/
 		this->fct1 = this->fct2;
 	}
 	return true;
@@ -159,6 +251,8 @@ bool BEngine::Construct(int pixelDimensions) {
 	return this->Construct(this->windowWidth, this->windowHeight, pixelDimensions);
 }
 bool BEngine::Construct(int windowWidth,int windowHeight, int pixelDimensions) {
+	this->windowWidth = windowWidth;
+	this->windowHeight = windowHeight;
 	pixelDimension = pixelDimensions;
 	running = true;
 	static_enginePtr = this;
@@ -253,7 +347,7 @@ BEngine::~BEngine()
 		this->clearColor.blue = blue;
 		this->clearColor.green = green;
 	}
-	void BEngine::SetPixelInternal(int x, int y, color_t color) {
+	void BEngine::SetPixelInternal(int x, int y, color_t & color) {
 		if (x < 0 || x >= this->screenInfo.bitmapWidth || y < 0 || y >= this->screenInfo.bitmapHeight) {
 			return;
 		}
@@ -270,7 +364,7 @@ BEngine::~BEngine()
 			}
 		}
 	}
-	void BEngine::SetPixel(int x, int y, color_t color) {
+	void BEngine::SetPixel(int x, int y, color_t & color) {
 		for (int i = x; i < x + this->pixelDimension; i++) {
 			for (int k = y; k < y + this->pixelDimension; k++) {
 				SetPixelInternal(i, k, color);
@@ -503,3 +597,34 @@ BEngine::~BEngine()
 	void BEngine::WriteTimingOutput() {
 		NSDebug::WriteTimingDataOut(&this->timingData);
 	}
+	void BEngine::DrawSprite(Sprite & sprite) {
+		int startingX = sprite.pos.x - sprite.width / 2;
+		int startingY = sprite.pos.y - sprite.height / 2;
+		int endingX = sprite.pos.x + sprite.width / 2;
+		int endingY = sprite.pos.y + sprite.height / 2;
+		for (int x = startingX; x < endingX; x+=pixelDimension) {
+			for (int y = startingY; y < endingY; y+=pixelDimension) {
+				float normalizedX = 1.0f - ((float) (endingX - x) / sprite.width);
+				float normalizedY = 1.0f - ((float) (endingY - y) / sprite.height);
+				color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
+				SetPixel(x, y, color);
+			}
+		}
+	}
+	Texture * BEngine::GetTexture(TEXID tId){
+		return &textures[tId - 1];
+	}
+	Sprite::Sprite(Texture * t,NSMath2d::Vec2 pos) {
+		this->tex = t;
+		this->pos = pos;
+		this->width = tex->width;
+		this->height = tex->width;
+	}
+	Sprite::Sprite(Texture * t, NSMath2d::Vec2 pos, int height, int width, float scale) {
+		this->tex = t;
+		this->pos = pos;
+		this->height = height;
+		this->width = width;
+		this->scale = scale;
+	}
+	void Sprite::ScaleSprite(float newScaleValue) { this->scale = newScaleValue; }

@@ -1,6 +1,6 @@
 #pragma once
 #include "BEngine.h"
-
+#include "Debug.h"
 //Extend the BEngine class
 class Test : public BEngine {
 	void TestCodeForKeys() {
@@ -16,7 +16,7 @@ class Test : public BEngine {
 		ClearScreen();
 	}
 	void TestCodeForTextureLoading() {
-		bool textureLoaded = LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\SpaceImage.png",
+		bool textureLoaded = LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\SpaceShip.png",
 			space,true);
 		if (textureLoaded) {
 			OutputDebugString(L"Texture loaded");
@@ -75,24 +75,44 @@ class Test : public BEngine {
 	}
 	void TestCodeForGettingColorFromTexture() {
 		int pixelDimensions = GetPixelDimension();
-		for (int x = 0; x < GetScreenWidth(); x+= pixelDimensions) {
-			for (int y = 0; y < GetScreenHeight(); y+=pixelDimensions) {
-				float normalizedX =(float) x / GetScreenWidth();
-				float normalizedY = (float)y / GetScreenHeight();
-				
+		int screenHeight = GetScreenHeight();
+		int screenWidth = GetScreenWidth();
+		for (int x = 0; x < screenWidth; x+= pixelDimensions) {
+			for (int y = 0; y < screenHeight; y+=pixelDimensions) {
+				float normalizedX =(float) x / screenWidth;
+				float normalizedY = (float)y / screenHeight;
 				color_t color = GetColorFromTexture(normalizedX, normalizedY, space);
 				SetPixel(x, y, color);
-			}
+		}
+		}
+	}
+	void TestCodeForDrawingSprite() {
+		ClearScreen();
+		int velocity = 3;
+		DrawSprite(*spaceShip);
+		if (GetKey(VK_RIGHT).keyHeld) {
+			spaceShip->pos.x+= velocity;
+		}
+		if (GetKey(VK_LEFT).keyHeld) {
+			spaceShip->pos.x-= velocity;
+		}
+		if (GetKey(VK_DOWN).keyHeld) {
+			spaceShip->pos.y+= velocity;
+		}
+		if (GetKey(VK_UP).keyHeld) {
+			spaceShip->pos.y-= velocity;
 		}
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
-		TestCodeForGettingColorFromTexture();
+		TestCodeForDrawingSprite();
 		return true;
 	}
 	virtual bool OnCreate() override {
-		TestCodeForTextureLoading();
+		TestCodeForTextureLoading(); 
+		spaceShip = new Sprite(GetTexture(space), { GetScreenWidth()/2,GetScreenHeight()/2},100,100,1);
 		return true;
 	}
 private:
 	TEXID space;
+	Sprite * spaceShip;
 };

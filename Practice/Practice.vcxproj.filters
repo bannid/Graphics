@@ -54,6 +54,9 @@
     <ClInclude Include="Timing.h">
       <Filter>Timings</Filter>
     </ClInclude>
+    <ClInclude Include="BouncingBall.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp">

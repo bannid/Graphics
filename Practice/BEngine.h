@@ -1,5 +1,7 @@
 #pragma once
 #include <Windows.h>
+#include <wingdi.h>
+#include <gl/gl.h>
 #include <vector>
 #include <chrono>
 #include <assert.h>
@@ -7,14 +9,27 @@
 #include "Common.h"
 #include "Debug.h"
 #include "lodepng.h"
+
 #define TEXID int
 #define MILISECONDS_TO_SEC(VAL) VAL /= 1000.0f
+#define FPS_60 16
+#define FPS_30 32
 struct Texture {
 	unsigned char * data;
 	unsigned int width;
 	unsigned int height;
 	unsigned int bytesPerPixel;
 	TEXID id;
+};
+struct Sprite {
+	float scale = 1;
+	unsigned int height;
+	unsigned int width;
+	Texture * tex;
+	NSMath2d::Vec2 pos;
+	Sprite(Texture *, NSMath2d::Vec2 pos);
+	Sprite(Texture *, NSMath2d::Vec2 pos, int height, int width, float scale);
+	void ScaleSprite(float newScaleValue);
 };
 class BEngine
 {
@@ -30,9 +45,10 @@ public:
 	HWND window;
 	WNDCLASS windowClass = {};
 	void GetDesktopResolution(int&, int&);
+	void InitOpenGl();
 	void Win32UpdateWindow(HDC, RECT*, int, int, int, int);
 	void Win32ResizeDIBSection(int, int);
-	bool Construct(int,int,int);
+	bool Construct(int, int, int);
 	bool Construct(int);
 	bool Start();
 	//Virtuals
@@ -41,6 +57,8 @@ public:
 public:
 	bool running;
 	POINT mouseInfo;
+	//Debug
+	std::map<std::string, std::vector<int>> timingData;
 private:
 	//Window construction
 	LPCWSTR windowName;
@@ -68,21 +86,23 @@ public:
 	float Lerp(float, float, float);
 	NSMath2d::Vec2 Lerp(NSMath2d::Vec2, NSMath2d::Vec2, float);
 	//Assets
-	bool LoadTexturePNG(const char *, TEXID&,bool);
+	bool LoadTexturePNG(const char *, TEXID&, bool);
 	color_t GetColorFromTexture(float, float, TEXID);
+	Texture * GetTexture(TEXID tId);
 	//Drawing routines
-	void DrawLine(int, int, int, int);
-	void DrawBezierCurve(NSMath2d::Vec2,NSMath2d::Vec2,NSMath2d::Vec2);
-	void DrawCircle(int, int, int);
-	void DrawCircle(NSMath2d::Vec2 &, int);
-	void DrawRectangle(int, int, int, int);
-	void FillRectangle(int,int,int,int);
-	void FillCircle(int,int,int);
-	void FillCircle(const NSMath2d::Vec2 &, int);
-	void SetPixel(int, int);
-	void SetPixel(int, int, color_t);
-	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2, NSMath2d::Vec2, NSMath2d::Vec2, float);
-	void BezierCurveRecursive(std::vector<NSMath2d::Vec2>, float, NSMath2d::Vec2&);
+	void DrawLine(int x1, int y1, int x2, int y2);
+	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2);
+	void DrawCircle(int x, int y, int radius);
+	void DrawCircle(NSMath2d::Vec2 & pos, int radius);
+	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom);
+	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom);
+	void FillCircle(int x, int y, int radius);
+	void FillCircle(const NSMath2d::Vec2 & pos, int radius);
+	void DrawSprite(Sprite & sprite);
+	void SetPixel(int x, int y);
+	void SetPixel(int x, int y, color_t & color);
+	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);
+	void BezierCurveRecursive(std::vector<NSMath2d::Vec2> points, float t, NSMath2d::Vec2 & ouput);
 	void ClearScreen();
 	//Input
 	void ProcessKeys();
@@ -90,7 +110,7 @@ public:
 	void WriteTimingOutput();
 private:
 	//Private functions
-	void SetPixelInternal(int x, int y, color_t);
+	void SetPixelInternal(int x, int y, color_t & color);
 	std::vector<NSMath2d::Vec2>GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t);
 private:
 	//Timers to control frame rate
@@ -106,8 +126,7 @@ private:
 	NSInput::Key keys[0xFF];
 	int pixelDimension;
 	std::vector<Texture> textures;
-	//Debug
-	std::map<std::string, std::vector<int>> timingData;
+	GLuint blitTextureHandle;
 };
 
 
