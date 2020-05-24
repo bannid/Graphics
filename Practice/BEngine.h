@@ -47,6 +47,7 @@ public:
 	void GetDesktopResolution(int&, int&);
 	void InitOpenGl();
 	void Win32UpdateWindow(HDC, RECT*, int, int, int, int);
+	void Win32UpdateWindowOpenGL(HDC deviceContext, RECT* clientRect, int x, int y, int width, int height);
 	void Win32ResizeDIBSection(int, int);
 	bool Construct(int, int, int);
 	bool Construct(int);

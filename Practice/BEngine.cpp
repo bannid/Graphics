@@ -110,18 +110,10 @@ void BEngine::InitOpenGl()
 	}
 	ReleaseDC(window, WindowDC);
 }
-void BEngine::Win32UpdateWindow(HDC deviceContext, RECT* clientRect, int x, int y, int width, int height)
-{
+
+void BEngine::Win32UpdateWindowOpenGL(HDC deviceContext, RECT* clientRect, int x, int y, int width, int height) {
 	int windowWidth = clientRect->right - clientRect->left;
 	int windowHeight = clientRect->bottom - clientRect->top;
-#if 0
-	StretchDIBits(deviceContext,
-		0, 0, screenInfo.bitmapWidth, screenInfo.bitmapHeight,
-		0, 0, windowWidth, windowHeight,
-		screenInfo.bitmapMemory,
-		&screenInfo.bitmapInfo,
-		DIB_RGB_COLORS, SRCCOPY);
-#else
 	glViewport(0, 0, windowWidth, windowHeight);
 
 	glBindTexture(GL_TEXTURE_2D, blitTextureHandle);
@@ -176,7 +168,17 @@ void BEngine::Win32UpdateWindow(HDC deviceContext, RECT* clientRect, int x, int 
 	glEnd();
 
 	SwapBuffers(deviceContext);
-#endif
+}
+void BEngine::Win32UpdateWindow(HDC deviceContext, RECT* clientRect, int x, int y, int width, int height)
+{
+	int windowWidth = clientRect->right - clientRect->left;
+	int windowHeight = clientRect->bottom - clientRect->top;
+	StretchDIBits(deviceContext,
+		0, 0, screenInfo.bitmapWidth, screenInfo.bitmapHeight,
+		0, 0, windowWidth, windowHeight,
+		screenInfo.bitmapMemory,
+		&screenInfo.bitmapInfo,
+		DIB_RGB_COLORS, SRCCOPY);
 }
 void BEngine::Win32ResizeDIBSection(int Width, int Height)
 {
@@ -232,7 +234,7 @@ bool BEngine::Start() {
 		running = running && OnUpdate(elapsedTime);
 		this->uct1 = this->uct2;
 		HDC DC = GetDC(window);
-		Win32UpdateWindow(DC, &clientRect, 0, 0, windowWidth, windowHeight);
+		Win32UpdateWindowOpenGL(DC, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DC);
 		//Lock the frame rate
 		this->fct2 = std::chrono::steady_clock::now();
