@@ -337,7 +337,7 @@ void BEngine::SetPixelInternal(int x, int y, color_t & color) {
 	}
 	}
 }
-void BEngine::SetPixel(int x, int y, color_t & color) {
+void BEngine::SetPixel(int x, int y, color_t color) {
 	for (int i = x; i < x + this->pixelDimension; i++) {
 		for (int k = y; k < y + this->pixelDimension; k++) {
 			SetPixelInternal(i, k, color);
@@ -584,7 +584,9 @@ bool BEngine::LoadTexturePNG(const char * fileName,
 	}
 }
 color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {
-	assert(normalizedX >= 0 && normalizedX <= 1 && normalizedY >= 0 && normalizedY <= 1);
+	if(normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
+		return { 0,0,0,0 };
+	}
 	assert(textureID > 0 && textureID <= textures.size());
 	Texture * texture = &textures[textureID - 1];
 	color_t color;
@@ -607,10 +609,13 @@ void BEngine::WriteTimingOutput() {
 	NSDebug::WriteTimingDataOut(&this->timingData);
 }
 void BEngine::DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos) {
+	bool modeChanged = false;
+	if (blendMode == NORMAL) { modeChanged = true; blendMode = ALPHA; }
 	int startingX = pos.x - sprite.width / 2;
 	int startingY = pos.y - sprite.height / 2;
 	int endingX = pos.x + sprite.width / 2;
 	int endingY = pos.y + sprite.height / 2;
+	
 	//TODO: We shouldnt be getting the pixel value from the texture
 	//at every draw sprite call. I think we should attach some memory
 	//to the sprite and everytime we want to draw the sprite, we copy
@@ -620,9 +625,17 @@ void BEngine::DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos) {
 			float normalizedX = 1.0f - ((float)(endingX - x) / sprite.width);
 			float normalizedY = 1.0f - ((float)(endingY - y) / sprite.height);
 			color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
+			if (sprite.tint) {
+				float t = sprite.tintingPercentage;
+				float t2 = 1 - t;
+				color.red = color.red * t2 + sprite.tinting.red * t;
+				color.green = color.green * t2 + sprite.tinting.green * t;
+				color.blue = color.blue * t2 + sprite.tinting.blue * t;
+			}
 			SetPixel(x, y, color);
 		}
 	}
+	if (modeChanged)blendMode = NORMAL;
 }
 color_t BEngine::IntToColor(int color) {
 	color_t toReturn;
@@ -634,6 +647,7 @@ color_t BEngine::IntToColor(int color) {
 Texture * BEngine::GetTexture(TEXID tId) {
 	return &textures[tId - 1];
 }
+void BEngine::SetBlendingMode(MODE mode) { this->blendMode = mode; }
 Sprite::Sprite(Texture * t) {
 	this->tex = t;
 	this->width = tex->width;
@@ -644,5 +658,10 @@ Sprite::Sprite(Texture * t, int height, int width, float scale) {
 	this->height = height;
 	this->width = width;
 	this->scale = scale;
+}
+void Sprite::SetTinting(color_t color, float percentage) {
+	this->tinting = color;
+	this->tintingPercentage = percentage;
+	this->tint = true;
 }
 void Sprite::ScaleSprite(float newScaleValue) { this->scale = newScaleValue; }

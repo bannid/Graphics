@@ -1,32 +1,56 @@
 #pragma once
 #include "BEngine.h"
-
+#include <stdlib.h>
+#define DEBUG_DRAW 0
 class SpaceWars : public BEngine {
+	//################ Assets ####################
 	const char * spaceShipTextureFile = "C:\\Users\\Winny-Banni\\Pictures\\SpaceShip.png";
 	const char * bulletTextureFile = "C:\\Users\\Winny-Banni\\Pictures\\bullet.png";
+	const char * enemyShipTextureFile = "C:\\Users\\Winny-Banni\\Pictures\\enemyShip.png";
 	
 	TEXID spaceshipId;
 	TEXID bulletId;
-	
+	TEXID enemyShipId;
+
 	Sprite * spaceShip;
 	Sprite * bullet;
-	
+	Sprite * enemyShip;
+	//################ End Assets##################
+	//################ Player    ##################
 	NSMath2d::Vec2 spaceShipPos;
-	NSMath2d::Vec2 velocity;
-	NSMath2d::Vec2 bulletVelocity = { 0,-5 };
+	NSMath2d::Vec2 shipVelocity;
+	int velocityIncrement = 10;
+	int spaceShipHeight;
+	int spaceShipWidth;
+	float shipVelocityDampening = 0.99;
+
+	NSMath2d::Vec2 bulletVelocity = { 0,-1000 };
 	std::vector<NSMath2d::Vec2> bullets;
-	
 	int numberOfBullets = 0;
 	int maxNumberOfBullets = 30;
-	int velocityIncrement = 10;
-	float dampening = 0.99;
+	int bulletHeight;
+	int bulletWidth;
+	
+	//############### End player ###################
+	//############### Enemy ships ##################
+	std::vector<NSMath2d::Vec2> enemyShips;
+	NSMath2d::Vec2 shipsVelocity = { 0,100 };
+	int maximumNumberOfEnemyShips = 10;
+	int numberOfShips = 0;
+	int enemyShipRadius = 50;
+	//############### End enemy ships ##############
 	bool LoadTextureFiles() {
-		if (LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\SpaceShip.png",
+		if (LoadTexturePNG(spaceShipTextureFile,
 			spaceshipId, true) &&
-			LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\bullet.png",
-				bulletId, true)) {
-			spaceShip = new Sprite(GetTexture(spaceshipId), 150, 150, 1);
-			bullet = new Sprite(GetTexture(bulletId), 40, 20, 1);
+			LoadTexturePNG(bulletTextureFile,
+				bulletId, true) &&
+			LoadTexturePNG(enemyShipTextureFile,
+				enemyShipId, true)) {
+			spaceShip = new Sprite(GetTexture(spaceshipId), spaceShipHeight, spaceShipWidth, 1);
+			bullet = new Sprite(GetTexture(bulletId), bulletHeight, bulletWidth, 1);
+			enemyShip = new Sprite(GetTexture(enemyShipId), enemyShipRadius, enemyShipRadius, 1);
+			enemyShip->SetTinting({ 255,255,0 }, 0.3);
+
 		}
 		else {
 			return false;
@@ -38,9 +62,10 @@ class SpaceWars : public BEngine {
 			DrawSprite(*bullet, bullets[i]);
 		}
 	}
-	void UpdateBullets() {
+	void UpdateBullets(float elapasedTime) {
 		for (int i = 0; i < numberOfBullets; i++) {
-			bullets[i].Add(bulletVelocity);
+			auto bulletVelocityScaled = bulletVelocity * elapasedTime;
+			bullets[i].Add(bulletVelocityScaled);
 		}
 		for (int i = 0; i < numberOfBullets; i++) {
 			if (bullets[i].y < 0) {
@@ -49,33 +74,89 @@ class SpaceWars : public BEngine {
 			}
 		} 
 	}
-	virtual bool OnCreate() override {
-		bool assetsLoaded = LoadTextureFiles();
-		spaceShipPos.x = GetScreenWidth() / 2;
-		spaceShipPos.y = GetScreenHeight() - spaceShip->height / 2 - 100;
-		bullets = std::vector<NSMath2d::Vec2>(maxNumberOfBullets);
-		return assetsLoaded;
+	inline void DrawPlayerShip() {
+#if DEBUG_DRAW
+		DrawCircle(spaceShipPos, spaceShipWidth * 0.5, NSColors::WHITE);
+#endif
+		DrawSprite(*spaceShip, spaceShipPos);
 	}
-
-	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen(NSColors::BLACK);
-		DrawSprite(*spaceShip,spaceShipPos);
-		auto velocityScaled = velocity * elapsedTime;
+	inline void UpdatePlayerShip(float elapsedTime) {
+		auto velocityScaled = shipVelocity * elapsedTime;
 		spaceShipPos.Add(velocityScaled);
 		if (GetKey(VK_RIGHT).keyHeld) {
-			velocity.x+= velocityIncrement;
+			shipVelocity.x += velocityIncrement;
 		}
 		if (GetKey(VK_LEFT).keyHeld) {
-			velocity.x-= velocityIncrement;
+			shipVelocity.x -= velocityIncrement;
 		}
 		if (GetKey(VK_SPACE).keyReleased &&
 			numberOfBullets < maxNumberOfBullets) {
 			bullets[numberOfBullets] = { spaceShipPos.x,spaceShipPos.y };
 			numberOfBullets++;
 		}
-		velocity = velocity * dampening;
+		shipVelocity = shipVelocity * shipVelocityDampening;
+	}
+	void PopulateEnemyShips() {
+		if (numberOfShips < maximumNumberOfEnemyShips) {
+			int screenWidth = GetScreenWidth();
+			float randomX = (float)rand() / RAND_MAX;
+			float randomY = (float)rand() / RAND_MAX;
+			int randomX2 = 50 + (randomX * (screenWidth - 50));
+			int randomY2 = -(50 + (randomX * (screenWidth - 50)));
+			enemyShips[numberOfShips] = { randomX2 ,randomY2 };
+			numberOfShips++;
+		}
+	}
+	void DrawShips(float elapsedTime) {
+		for(int i = 0; i< numberOfShips; i++){
+			DrawSprite(*enemyShip, enemyShips[i]);
+#if DEBUG_DRAW
+			DrawCircle(enemyShips[i], enemyShipRadius * 0.6, NSColors::WHITE);
+#endif
+			auto velocityScaled = shipsVelocity * elapsedTime;
+			enemyShips[i].Add(velocityScaled);
+		}
+	}
+	inline void UpdateEnemyShips(float elapsedTime) {
+		for (int i = 0; i < numberOfShips; i++) {
+			if (enemyShips[i].y > GetScreenHeight()) {
+				int screenWidth = GetScreenWidth();
+				float randomX = (float)rand() / RAND_MAX;
+				float randomY = (float)rand() / RAND_MAX;
+				int randomX2 = 50 + (randomX * (screenWidth - 50));
+				int randomY2 = -(50 + (randomX * (screenWidth - 50)));
+				enemyShips[i] = { randomX2 ,randomY2 };
+			}
+			auto velocityScaled = shipsVelocity * elapsedTime;
+			enemyShips[i].Add(velocityScaled);
+		}
+	}
+	virtual bool OnCreate() override {
+		int screenHeight = GetScreenHeight();
+		int screenWidth = GetScreenWidth();
+		this->spaceShipHeight = (screenWidth * 0.15) * ((float)screenHeight / screenWidth);
+		this->spaceShipWidth = (screenWidth * 0.15) * ((float)screenHeight / screenWidth);
+		this->bulletHeight = this->spaceShipHeight * 0.2;
+		this->bulletWidth = this->spaceShipWidth * 0.1;
+		bool assetsLoaded = LoadTextureFiles();
+		spaceShipPos.x = GetScreenWidth() / 2;
+		spaceShipPos.y = GetScreenHeight() - (spaceShipHeight/2);
+		bullets = std::vector<NSMath2d::Vec2>(maxNumberOfBullets);
+		enemyShips = std::vector<NSMath2d::Vec2>(maximumNumberOfEnemyShips);
+		return assetsLoaded;
+	}
+
+	virtual bool OnUpdate(float elapsedTime) override {
+		ClearScreen(NSColors::BLACK);
+		DrawPlayerShip();
+		UpdatePlayerShip(elapsedTime);
 		DrawBullets();
-		UpdateBullets();
+		UpdateBullets(elapsedTime);
+		PopulateEnemyShips();
+		DrawShips(elapsedTime);
+		UpdateEnemyShips(elapsedTime);
 		return true;
 	}
 };
+
+#undef DEBUG_DRAW

@@ -25,10 +25,15 @@ struct Sprite {
 	float scale = 1;
 	unsigned int height;
 	unsigned int width;
+	color_t tinting;
+	bool tint = false;
+	float tintingPercentage;
 	Texture * tex;
 	Sprite(Texture *);
 	Sprite(Texture *,int height, int width, float scale);
 	void ScaleSprite(float newScaleValue);
+	void SetTinting(color_t color, float percentage);
+	
 };
 enum MODE {ALPHA, NORMAL};
 class BEngine
@@ -103,7 +108,8 @@ public:
 	void BezierCurveRecursive(std::vector<NSMath2d::Vec2> points, float t, NSMath2d::Vec2 & ouput);
 	void ClearScreen(color_t & color);
 	void ClearScreen(int colorPacked);
-	void SetPixel(int x, int y, color_t & color);
+	void SetPixel(int x, int y, color_t color);
+	void SetBlendingMode(MODE mode);
 	//Helper functions
 	color_t IntToColor(int color);
 	//Input
@@ -125,7 +131,7 @@ private:
 	int pixelDimension;
 	std::vector<Texture> textures;
 	GLuint blitTextureHandle;
-	MODE blendMode = ALPHA;
+	MODE blendMode = NORMAL;
 };
 
 
