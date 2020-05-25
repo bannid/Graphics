@@ -21,6 +21,9 @@ class Test : public BEngine {
 		color_t c = { 255,255,255 };
 		DrawRectangle(x,y,x+100,y+100,c);
 	}
+	void TestDrawTriangle() {
+		DrawTriangle(0,50,50,0,50,50);
+	}
 	void TestCodeForLerp() {
 		NSMath2d::Vec2 point1 = { 0,500 };
 		NSMath2d::Vec2 point2 = { 500,500 };
@@ -91,13 +94,14 @@ class Test : public BEngine {
 		}
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
-		TestCodeForDrawingSprite();
+		//TestCodeForDrawingSprite();
+		TestDrawTriangle();
 		return true;
 	}
 	virtual bool OnCreate() override {
-		TestCodeForTextureLoading(); 
-		spaceShipPos = { GetScreenWidth() / 2,GetScreenHeight() / 2 };
-		spaceShip = new Sprite(GetTexture(space),200,200,1);
+		//TestCodeForTextureLoading(); 
+		//spaceShipPos = { GetScreenWidth() / 2,GetScreenHeight() / 2 };
+		//spaceShip = new Sprite(GetTexture(space),200,200,1);
 		return true;
 	}
 private:

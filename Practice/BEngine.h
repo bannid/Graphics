@@ -103,6 +103,8 @@ public:
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
+	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
+	void FillTriangle(int x1, int y1, int x2, int  y2, int x3, int y3);
 	void DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos);
 	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);

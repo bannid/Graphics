@@ -428,6 +428,11 @@ void BEngine::FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int co
 	color_t color = IntToColor(colorPacked);
 	FillRectangle(xTop, yTop, xBottom, yBottom, color);
 }
+void BEngine::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+	DrawLine(x1, y1, x2, y2, NSColors::WHITE);
+	DrawLine(x2, y2, x3, y3, NSColors::WHITE);
+	DrawLine(x3, y3, x1, y1, NSColors::WHITE);
+}
 void BEngine::DrawLine(int x1, int y1, int x2, int y2, int colorPacked) {
 	color_t color = IntToColor(colorPacked);
 	DrawLine(x1, y1, x2, y2, color);
