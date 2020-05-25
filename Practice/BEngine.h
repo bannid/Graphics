@@ -60,6 +60,7 @@ public:
 	//Virtuals
 	virtual bool OnUpdate(float) = 0;
 	virtual bool OnCreate() = 0;
+	virtual bool OnDestroy();
 public:
 	bool running;
 	POINT mouseInfo;

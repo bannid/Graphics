@@ -204,6 +204,10 @@ windowHeight(height),
 windowWidth(width) {
 
 }
+bool BEngine::OnDestroy() {
+	
+	return true;
+}
 bool BEngine::Start() {
 	assert(window);
 	if (!InitOpenGl()) { return false; }
@@ -245,6 +249,7 @@ bool BEngine::Start() {
 			durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
 		}*/
 		this->fct1 = this->fct2;
+		if (!running) { running = !OnDestroy(); }
 	}
 	return true;
 }

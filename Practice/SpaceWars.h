@@ -57,12 +57,12 @@ class SpaceWars : public BEngine {
 		}
 		return true;
 	}
-	void DrawBullets() {
+	inline void DrawBullets() {
 		for (int i = 0; i < numberOfBullets; i++) {
 			DrawSprite(*bullet, bullets[i]);
 		}
 	}
-	void UpdateBullets(float elapasedTime) {
+	inline void UpdateBullets(float elapasedTime) {
 		for (int i = 0; i < numberOfBullets; i++) {
 			auto bulletVelocityScaled = bulletVelocity * elapasedTime;
 			bullets[i].Add(bulletVelocityScaled);
@@ -96,18 +96,21 @@ class SpaceWars : public BEngine {
 		}
 		shipVelocity = shipVelocity * shipVelocityDampening;
 	}
-	void PopulateEnemyShips() {
+	inline void AssignRandomPos(NSMath2d::Vec2 & pos) {
+		int screenWidth = GetScreenWidth();
+		float randomX = (float)rand() / RAND_MAX;
+		float randomY = (float)rand() / RAND_MAX;
+		int randomX2 = 50 + (randomX * (screenWidth - 50));
+		int randomY2 = -(50 + (randomX * (screenWidth - 50)));
+		pos = { randomX2 ,randomY2 };
+	}
+	inline void PopulateEnemyShips() {
 		if (numberOfShips < maximumNumberOfEnemyShips) {
-			int screenWidth = GetScreenWidth();
-			float randomX = (float)rand() / RAND_MAX;
-			float randomY = (float)rand() / RAND_MAX;
-			int randomX2 = 50 + (randomX * (screenWidth - 50));
-			int randomY2 = -(50 + (randomX * (screenWidth - 50)));
-			enemyShips[numberOfShips] = { randomX2 ,randomY2 };
+			AssignRandomPos(enemyShips[numberOfShips]);
 			numberOfShips++;
 		}
 	}
-	void DrawShips(float elapsedTime) {
+	inline void DrawShips(float elapsedTime) {
 		for(int i = 0; i< numberOfShips; i++){
 			DrawSprite(*enemyShip, enemyShips[i]);
 #if DEBUG_DRAW
@@ -120,15 +123,19 @@ class SpaceWars : public BEngine {
 	inline void UpdateEnemyShips(float elapsedTime) {
 		for (int i = 0; i < numberOfShips; i++) {
 			if (enemyShips[i].y > GetScreenHeight()) {
-				int screenWidth = GetScreenWidth();
-				float randomX = (float)rand() / RAND_MAX;
-				float randomY = (float)rand() / RAND_MAX;
-				int randomX2 = 50 + (randomX * (screenWidth - 50));
-				int randomY2 = -(50 + (randomX * (screenWidth - 50)));
-				enemyShips[i] = { randomX2 ,randomY2 };
+				AssignRandomPos(enemyShips[i]);
 			}
 			auto velocityScaled = shipsVelocity * elapsedTime;
 			enemyShips[i].Add(velocityScaled);
+		}
+	}
+	inline void CollisionDetection() {
+		for (int i = 0; i < numberOfShips; i++) {
+			for (int j = 0; j < numberOfBullets; j++) {
+				if ((enemyShips[i] - bullets[j]).Magnitude() < enemyShipRadius * 0.6) {
+					AssignRandomPos(enemyShips[i]);
+				}
+			}
 		}
 	}
 	virtual bool OnCreate() override {
@@ -155,6 +162,14 @@ class SpaceWars : public BEngine {
 		PopulateEnemyShips();
 		DrawShips(elapsedTime);
 		UpdateEnemyShips(elapsedTime);
+		CollisionDetection();
+		return true;
+	}
+	virtual bool OnDestroy() override {
+		//No need to free the memory.  OS will take care of it.
+		/*delete spaceShip;
+		delete bullet;
+		delete enemyShip;*/
 		return true;
 	}
 };

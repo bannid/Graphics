@@ -76,19 +76,19 @@ class Test : public BEngine {
 		color_t black = { 255,255,255 };
 		ClearScreen(black);
 		int velocity = 3;
-		/*DrawSprite(*spaceShip);
+		DrawSprite(*spaceShip, spaceShipPos);
 		if (GetKey(VK_RIGHT).keyHeld) {
-			spaceShip->pos.x+= velocity;
+			spaceShipPos.x+= velocity;
 		}
 		if (GetKey(VK_LEFT).keyHeld) {
-			spaceShip->pos.x-= velocity;
+			spaceShipPos.x-= velocity;
 		}
 		if (GetKey(VK_DOWN).keyHeld) {
-			spaceShip->pos.y+= velocity;
+			spaceShipPos.y+= velocity;
 		}
 		if (GetKey(VK_UP).keyHeld) {
-			spaceShip->pos.y-= velocity;
-		}*/
+			spaceShipPos.y-= velocity;
+		}
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
 		TestCodeForDrawingSprite();
@@ -96,10 +96,12 @@ class Test : public BEngine {
 	}
 	virtual bool OnCreate() override {
 		TestCodeForTextureLoading(); 
-		//spaceShip = new Sprite(GetTexture(space), { GetScreenWidth()/2,GetScreenHeight()/2},200,200,1);
+		spaceShipPos = { GetScreenWidth() / 2,GetScreenHeight() / 2 };
+		spaceShip = new Sprite(GetTexture(space),200,200,1);
 		return true;
 	}
 private:
 	TEXID space;
 	Sprite * spaceShip;
+	NSMath2d::Vec2 spaceShipPos;
 };
