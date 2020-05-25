@@ -26,9 +26,8 @@ struct Sprite {
 	unsigned int height;
 	unsigned int width;
 	Texture * tex;
-	NSMath2d::Vec2 pos;
-	Sprite(Texture *, NSMath2d::Vec2 pos);
-	Sprite(Texture *, NSMath2d::Vec2 pos, int height, int width, float scale);
+	Sprite(Texture *);
+	Sprite(Texture *,int height, int width, float scale);
 	void ScaleSprite(float newScaleValue);
 };
 enum MODE {ALPHA, NORMAL};
@@ -46,7 +45,7 @@ public:
 	HWND window;
 	WNDCLASS windowClass = {};
 	void GetDesktopResolution(int&, int&);
-	void InitOpenGl();
+	bool InitOpenGl();
 	void Win32UpdateWindow(HDC, RECT*, int, int, int, int);
 	void Win32UpdateWindowOpenGL(HDC deviceContext, RECT* clientRect, int x, int y, int width, int height);
 	void Win32ResizeDIBSection(int, int);
@@ -98,11 +97,12 @@ public:
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
-	void DrawSprite(Sprite & sprite);
+	void DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos);
 	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);
 	void BezierCurveRecursive(std::vector<NSMath2d::Vec2> points, float t, NSMath2d::Vec2 & ouput);
 	void ClearScreen(color_t & color);
+	void ClearScreen(int colorPacked);
 	void SetPixel(int x, int y, color_t & color);
 	//Helper functions
 	color_t IntToColor(int color);

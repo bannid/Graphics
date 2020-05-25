@@ -57,6 +57,9 @@
     <ClInclude Include="BouncingBall.h">
       <Filter>Examples</Filter>
     </ClInclude>
+    <ClInclude Include="SpaceWars.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp">

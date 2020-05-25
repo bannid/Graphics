@@ -76,7 +76,7 @@ class Test : public BEngine {
 		color_t black = { 255,255,255 };
 		ClearScreen(black);
 		int velocity = 3;
-		DrawSprite(*spaceShip);
+		/*DrawSprite(*spaceShip);
 		if (GetKey(VK_RIGHT).keyHeld) {
 			spaceShip->pos.x+= velocity;
 		}
@@ -88,7 +88,7 @@ class Test : public BEngine {
 		}
 		if (GetKey(VK_UP).keyHeld) {
 			spaceShip->pos.y-= velocity;
-		}
+		}*/
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
 		TestCodeForDrawingSprite();
@@ -96,7 +96,7 @@ class Test : public BEngine {
 	}
 	virtual bool OnCreate() override {
 		TestCodeForTextureLoading(); 
-		spaceShip = new Sprite(GetTexture(space), { GetScreenWidth()/2,GetScreenHeight()/2},100,100,1);
+		//spaceShip = new Sprite(GetTexture(space), { GetScreenWidth()/2,GetScreenHeight()/2},200,200,1);
 		return true;
 	}
 private:

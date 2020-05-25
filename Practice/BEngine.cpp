@@ -78,7 +78,7 @@ void BEngine::GetDesktopResolution(int& horizontal, int& vertical)
 	horizontal = desktop.right;
 	vertical = desktop.bottom;
 }
-void BEngine::InitOpenGl()
+bool BEngine::InitOpenGl()
 {
 	HDC WindowDC = GetDC(window);
 
@@ -106,9 +106,10 @@ void BEngine::InitOpenGl()
 	}
 	else
 	{
-
+		return false;
 	}
 	ReleaseDC(window, WindowDC);
+	return true;
 }
 
 void BEngine::Win32UpdateWindowOpenGL(HDC deviceContext, RECT* clientRect, int x, int y, int width, int height) {
@@ -205,7 +206,7 @@ windowWidth(width) {
 }
 bool BEngine::Start() {
 	assert(window);
-	InitOpenGl();
+	if (!InitOpenGl()) { return false; }
 	this->fct1 = std::chrono::steady_clock::now();
 	this->fct2 = std::chrono::steady_clock::now();
 	this->uct1 = std::chrono::steady_clock::now();
@@ -350,6 +351,10 @@ void BEngine::ClearScreen(color_t & color) {
 		*pixel = (((color.red << 8) | color.green) << 8) | color.blue;
 		pixel++;
 	}
+}
+void BEngine::ClearScreen(int colorPacked) {
+	color_t color = IntToColor(colorPacked);
+	ClearScreen(color);
 }
 void BEngine::DrawCircle(int x, int y, int radius, color_t & color) {
 	float tau = 6.28318530718;
@@ -601,11 +606,15 @@ NSInput::Key BEngine::GetKey(unsigned int key) {
 void BEngine::WriteTimingOutput() {
 	NSDebug::WriteTimingDataOut(&this->timingData);
 }
-void BEngine::DrawSprite(Sprite & sprite) {
-	int startingX = sprite.pos.x - sprite.width / 2;
-	int startingY = sprite.pos.y - sprite.height / 2;
-	int endingX = sprite.pos.x + sprite.width / 2;
-	int endingY = sprite.pos.y + sprite.height / 2;
+void BEngine::DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos) {
+	int startingX = pos.x - sprite.width / 2;
+	int startingY = pos.y - sprite.height / 2;
+	int endingX = pos.x + sprite.width / 2;
+	int endingY = pos.y + sprite.height / 2;
+	//TODO: We shouldnt be getting the pixel value from the texture
+	//at every draw sprite call. I think we should attach some memory
+	//to the sprite and everytime we want to draw the sprite, we copy
+	//that memory to the sprite current pos.
 	for (int x = startingX; x < endingX; x += pixelDimension) {
 		for (int y = startingY; y < endingY; y += pixelDimension) {
 			float normalizedX = 1.0f - ((float)(endingX - x) / sprite.width);
@@ -625,15 +634,13 @@ color_t BEngine::IntToColor(int color) {
 Texture * BEngine::GetTexture(TEXID tId) {
 	return &textures[tId - 1];
 }
-Sprite::Sprite(Texture * t, NSMath2d::Vec2 pos) {
+Sprite::Sprite(Texture * t) {
 	this->tex = t;
-	this->pos = pos;
 	this->width = tex->width;
 	this->height = tex->width;
 }
-Sprite::Sprite(Texture * t, NSMath2d::Vec2 pos, int height, int width, float scale) {
+Sprite::Sprite(Texture * t, int height, int width, float scale) {
 	this->tex = t;
-	this->pos = pos;
 	this->height = height;
 	this->width = width;
 	this->scale = scale;
