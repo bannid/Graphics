@@ -1,14 +1,13 @@
 #pragma once
 #include <cmath>
 #include "BEngine.h"
-#include "Common.h"
 
 class BouncingBall : public BEngine {
-	NSMath2d::Vec2 pos;
-	color_t black = { 0,0,0 };
-	color_t ballColor = { 0,255,0 };
+	BMath::Vec2 pos;
+	BColors::color_t black = { 0,0,0 };
+	BColors::color_t ballColor = { 0,255,0 };
 	int radius;
-	NSMath2d::Vec2 velocity;
+	BMath::Vec2 velocity;
 	float angle = 0;
 	virtual bool OnCreate() {
 		pos.x = GetScreenWidth() / 2;
@@ -23,7 +22,7 @@ class BouncingBall : public BEngine {
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(black);
 		FillCircle(pos.x, pos.y, radius, ballColor);
-		NSMath2d::Vec2 velocityScaled = velocity * elapsedTime;
+		BMath::Vec2 velocityScaled = velocity * elapsedTime;
 		pos.Add(velocityScaled);
 		angle += 0.1;
 		if (pos.x + radius >= GetScreenWidth() ||

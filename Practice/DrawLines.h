@@ -1,16 +1,15 @@
 #pragma once
 #include <vector>
 #include "BEngine.h"
-#include "Common.h"
 class DrawLines : public BEngine {
-	std::vector<NSMath2d::Vec2> points;
-	color_t black = { 0,0,0 };
-	color_t white = { 255,255,255,125 };
+	std::vector<BMath::Vec2> points;
+	BColors::color_t black = { 0,0,0 };
+	BColors::color_t white = { 255,255,255,125 };
 	virtual bool OnUpdate(float elapsedTime) override{
 		ClearScreen(black);
 		auto mouseInfo = GetMouseInfo();
 		if (GetKey(VK_LBUTTON).keyReleased) {
-			NSMath2d::Vec2 point(mouseInfo.x, mouseInfo.y);
+			BMath::Vec2 point(mouseInfo.x, mouseInfo.y);
 			points.push_back(point);
 		}
 		int pointsSize = points.size();

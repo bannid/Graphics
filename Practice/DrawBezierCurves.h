@@ -1,22 +1,21 @@
 #pragma once
 #include <vector>
 #include "BEngine.h"
-#include "Common.h"
 struct Bezier {
-	NSMath2d::Vec2 p1;
-	NSMath2d::Vec2 cp;
-	NSMath2d::Vec2 p2;
+	BMath::Vec2 p1;
+	BMath::Vec2 cp;
+	BMath::Vec2 p2;
 };
 class BezierCurves : public BEngine {
 	std::vector<Bezier> bezierCurves;
-	NSMath2d::Vec2 * selector = nullptr;
-	color_t black = { 0,0,0 };
-	color_t white = { 255,255,255 };
+	BMath::Vec2 * selector = nullptr;
+	BColors::color_t black = { 0,0,0 };
+	BColors::color_t white = { 255,255,255 };
 	virtual bool OnCreate() override {
 		Bezier b;
-		b.p1 = NSMath2d::Vec2(10, GetScreenHeight() / 2);
-		b.p2 = NSMath2d::Vec2(GetScreenWidth() - 50, GetScreenHeight() / 2);
-		b.cp = NSMath2d::Vec2(GetScreenWidth() / 2, 20);
+		b.p1 = BMath::Vec2(10, GetScreenHeight() / 2);
+		b.p2 = BMath::Vec2(GetScreenWidth() - 50, GetScreenHeight() / 2);
+		b.cp = BMath::Vec2(GetScreenWidth() / 2, 20);
 		bezierCurves.push_back(b);
 		return true;
 	}
@@ -32,7 +31,7 @@ class BezierCurves : public BEngine {
 			FillCircle(mouseInfo.x, mouseInfo.y, 5,white);
 			if (GetKey(VK_LBUTTON).keyDown &&
 				selector == nullptr) {
-				NSMath2d::Vec2 coords = { mouseInfo.x,mouseInfo.y };
+				BMath::Vec2 coords = { mouseInfo.x,mouseInfo.y };
 				int distanceFromP1 = abs((b->p1 - coords).Magnitude());
 				int distanceFromP2 = abs((b->p2 - coords).Magnitude());
 				int distanceFromCP = abs((b->cp - coords).Magnitude());
@@ -59,9 +58,9 @@ class BezierCurves : public BEngine {
 		}
 		if (GetKey(0x41).keyReleased) {
 			Bezier b;
-			b.p1 = NSMath2d::Vec2(10, GetScreenHeight() / 2);
-			b.p2 = NSMath2d::Vec2(GetScreenWidth() - 50, GetScreenHeight() / 2);
-			b.cp = NSMath2d::Vec2(GetScreenWidth() / 2, 20);
+			b.p1 = BMath::Vec2(10, GetScreenHeight() / 2);
+			b.p2 = BMath::Vec2(GetScreenWidth() - 50, GetScreenHeight() / 2);
+			b.cp = BMath::Vec2(GetScreenWidth() / 2, 20);
 			bezierCurves.push_back(b);
 		}
 		if (GetKey(0x44).keyReleased) {

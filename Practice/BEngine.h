@@ -8,6 +8,8 @@
 #include <cmath>
 #include <strstream>
 #include "Common.h"
+#include "Polygon.h"
+#include "Maths.h"
 #include "Debug.h"
 #include "lodepng.h"
 
@@ -26,14 +28,14 @@ struct Sprite {
 	float scale = 1;
 	unsigned int height;
 	unsigned int width;
-	color_t tinting;
+	BColors::color_t tinting;
 	bool tint = false;
 	float tintingPercentage;
 	Texture * tex;
 	Sprite(Texture *);
 	Sprite(Texture *,int height, int width, float scale);
 	void ScaleSprite(float newScaleValue);
-	void SetTinting(color_t color, float percentage);
+	void SetTinting(BColors::color_t color, float percentage);
 	
 };
 enum BLENDING_MODE {ALPHA, NORMAL};
@@ -65,7 +67,7 @@ public:
 public:
 	bool running;
 	POINT mouseInfo;
-	std::vector<NSPrim::Triangle> triangles;
+	std::vector<BPolygon::Triangle> triangles;
 	//Debug
 	std::map<std::string, std::vector<int>> timingData;
 private:
@@ -82,59 +84,59 @@ public:
 	int GetScreenHeight();
 	int GetPixelDimension();
 	//Returns the state of the key - key -> 0 to 0xff
-	NSInput::Key GetKey(unsigned int key);
+	BInput::Key GetKey(unsigned int key);
 	POINT GetMouseInfo();
 	float Lerp(float, float, float);
-	NSMath2d::Vec2 Lerp(NSMath2d::Vec2 pointOne, NSMath2d::Vec2 pointTwo, float t);
+	BMath::Vec2 Lerp(BMath::Vec2 pointOne, BMath::Vec2 pointTwo, float t);
 	//Assets
 	bool LoadTexturePNG(const char * fileName, TEXID& idOutput, bool loadAlpha);
 	bool LoadOBJFile(const char * fileName);
-	color_t GetColorFromTexture(float xNormalized, float yNormalized, TEXID textureId);
+	BColors::color_t GetColorFromTexture(float xNormalized, float yNormalized, TEXID textureId);
 	Texture * GetTexture(TEXID tId);
 	//Drawing routines
 	//Draw line
-	void DrawLine(int x1, int y1, int x2, int y2, color_t & color);
+	void DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color);
 	void DrawLine(int x1, int y1, int x2, int y2, int color);
 	//Circle
-	void DrawCircle(int x, int y, int radius, color_t & color);
+	void DrawCircle(int x, int y, int radius, BColors::color_t & color);
 	void DrawCircle(int x, int y, int radius, int colorPacked);
-	void DrawCircle(NSMath2d::Vec2 & pos, int radius, color_t & color);
-	void DrawCircle(NSMath2d::Vec2 & pos, int radius, int colorPacked);
-	void FillCircle(int x, int y, int radius, color_t & color);
-	void FillCircle(const NSMath2d::Vec2 & pos, int radius, color_t & color);
+	void DrawCircle(BMath::Vec2 & pos, int radius, BColors::color_t & color);
+	void DrawCircle(BMath::Vec2 & pos, int radius, int colorPacked);
+	void FillCircle(int x, int y, int radius, BColors::color_t & color);
+	void FillCircle(const BMath::Vec2 & pos, int radius, BColors::color_t & color);
 	void FillCircle(int x, int y, int radius, int colorPacked);
-	void FillCircle(const NSMath2d::Vec2 & pos, int radius, int colorPacked);
+	void FillCircle(const BMath::Vec2 & pos, int radius, int colorPacked);
 	//Rectagle - TODO
-	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
-	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
+	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, BColors::color_t & color);
+	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, BColors::color_t & color);
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	//Triangle 
-	void FillTriangle(NSPrim::Triangle t);
-	void DrawTriangle(NSPrim::Triangle t);
+	void FillTriangle(BPolygon::Triangle t);
+	void DrawTriangle(BPolygon::Triangle t);
 	//Sprite - Affine transformations cannot be applied
-	void DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos);
+	void DrawSprite(Sprite & sprite, BMath::Vec2 pos);
 	//Functions to draw bezier curve in screen space.
-	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color);
-	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);
-	void BezierCurveRecursive(std::vector<NSMath2d::Vec2> points, float t, NSMath2d::Vec2 & ouput);
+	void DrawBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, BColors::color_t & color);
+	BMath::Vec2 QuadraticBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, float t);
+	void BezierCurveRecursive(std::vector<BMath::Vec2> points, float t, BMath::Vec2 & ouput);
 	//Helper routines
-	void ClearScreen(color_t & color);
+	void ClearScreen(BColors::color_t & color);
 	void ClearScreen(int colorPacked);
-	void SetPixel(int x, int y, color_t color);
+	void SetPixel(int x, int y, BColors::color_t color);
 	void SetPixel(int x, int y, int colorPacked);
 	//Set blending mode - ALPHA or NORMAL
 	void SetBlendingMode(BLENDING_MODE mode);
 	//Helper functions
-	color_t IntToColor(int color);
+	BColors::color_t IntToColor(int color);
 	//Input
 	void ProcessKeys();
 	//Debug
 	void WriteTimingOutput();
 private:
 	//Private functions
-	void SetPixelInternal(int x, int y, color_t & color);
-	std::vector<NSMath2d::Vec2>GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1, NSMath2d::Vec2 p2, NSMath2d::Vec2 p3, float t);
+	void SetPixelInternal(int x, int y, BColors::color_t & color);
+	std::vector<BMath::Vec2>GetTwoLinearPointsFromThreePoints(BMath::Vec2 p1, BMath::Vec2 p2, BMath::Vec2 p3, float t);
 private:
 	//Timers to control frame rate
 	std::chrono::steady_clock::time_point fct1;
@@ -142,7 +144,7 @@ private:
 	//Timers to calculate elapsed time for OnUpdate
 	std::chrono::steady_clock::time_point uct1;
 	std::chrono::steady_clock::time_point uct2;
-	NSInput::Key keys[0xFF];
+	BInput::Key keys[0xFF];
 	int pixelDimension;
 	std::vector<Texture> textures;
 	BLENDING_MODE blendMode = NORMAL;

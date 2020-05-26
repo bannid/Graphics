@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include "Maths.h"
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
 struct videoMemory_t {
 	BITMAPINFO bitmapInfo;
@@ -8,105 +9,39 @@ struct videoMemory_t {
 	int bitmapHeight;
 	int bytesPerPixel = 4;
 };
-struct color_t {
-	int red;
-	int green;
-	int blue;
-	int alpha;
-	color_t() {
-		this->red = 0;
-		this->green = 0; 
-		this->blue = 0;
-		this->alpha = 0xFF;
-	}
-	color_t(int red,int green, int blue) {
-		this->green = green;
-		this->blue = blue;
-		this->red = red;
-		this->alpha = 0xFF;
-	}
-	color_t(int red, int green, int blue, int alpha) {
-		this->green = green;
-		this->blue = blue;
-		this->red = red;
-		this->alpha = alpha;
-	}
-};
-namespace NSInput {
+
+namespace BInput {
 	struct Key {
 		bool keyDown = false;
 		bool keyReleased = false;
 		bool keyHeld = false;
 	};
 }
-namespace NSMath2d {
-	struct Vec2 {
-		float x, y;
-		Vec2(float x, float y) :x(x), y(y) {
+namespace BColors {
+	struct color_t {
+		int red;
+		int green;
+		int blue;
+		int alpha;
+		color_t() {
+			this->red = 0;
+			this->green = 0;
+			this->blue = 0;
+			this->alpha = 0xFF;
 		}
-		Vec2(int x, int y) :x(x), y(y) {
-
+		color_t(int red, int green, int blue) {
+			this->green = green;
+			this->blue = blue;
+			this->red = red;
+			this->alpha = 0xFF;
 		}
-		Vec2() {
-			x = 0;
-			y = 0;
-		}
-		float Magnitude() {
-			return std::sqrtf(x * x + y * y);
-		}
-		void Add(Vec2 that) {
-			this->x += that.x;
-			this->y += that.y;
-		}
-		void Subtract(Vec2 & that) {
-			this->x -= that.x;
-			this->y -= that.y;
-		}
-		float operator*(Vec2 & that) {
-			return x * that.x + y * that.y;
-		}
-		Vec2 operator-(Vec2 & that) {
-			return Vec2(x - that.x, y - that.y);
-		}
-		Vec2 operator+(Vec2 that) {
-			return Vec2(x + that.x, y + that.y);
-		}
-		Vec2 operator*(float scalar) {
-			return Vec2(x * scalar, y * scalar);
-		}
-		void Scale(float scalar) {
-			x *= scalar;
-			y *= scalar;
-		}
-		void Normalize() {
-			float magnitude = this->Magnitude();
-			x /= magnitude;
-			y /= magnitude;
-		}
-		Vec2 Normalized() {
-			float magnitude = this->Magnitude();
-			return Vec2(x / magnitude, y / magnitude);
+		color_t(int red, int green, int blue, int alpha) {
+			this->green = green;
+			this->blue = blue;
+			this->red = red;
+			this->alpha = alpha;
 		}
 	};
-	struct Vec4 {
-		float x;
-		float y;
-		float z;
-		float w;
-		Vec4():x(0),y(0),z(0),w(0){}
-		Vec4(float x, float y, float z, float w):x(x), y(y), z(z), w(w) {}
-		Vec4(int x, int y, int z, int w) :x(x), y(y), z(z), w(w) {}
-	};
-}
-namespace NSPrim {
-	struct Triangle {
-		NSMath2d::Vec4 v1;
-		NSMath2d::Vec4 v2;
-		NSMath2d::Vec4 v3;
-		Triangle(NSMath2d::Vec4 v1, NSMath2d::Vec4 v2, NSMath2d::Vec4 v3):v1(v1),v2(v2),v3(v3){}
-	};
-}
-namespace NSColors {
 	enum COLORS {
 		BLACK = 0,
 		RED = RGBC(255, 0, 0),
@@ -116,3 +51,10 @@ namespace NSColors {
 		YELLOW = RGBC(255, 255, 0)
 	};
 }
+
+struct Vertex {
+	BMath::Vec4 vector;
+	BMath::Vec2 uv;
+	BColors::color_t color;
+	BMath::Vec4 Normal;
+};

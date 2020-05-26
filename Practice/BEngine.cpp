@@ -318,7 +318,7 @@ POINT BEngine::GetMouseInfo() {
 float BEngine::Lerp(float a, float b, float t) {
 	return ((1 - t) * a) + (t * b);
 }
-void BEngine::SetPixelInternal(int x, int y, color_t & color) {
+void BEngine::SetPixelInternal(int x, int y, BColors::color_t & color) {
 	if (x < 0 || x >= this->screenInfo.bitmapWidth || y < 0 || y >= this->screenInfo.bitmapHeight) {
 		return;
 	}
@@ -342,7 +342,7 @@ void BEngine::SetPixelInternal(int x, int y, color_t & color) {
 	}
 	}
 }
-void BEngine::SetPixel(int x, int y, color_t color) {
+void BEngine::SetPixel(int x, int y, BColors::color_t color) {
 	for (int i = x; i < x + this->pixelDimension; i++) {
 		for (int k = y; k < y + this->pixelDimension; k++) {
 			SetPixelInternal(i, k, color);
@@ -352,7 +352,7 @@ void BEngine::SetPixel(int x, int y, color_t color) {
 void BEngine::SetPixel(int x, int y, int colorPacked) {
 	SetPixel(x, y, IntToColor(colorPacked));
 }
-void BEngine::ClearScreen(color_t & color) {
+void BEngine::ClearScreen(BColors::color_t & color) {
 	unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 	unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 	for (unsigned int i = 0; i < memorySize; i++) {
@@ -361,10 +361,10 @@ void BEngine::ClearScreen(color_t & color) {
 	}
 }
 void BEngine::ClearScreen(int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+	BColors::color_t color = IntToColor(colorPacked);
 	ClearScreen(color);
 }
-void BEngine::DrawCircle(int x, int y, int radius, color_t & color) {
+void BEngine::DrawCircle(int x, int y, int radius, BColors::color_t & color) {
 	float tau = 6.28318530718;
 	for (float t = 0; t < 1; t += 0.001) {
 		int x1 = std::cos(t * tau) * radius;
@@ -373,28 +373,28 @@ void BEngine::DrawCircle(int x, int y, int radius, color_t & color) {
 	}
 }
 void BEngine::DrawCircle(int x, int y, int radius, int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+	BColors::color_t color = IntToColor(colorPacked);
 	DrawCircle(x, y, radius, color);
 }
-void BEngine::DrawCircle(NSMath2d::Vec2 & point, int radius, color_t & color) {
+void BEngine::DrawCircle(BMath::Vec2 & point, int radius, BColors::color_t & color) {
 	DrawCircle(point.x, point.y, radius, color);
 }
-void BEngine::DrawCircle(NSMath2d::Vec2 & pos, int radius, int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+void BEngine::DrawCircle(BMath::Vec2 & pos, int radius, int colorPacked) {
+	BColors::color_t color = IntToColor(colorPacked);
 	DrawCircle(pos.x, pos.y, radius, color);
 }
-void BEngine::FillCircle(const NSMath2d::Vec2 & point, int radius, color_t & color) {
+void BEngine::FillCircle(const BMath::Vec2 & point, int radius, BColors::color_t & color) {
 	this->FillCircle(point.x, point.y, radius, color);
 }
-void BEngine::FillCircle(const NSMath2d::Vec2 & pos, int radius, int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+void BEngine::FillCircle(const BMath::Vec2 & pos, int radius, int colorPacked) {
+	BColors::color_t color = IntToColor(colorPacked);
 	this->FillCircle(pos.x, pos.y, radius, color);
 }
 void BEngine::FillCircle(int x, int y, int radius, int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+	BColors::color_t color = IntToColor(colorPacked);
 	this->FillCircle(x, y, radius, color);
 }
-void BEngine::FillCircle(int x, int y, int radius, color_t & color) {
+void BEngine::FillCircle(int x, int y, int radius, BColors::color_t & color) {
 	int x1 = x - radius;
 	int y1 = y - radius;
 	int x2 = radius + x;
@@ -409,36 +409,36 @@ void BEngine::FillCircle(int x, int y, int radius, color_t & color) {
 		}
 	}
 }
-void BEngine::DrawRectangle(int x1, int y1, int x2, int y2, color_t & color) {
+void BEngine::DrawRectangle(int x1, int y1, int x2, int y2, BColors::color_t & color) {
 	DrawLine(x1, y1, x2, y1, color);
 	DrawLine(x1, y1, x1, y2, color);
 	DrawLine(x1, y2, x2, y2, color);
 	DrawLine(x2, y1, x2, y2, color);
 }
 void BEngine::DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+	BColors::color_t color = IntToColor(colorPacked);
 	DrawLine(xTop, yTop, xBottom, yTop, color);
 	DrawLine(xTop, yTop, xTop, yBottom, color);
 	DrawLine(xTop, yBottom, xBottom, yBottom, color);
 	DrawLine(xBottom, yTop, xBottom, yBottom, color);
 }
-void BEngine::FillRectangle(int x1, int y1, int x2, int y2, color_t & color) {
+void BEngine::FillRectangle(int x1, int y1, int x2, int y2, BColors::color_t & color) {
 	for (int y = y1; y < y2; y++) {
 		DrawLine(x1, y, x2, y, color);
 	}
 }
 void BEngine::FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+	BColors::color_t color = IntToColor(colorPacked);
 	FillRectangle(xTop, yTop, xBottom, yBottom, color);
 }
-void BEngine::DrawTriangle(NSPrim::Triangle t) {
-	DrawLine(t.v1.x, t.v1.y, t.v2.x, t.v2.y, NSColors::WHITE);
-	DrawLine(t.v2.x, t.v2.y, t.v3.x, t.v3.y, NSColors::WHITE);
-	DrawLine(t.v2.x, t.v2.y, t.v1.x, t.v1.y, NSColors::WHITE);
+void BEngine::DrawTriangle(BPolygon::Triangle t) {
+	DrawLine(t.v1.x, t.v1.y, t.v2.x, t.v2.y, BColors::WHITE);
+	DrawLine(t.v2.x, t.v2.y, t.v3.x, t.v3.y, BColors::WHITE);
+	DrawLine(t.v2.x, t.v2.y, t.v1.x, t.v1.y, BColors::WHITE);
 }
 
 //Fill triangle - Scanline method
-void BEngine::FillTriangle(NSPrim::Triangle t) {
+void BEngine::FillTriangle(BPolygon::Triangle t) {
 	int x1 = t.v1.x, y1 = t.v1.y, x2 = t.v2.x, y2 = t.v2.y, x3 = t.v3.x, y3 = t.v3.y;
 	if (y1 > y2) {
 		std::swap(y1, y2);
@@ -465,7 +465,7 @@ void BEngine::FillTriangle(NSPrim::Triangle t) {
 		}
 		int xFirst = beta * x1 + (1.0f - beta) * x2 + percision;
 		int xSecond = alpha * x1 + (1.0f - alpha) * x3 + percision;
-		DrawLine(xFirst, y, xSecond, y, NSColors::YELLOW);
+		DrawLine(xFirst, y, xSecond, y, BColors::YELLOW);
 	}
 	//Draw the lower part
 	segmentHeight = y3 - y2;
@@ -474,15 +474,15 @@ void BEngine::FillTriangle(NSPrim::Triangle t) {
 		float beta = (float)(y3 - y) / segmentHeight;
 		int xSecond = alpha * x1 + (1 - alpha) * x3 + percision;
 		int xFirst = beta * x2 + (1 - beta) * x3 + percision;
-		DrawLine(xFirst, y, xSecond, y, NSColors::YELLOW);
+		DrawLine(xFirst, y, xSecond, y, BColors::YELLOW);
 	}
 }
 
 void BEngine::DrawLine(int x1, int y1, int x2, int y2, int colorPacked) {
-	color_t color = IntToColor(colorPacked);
+	BColors::color_t color = IntToColor(colorPacked);
 	DrawLine(x1, y1, x2, y2, color);
 }
-void BEngine::DrawLine(int x1, int y1, int x2, int y2, color_t & color) {
+void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color) {
 	bool steep = false;
 	if (std::abs(y2 - y1) > std::abs(x2 - x1)) {
 		steep = true;
@@ -512,57 +512,57 @@ void BEngine::DrawLine(int x1, int y1, int x2, int y2, color_t & color) {
 		}
 	}
 }
-void BEngine::DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color) {
+void BEngine::DrawBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, BColors::color_t & color) {
 	auto currentPoint = p1;
 	for (float t = 0; t <= 1.05; t += 0.05) {
-		NSMath2d::Vec2 temp2(0, 0);
+		BMath::Vec2 temp2(0, 0);
 		temp2 = QuadraticBezierCurve(p1, cp, p2, t);
 		DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y, color);
 		currentPoint = temp2;
 	}
 }
-NSMath2d::Vec2 BEngine::QuadraticBezierCurve(NSMath2d::Vec2 p1,
-	NSMath2d::Vec2 cp,
-	NSMath2d::Vec2 p2,
+BMath::Vec2 BEngine::QuadraticBezierCurve(BMath::Vec2 p1,
+	BMath::Vec2 cp,
+	BMath::Vec2 p2,
 	float t) {
 	auto s = GetTwoLinearPointsFromThreePoints(p1, cp, p2, t);
-	NSMath2d::Vec2 finalVector = s[1] - s[0];
-	NSMath2d::Vec2 finalVectorScaled = finalVector * t;
+	BMath::Vec2 finalVector = s[1] - s[0];
+	BMath::Vec2 finalVectorScaled = finalVector * t;
 	return s[0] + finalVectorScaled;
 }
 //Helper function to draw Bezier Curve.  Given three points, we get two points back
 //in respect the value of t
-std::vector<NSMath2d::Vec2> BEngine::GetTwoLinearPointsFromThreePoints(NSMath2d::Vec2 p1,
-	NSMath2d::Vec2 p2,
-	NSMath2d::Vec2 p3, float t) {
-	std::vector<NSMath2d::Vec2> toReturn;
+std::vector<BMath::Vec2> BEngine::GetTwoLinearPointsFromThreePoints(BMath::Vec2 p1,
+	BMath::Vec2 p2,
+	BMath::Vec2 p3, float t) {
+	std::vector<BMath::Vec2> toReturn;
 	//Get first vector
-	NSMath2d::Vec2 vectorFromP1ToP2 = p2 - p1;
+	BMath::Vec2 vectorFromP1ToP2 = p2 - p1;
 	//Get second vector
-	NSMath2d::Vec2 vectorFromP2ToP3 = p3 - p2;
+	BMath::Vec2 vectorFromP2ToP3 = p3 - p2;
 	//Scale both of the vectors in respect to t
-	NSMath2d::Vec2 vectorFromP1ToP2Scaled = vectorFromP1ToP2 * t;
-	NSMath2d::Vec2 vectorFromP2ToP3Scaled = vectorFromP2ToP3 * t;
+	BMath::Vec2 vectorFromP1ToP2Scaled = vectorFromP1ToP2 * t;
+	BMath::Vec2 vectorFromP2ToP3Scaled = vectorFromP2ToP3 * t;
 	//Add the scaled vector to the starting points to get a new point.
 	//Remember, we need to add them because we have directions not positions.
 	//We get positions by adding the directional vectors on the original positions
-	NSMath2d::Vec2 point1 = p1 + vectorFromP1ToP2Scaled;
-	NSMath2d::Vec2 point2 = p2 + vectorFromP2ToP3Scaled;
+	BMath::Vec2 point1 = p1 + vectorFromP1ToP2Scaled;
+	BMath::Vec2 point2 = p2 + vectorFromP2ToP3Scaled;
 	//Return the two points
 	toReturn.push_back(point1);
 	toReturn.push_back(point2);
 	return toReturn;
 }
-void BEngine::BezierCurveRecursive(std::vector<NSMath2d::Vec2> points,
+void BEngine::BezierCurveRecursive(std::vector<BMath::Vec2> points,
 	float t,
-	NSMath2d::Vec2 & output) {
+	BMath::Vec2 & output) {
 	if (points.size() == 3) {
-		NSMath2d::Vec2 toReturn = QuadraticBezierCurve(points[0], points[1], points[2], t);
+		BMath::Vec2 toReturn = QuadraticBezierCurve(points[0], points[1], points[2], t);
 		output.x = toReturn.x;
 		output.y = toReturn.y;
 	}
 	else if (points.size() > 3) {
-		std::vector<NSMath2d::Vec2> run;
+		std::vector<BMath::Vec2> run;
 		for (int i = 0; i < points.size() - 2; i++) {
 			auto temp = GetTwoLinearPointsFromThreePoints(points[i], points[i + 1], points[i + 2], t);
 			if (i == 0) {
@@ -579,9 +579,9 @@ void BEngine::BezierCurveRecursive(std::vector<NSMath2d::Vec2> points,
 		BezierCurveRecursive(run, t, output);
 	}
 }
-NSMath2d::Vec2 BEngine::Lerp(NSMath2d::Vec2 a, NSMath2d::Vec2 b, float t) {
-	NSMath2d::Vec2 vectorFromAToB = b - a;
-	NSMath2d::Vec2 vectorFromAToBScaled = vectorFromAToB * t;
+BMath::Vec2 BEngine::Lerp(BMath::Vec2 a, BMath::Vec2 b, float t) {
+	BMath::Vec2 vectorFromAToB = b - a;
+	BMath::Vec2 vectorFromAToBScaled = vectorFromAToB * t;
 	return a + vectorFromAToBScaled;
 }
 void BEngine::ProcessKeys() {
@@ -644,7 +644,7 @@ bool BEngine::LoadOBJFile(const char * fileName) {
 		return false;
 
 	// Local cache of verts
-	std::vector<NSMath2d::Vec4> verts;
+	std::vector<BMath::Vec4> verts;
 
 	while (!f.eof())
 	{
@@ -658,7 +658,7 @@ bool BEngine::LoadOBJFile(const char * fileName) {
 
 		if (line[0] == 'v')
 		{
-			NSMath2d::Vec4 v;
+			BMath::Vec4 v;
 			s >> junk >> v.x >> v.y >> v.z;
 			v.w = 1;
 			verts.push_back(v);
@@ -668,7 +668,7 @@ bool BEngine::LoadOBJFile(const char * fileName) {
 		{
 			int f[3];
 			s >> junk >> f[0] >> f[1] >> f[2];
-			NSMath2d::Vec4 vec = verts[f[0] - 1], vec2 = verts[f[1] - 1], vec3 = verts[f[2] - 1];
+			BMath::Vec4 vec = verts[f[0] - 1], vec2 = verts[f[1] - 1], vec3 = verts[f[2] - 1];
 			int offset = 300;
 			int scalar = 20;
 			vec.x *= scalar;
@@ -691,19 +691,19 @@ bool BEngine::LoadOBJFile(const char * fileName) {
 			vec3.x += offset;
 			vec3.y += offset;
 			vec3.z += offset;
-			NSPrim::Triangle t = { vec,vec2,vec3 };
+			BPolygon::Triangle t = { vec,vec2,vec3 };
 			this->triangles.push_back(t);
 		}
 	}
 	return true;
 }
-color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {
+BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {
 	if(normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
 		return { 0,0,0,0 };
 	}
 	assert(textureID > 0 && textureID <= textures.size());
 	Texture * texture = &textures[textureID - 1];
-	color_t color;
+	BColors::color_t color;
 	int mappedX = normalizedX * (texture->width - 1);
 	int mappedY = normalizedY * (texture->height - 1);
 	unsigned int index = (mappedY * texture->width * texture->bytesPerPixel) + mappedX * texture->bytesPerPixel;
@@ -715,14 +715,14 @@ color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID
 	return color;
 }
 
-NSInput::Key BEngine::GetKey(unsigned int key) {
+BInput::Key BEngine::GetKey(unsigned int key) {
 	assert(key > 0 && key < 0xFF);
 	return this->keys[key];
 }
 void BEngine::WriteTimingOutput() {
 	NSDebug::WriteTimingDataOut(&this->timingData);
 }
-void BEngine::DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos) {
+void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
 	bool modeChanged = false;
 	if (blendMode == NORMAL) { modeChanged = true; blendMode = ALPHA; }
 	int startingX = pos.x - sprite.width / 2;
@@ -738,7 +738,7 @@ void BEngine::DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos) {
 		for (int y = startingY; y < endingY; y += pixelDimension) {
 			float normalizedX = 1.0f - ((float)(endingX - x) / sprite.width);
 			float normalizedY = 1.0f - ((float)(endingY - y) / sprite.height);
-			color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
+			BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
 			if (sprite.tint) {
 				float t = sprite.tintingPercentage;
 				float t2 = 1 - t;
@@ -751,8 +751,8 @@ void BEngine::DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos) {
 	}
 	if (modeChanged)blendMode = NORMAL;
 }
-color_t BEngine::IntToColor(int color) {
-	color_t toReturn;
+BColors::color_t BEngine::IntToColor(int color) {
+	BColors::color_t toReturn;
 	toReturn.red = color >> 16 & 0xFF;
 	toReturn.green = color >> 8 & 0xFF;
 	toReturn.blue = color & 0xFF;
@@ -773,7 +773,7 @@ Sprite::Sprite(Texture * t, int height, int width, float scale) {
 	this->width = width;
 	this->scale = scale;
 }
-void Sprite::SetTinting(color_t color, float percentage) {
+void Sprite::SetTinting(BColors::color_t color, float percentage) {
 	this->tinting = color;
 	this->tintingPercentage = percentage;
 	this->tint = true;

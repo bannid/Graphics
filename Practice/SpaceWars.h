@@ -17,15 +17,15 @@ class SpaceWars : public BEngine {
 	Sprite * enemyShip;
 	//################ End Assets##################
 	//################ Player    ##################
-	NSMath2d::Vec2 spaceShipPos;
-	NSMath2d::Vec2 shipVelocity;
+	BMath::Vec2 spaceShipPos;
+	BMath::Vec2 shipVelocity;
 	int velocityIncrement = 10;
 	int spaceShipHeight;
 	int spaceShipWidth;
 	float shipVelocityDampening = 0.99;
 
-	NSMath2d::Vec2 bulletVelocity = { 0,-1000 };
-	std::vector<NSMath2d::Vec2> bullets;
+	BMath::Vec2 bulletVelocity = { 0,-1000 };
+	std::vector<BMath::Vec2> bullets;
 	int numberOfBullets = 0;
 	int maxNumberOfBullets = 30;
 	int bulletHeight;
@@ -33,8 +33,8 @@ class SpaceWars : public BEngine {
 	
 	//############### End player ###################
 	//############### Enemy ships ##################
-	std::vector<NSMath2d::Vec2> enemyShips;
-	NSMath2d::Vec2 shipsVelocity = { 0,100 };
+	std::vector<BMath::Vec2> enemyShips;
+	BMath::Vec2 shipsVelocity = { 0,100 };
 	int maximumNumberOfEnemyShips = 10;
 	int numberOfShips = 0;
 	int enemyShipRadius = 50;
@@ -96,7 +96,7 @@ class SpaceWars : public BEngine {
 		}
 		shipVelocity = shipVelocity * shipVelocityDampening;
 	}
-	inline void AssignRandomPos(NSMath2d::Vec2 & pos) {
+	inline void AssignRandomPos(BMath::Vec2 & pos) {
 		int screenWidth = GetScreenWidth();
 		float randomX = (float)rand() / RAND_MAX;
 		float randomY = (float)rand() / RAND_MAX;
@@ -148,13 +148,13 @@ class SpaceWars : public BEngine {
 		bool assetsLoaded = LoadTextureFiles();
 		spaceShipPos.x = GetScreenWidth() / 2;
 		spaceShipPos.y = GetScreenHeight() - (spaceShipHeight/2);
-		bullets = std::vector<NSMath2d::Vec2>(maxNumberOfBullets);
-		enemyShips = std::vector<NSMath2d::Vec2>(maximumNumberOfEnemyShips);
+		bullets = std::vector<BMath::Vec2>(maxNumberOfBullets);
+		enemyShips = std::vector<BMath::Vec2>(maximumNumberOfEnemyShips);
 		return assetsLoaded;
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen(NSColors::BLACK);
+		ClearScreen(BColors::BLACK);
 		DrawPlayerShip();
 		UpdatePlayerShip(elapsedTime);
 		DrawBullets();

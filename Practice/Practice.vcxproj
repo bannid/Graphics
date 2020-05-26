@@ -158,6 +158,8 @@
     <ClInclude Include="DrawBezierCurves.h" />
     <ClInclude Include="DrawLines.h" />
     <ClInclude Include="lodepng.h" />
+    <ClInclude Include="Maths.h" />
+    <ClInclude Include="Polygon.h" />
     <ClInclude Include="SpaceWars.h" />
     <ClInclude Include="TestCode.h" />
     <ClInclude Include="Timing.h" />

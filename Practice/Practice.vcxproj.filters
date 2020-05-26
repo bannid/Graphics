@@ -28,6 +28,12 @@
     <Filter Include="Timings">
       <UniqueIdentifier>{e2bd9e8f-93ac-4fb0-9a64-b9a5b13aae8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Maths">
+      <UniqueIdentifier>{a5984af7-c96b-4de0-88ce-7c4fd63ab05b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Polygons">
+      <UniqueIdentifier>{1dbe472b-f665-40e9-951a-8dd46d93fe33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -59,6 +65,12 @@
     </ClInclude>
     <ClInclude Include="SpaceWars.h">
       <Filter>Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="Maths.h">
+      <Filter>Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="Polygon.h">
+      <Filter>Polygons</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
