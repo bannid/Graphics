@@ -80,11 +80,9 @@
     <ClCompile Include="lodepng.cpp">
       <Filter>3rdParty</Filter>
     </ClCompile>
-    <ClCompile Include="Platform.cpp">
-      <Filter>3rdParty</Filter>
-    </ClCompile>
     <ClCompile Include="Debug.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
+    <ClCompile Include="Win32Main.cpp" />
   </ItemGroup>
 </Project>

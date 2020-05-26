@@ -36,6 +36,8 @@ struct Sprite {
 	Sprite(Texture *,int height, int width, float scale);
 	void ScaleSprite(float newScaleValue);
 	void SetTinting(BColors::color_t color, float percentage);
+	unsigned int GetHeight();
+	unsigned int GetWidth();
 	
 };
 enum BLENDING_MODE {ALPHA, NORMAL};

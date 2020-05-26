@@ -723,12 +723,14 @@ void BEngine::WriteTimingOutput() {
 	NSDebug::WriteTimingDataOut(&this->timingData);
 }
 void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
+	int width = sprite.width * sprite.scale;
+	int height = sprite.height * sprite.scale;
 	bool modeChanged = false;
 	if (blendMode == NORMAL) { modeChanged = true; blendMode = ALPHA; }
-	int startingX = pos.x - sprite.width / 2;
-	int startingY = pos.y - sprite.height / 2;
-	int endingX = pos.x + sprite.width / 2;
-	int endingY = pos.y + sprite.height / 2;
+	int startingX = pos.x - width / 2;
+	int startingY = pos.y - height / 2;
+	int endingX = pos.x + width / 2;
+	int endingY = pos.y + height / 2;
 	
 	//TODO: We shouldnt be getting the pixel value from the texture
 	//at every draw sprite call. I think we should attach some memory
@@ -736,8 +738,8 @@ void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
 	//that memory to the sprite current pos.
 	for (int x = startingX; x < endingX; x += pixelDimension) {
 		for (int y = startingY; y < endingY; y += pixelDimension) {
-			float normalizedX = 1.0f - ((float)(endingX - x) / sprite.width);
-			float normalizedY = 1.0f - ((float)(endingY - y) / sprite.height);
+			float normalizedX = 1.0f - ((float)(endingX - x) / width);
+			float normalizedY = 1.0f - ((float)(endingY - y) / height);
 			BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
 			if (sprite.tint) {
 				float t = sprite.tintingPercentage;
@@ -779,3 +781,9 @@ void Sprite::SetTinting(BColors::color_t color, float percentage) {
 	this->tint = true;
 }
 void Sprite::ScaleSprite(float newScaleValue) { this->scale = newScaleValue; }
+unsigned int Sprite::GetHeight() {
+	return this->height * this->scale;
+}
+unsigned int Sprite::GetWidth() {
+	return this->width * scale;
+}

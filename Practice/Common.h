@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include "Maths.h"
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
+
 struct videoMemory_t {
 	BITMAPINFO bitmapInfo;
 	void *bitmapMemory;

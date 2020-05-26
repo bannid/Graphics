@@ -168,7 +168,7 @@
     <ClCompile Include="BEngine.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="lodepng.cpp" />
-    <ClCompile Include="Platform.cpp" />
+    <ClCompile Include="Win32Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
