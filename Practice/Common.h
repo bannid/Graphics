@@ -88,6 +88,23 @@ namespace NSMath2d {
 			return Vec2(x / magnitude, y / magnitude);
 		}
 	};
+	struct Vec4 {
+		float x;
+		float y;
+		float z;
+		float w;
+		Vec4():x(0),y(0),z(0),w(0){}
+		Vec4(float x, float y, float z, float w):x(x), y(y), z(z), w(w) {}
+		Vec4(int x, int y, int z, int w) :x(x), y(y), z(z), w(w) {}
+	};
+}
+namespace NSPrim {
+	struct Triangle {
+		NSMath2d::Vec4 v1;
+		NSMath2d::Vec4 v2;
+		NSMath2d::Vec4 v3;
+		Triangle(NSMath2d::Vec4 v1, NSMath2d::Vec4 v2, NSMath2d::Vec4 v3):v1(v1),v2(v2),v3(v3){}
+	};
 }
 namespace NSColors {
 	enum COLORS {

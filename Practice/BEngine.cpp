@@ -192,7 +192,7 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 
 	screenInfo.bitmapInfo.bmiHeader.biSize = sizeof(screenInfo.bitmapInfo.bmiHeader);
 	screenInfo.bitmapInfo.bmiHeader.biWidth = screenInfo.bitmapWidth;
-	screenInfo.bitmapInfo.bmiHeader.biHeight = -screenInfo.bitmapHeight;//Minus to have the y grow downwards
+	screenInfo.bitmapInfo.bmiHeader.biHeight = screenInfo.bitmapHeight;//Minus to have the y grow downwards
 	screenInfo.bitmapInfo.bmiHeader.biPlanes = 1;
 	screenInfo.bitmapInfo.bmiHeader.biBitCount = 32;
 	screenInfo.bitmapInfo.bmiHeader.biCompression = BI_RGB;
@@ -431,14 +431,27 @@ void BEngine::FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int co
 	color_t color = IntToColor(colorPacked);
 	FillRectangle(xTop, yTop, xBottom, yBottom, color);
 }
-void BEngine::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
-	DrawLine(x1, y1, x2, y2, NSColors::WHITE);
-	DrawLine(x2, y2, x3, y3, NSColors::WHITE);
-	DrawLine(x3, y3, x1, y1, NSColors::WHITE);
-	FillTriangle(x1, y1, x2, y2, x3, y3);
+void BEngine::DrawTriangle(NSPrim::Triangle t) {
+	DrawLine(t.v1.x, t.v1.y, t.v2.x, t.v2.y, NSColors::WHITE);
+	DrawLine(t.v2.x, t.v2.y, t.v3.x, t.v3.y, NSColors::WHITE);
+	DrawLine(t.v2.x, t.v2.y, t.v1.x, t.v1.y, NSColors::WHITE);
 }
+
 //Fill triangle - Scanline method
-void BEngine::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+void BEngine::FillTriangle(NSPrim::Triangle t) {
+	int x1 = t.v1.x, y1 = t.v1.y, x2 = t.v2.x, y2 = t.v2.y, x3 = t.v3.x, y3 = t.v3.y;
+	if (y1 > y2) {
+		std::swap(y1, y2);
+		std::swap(x1, x2);
+	}
+	if (y2 > y3) {
+		std::swap(y2, y3);
+		std::swap(x2, x3);
+	}
+	if (y1 > y2) {
+		std::swap(y1, y2);
+		std::swap(x1, x2);
+	}
 	int triangleHeight = y3 - y1;
 	if (triangleHeight == 0) { return; }//Dont draw triangles that are not triangles.
 	int segmentHeight = y2 - y1;
@@ -447,20 +460,24 @@ void BEngine::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
 	for (int y = y1; y < y2; y++) {
 		float alpha = (float)(y3 - y) / triangleHeight;
 		float beta = (float)(y2 - y) / segmentHeight;
-		int xFirst = beta * x1 + (1 - beta) * x2 + percision;
-		int xSecond = alpha * x1 + (1 - alpha) * x3 + percision;
+		if (beta > 1.0f || alpha > 1.0f) {
+			DebugBreak();
+		}
+		int xFirst = beta * x1 + (1.0f - beta) * x2 + percision;
+		int xSecond = alpha * x1 + (1.0f - alpha) * x3 + percision;
 		DrawLine(xFirst, y, xSecond, y, NSColors::YELLOW);
 	}
 	//Draw the lower part
 	segmentHeight = y3 - y2;
-	for (int y = y2 + 1; y < y3; y++) {
+	for (int y = y2; y < y3; y++) {
 		float alpha = (float)(y3 - y) / triangleHeight;
 		float beta = (float)(y3 - y) / segmentHeight;
 		int xSecond = alpha * x1 + (1 - alpha) * x3 + percision;
 		int xFirst = beta * x2 + (1 - beta) * x3 + percision;
-		DrawLine(xFirst, y, xSecond, y, NSColors::RED);
+		DrawLine(xFirst, y, xSecond, y, NSColors::YELLOW);
 	}
 }
+
 void BEngine::DrawLine(int x1, int y1, int x2, int y2, int colorPacked) {
 	color_t color = IntToColor(colorPacked);
 	DrawLine(x1, y1, x2, y2, color);
@@ -620,6 +637,65 @@ bool BEngine::LoadTexturePNG(const char * fileName,
 		}
 		return success;
 	}
+}
+bool BEngine::LoadOBJFile(const char * fileName) {
+	std::ifstream f(fileName);
+	if (!f.is_open())
+		return false;
+
+	// Local cache of verts
+	std::vector<NSMath2d::Vec4> verts;
+
+	while (!f.eof())
+	{
+		char line[128];
+		f.getline(line, 128);
+
+		std::strstream s;
+		s << line;
+
+		char junk;
+
+		if (line[0] == 'v')
+		{
+			NSMath2d::Vec4 v;
+			s >> junk >> v.x >> v.y >> v.z;
+			v.w = 1;
+			verts.push_back(v);
+		}
+
+		if (line[0] == 'f')
+		{
+			int f[3];
+			s >> junk >> f[0] >> f[1] >> f[2];
+			NSMath2d::Vec4 vec = verts[f[0] - 1], vec2 = verts[f[1] - 1], vec3 = verts[f[2] - 1];
+			int offset = 300;
+			int scalar = 20;
+			vec.x *= scalar;
+			vec.y *= scalar;
+			vec.z *= scalar;
+			vec.x += offset;
+			vec.y += offset;
+			vec.z += offset;
+
+			vec2.x *= scalar;
+			vec2.y *= scalar;
+			vec2.z *= scalar;
+			vec2.x += offset;
+			vec2.y += offset;
+			vec2.z += offset;
+
+			vec3.x *= scalar;
+			vec3.y *= scalar;
+			vec3.z *= scalar;
+			vec3.x += offset;
+			vec3.y += offset;
+			vec3.z += offset;
+			NSPrim::Triangle t = { vec,vec2,vec3 };
+			this->triangles.push_back(t);
+		}
+	}
+	return true;
 }
 color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {
 	if(normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {

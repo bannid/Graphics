@@ -22,8 +22,14 @@ class Test : public BEngine {
 		DrawRectangle(x,y,x+100,y+100,c);
 	}
 	void TestDrawTriangle() {
-		FillTriangle(500,0,300,100,500,500);
+		//FillTriangle(500,0,300,100,500,500);
 		//FillTriangle(500, 500, 300, 100, 500, 0);
+		for (auto it = triangles.begin(); it != triangles.end(); it++) {
+			FillTriangle(*it);
+		}
+	}
+	bool TestCodeForLoadObjFile() {
+		return LoadOBJFile("C:\\Users\\Winny-Banni\\Desktop\\videos\\teapot.obj");
 	}
 	void TestCodeForLerp() {
 		NSMath2d::Vec2 point1 = { 0,500 };
@@ -103,7 +109,7 @@ class Test : public BEngine {
 		//TestCodeForTextureLoading(); 
 		//spaceShipPos = { GetScreenWidth() / 2,GetScreenHeight() / 2 };
 		//spaceShip = new Sprite(GetTexture(space),200,200,1);
-		return true;
+		return TestCodeForLoadObjFile();
 	}
 private:
 	TEXID space;

@@ -6,6 +6,7 @@
 #include <chrono>
 #include <assert.h>
 #include <cmath>
+#include <strstream>
 #include "Common.h"
 #include "Debug.h"
 #include "lodepng.h"
@@ -64,6 +65,7 @@ public:
 public:
 	bool running;
 	POINT mouseInfo;
+	std::vector<NSPrim::Triangle> triangles;
 	//Debug
 	std::map<std::string, std::vector<int>> timingData;
 private:
@@ -86,6 +88,7 @@ public:
 	NSMath2d::Vec2 Lerp(NSMath2d::Vec2 pointOne, NSMath2d::Vec2 pointTwo, float t);
 	//Assets
 	bool LoadTexturePNG(const char * fileName, TEXID& idOutput, bool loadAlpha);
+	bool LoadOBJFile(const char * fileName);
 	color_t GetColorFromTexture(float xNormalized, float yNormalized, TEXID textureId);
 	Texture * GetTexture(TEXID tId);
 	//Drawing routines
@@ -103,8 +106,8 @@ public:
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
-	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
-	void FillTriangle(int x1, int y1, int x2, int  y2, int x3, int y3);
+	void FillTriangle(NSPrim::Triangle t);
+	void DrawTriangle(NSPrim::Triangle t);
 	void DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos);
 	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);
@@ -134,6 +137,7 @@ private:
 	NSInput::Key keys[0xFF];
 	int pixelDimension;
 	std::vector<Texture> textures;
+	
 	GLuint blitTextureHandle;
 	BLENDING_MODE blendMode = NORMAL;
 };
