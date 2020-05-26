@@ -92,8 +92,10 @@ public:
 	color_t GetColorFromTexture(float xNormalized, float yNormalized, TEXID textureId);
 	Texture * GetTexture(TEXID tId);
 	//Drawing routines
+	//Draw line
 	void DrawLine(int x1, int y1, int x2, int y2, color_t & color);
 	void DrawLine(int x1, int y1, int x2, int y2, int color);
+	//Circle
 	void DrawCircle(int x, int y, int radius, color_t & color);
 	void DrawCircle(int x, int y, int radius, int colorPacked);
 	void DrawCircle(NSMath2d::Vec2 & pos, int radius, color_t & color);
@@ -102,20 +104,26 @@ public:
 	void FillCircle(const NSMath2d::Vec2 & pos, int radius, color_t & color);
 	void FillCircle(int x, int y, int radius, int colorPacked);
 	void FillCircle(const NSMath2d::Vec2 & pos, int radius, int colorPacked);
+	//Rectagle - TODO
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, color_t & color);
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
+	//Triangle 
 	void FillTriangle(NSPrim::Triangle t);
 	void DrawTriangle(NSPrim::Triangle t);
+	//Sprite - Affine transformations cannot be applied
 	void DrawSprite(Sprite & sprite, NSMath2d::Vec2 pos);
+	//Functions to draw bezier curve in screen space.
 	void DrawBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, color_t & color);
 	NSMath2d::Vec2 QuadraticBezierCurve(NSMath2d::Vec2 p1, NSMath2d::Vec2 cp, NSMath2d::Vec2 p2, float t);
 	void BezierCurveRecursive(std::vector<NSMath2d::Vec2> points, float t, NSMath2d::Vec2 & ouput);
+	//Helper routines
 	void ClearScreen(color_t & color);
 	void ClearScreen(int colorPacked);
 	void SetPixel(int x, int y, color_t color);
 	void SetPixel(int x, int y, int colorPacked);
+	//Set blending mode - ALPHA or NORMAL
 	void SetBlendingMode(BLENDING_MODE mode);
 	//Helper functions
 	color_t IntToColor(int color);
@@ -137,9 +145,9 @@ private:
 	NSInput::Key keys[0xFF];
 	int pixelDimension;
 	std::vector<Texture> textures;
-	
-	GLuint blitTextureHandle;
 	BLENDING_MODE blendMode = NORMAL;
+	//OpenGL
+	GLuint blitTextureHandle;
 };
 
 
