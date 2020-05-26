@@ -35,7 +35,7 @@ struct Sprite {
 	void SetTinting(color_t color, float percentage);
 	
 };
-enum MODE {ALPHA, NORMAL};
+enum BLENDING_MODE {ALPHA, NORMAL};
 class BEngine
 {
 public:
@@ -112,7 +112,8 @@ public:
 	void ClearScreen(color_t & color);
 	void ClearScreen(int colorPacked);
 	void SetPixel(int x, int y, color_t color);
-	void SetBlendingMode(MODE mode);
+	void SetPixel(int x, int y, int colorPacked);
+	void SetBlendingMode(BLENDING_MODE mode);
 	//Helper functions
 	color_t IntToColor(int color);
 	//Input
@@ -134,7 +135,7 @@ private:
 	int pixelDimension;
 	std::vector<Texture> textures;
 	GLuint blitTextureHandle;
-	MODE blendMode = NORMAL;
+	BLENDING_MODE blendMode = NORMAL;
 };
 
 

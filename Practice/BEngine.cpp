@@ -349,6 +349,9 @@ void BEngine::SetPixel(int x, int y, color_t color) {
 		}
 	}
 }
+void BEngine::SetPixel(int x, int y, int colorPacked) {
+	SetPixel(x, y, IntToColor(colorPacked));
+}
 void BEngine::ClearScreen(color_t & color) {
 	unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 	unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
@@ -432,6 +435,31 @@ void BEngine::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
 	DrawLine(x1, y1, x2, y2, NSColors::WHITE);
 	DrawLine(x2, y2, x3, y3, NSColors::WHITE);
 	DrawLine(x3, y3, x1, y1, NSColors::WHITE);
+	FillTriangle(x1, y1, x2, y2, x3, y3);
+}
+//Fill triangle - Scanline method
+void BEngine::FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+	int triangleHeight = y3 - y1;
+	if (triangleHeight == 0) { return; }//Dont draw triangles that are not triangles.
+	int segmentHeight = y2 - y1;
+	float percision = 0.4;
+	//Draw the upper part
+	for (int y = y1; y < y2; y++) {
+		float alpha = (float)(y3 - y) / triangleHeight;
+		float beta = (float)(y2 - y) / segmentHeight;
+		int xFirst = beta * x1 + (1 - beta) * x2 + percision;
+		int xSecond = alpha * x1 + (1 - alpha) * x3 + percision;
+		DrawLine(xFirst, y, xSecond, y, NSColors::YELLOW);
+	}
+	//Draw the lower part
+	segmentHeight = y3 - y2;
+	for (int y = y2 + 1; y < y3; y++) {
+		float alpha = (float)(y3 - y) / triangleHeight;
+		float beta = (float)(y3 - y) / segmentHeight;
+		int xSecond = alpha * x1 + (1 - alpha) * x3 + percision;
+		int xFirst = beta * x2 + (1 - beta) * x3 + percision;
+		DrawLine(xFirst, y, xSecond, y, NSColors::RED);
+	}
 }
 void BEngine::DrawLine(int x1, int y1, int x2, int y2, int colorPacked) {
 	color_t color = IntToColor(colorPacked);
@@ -657,7 +685,7 @@ color_t BEngine::IntToColor(int color) {
 Texture * BEngine::GetTexture(TEXID tId) {
 	return &textures[tId - 1];
 }
-void BEngine::SetBlendingMode(MODE mode) { this->blendMode = mode; }
+void BEngine::SetBlendingMode(BLENDING_MODE mode) { this->blendMode = mode; }
 Sprite::Sprite(Texture * t) {
 	this->tex = t;
 	this->width = tex->width;

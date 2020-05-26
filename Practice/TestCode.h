@@ -22,7 +22,8 @@ class Test : public BEngine {
 		DrawRectangle(x,y,x+100,y+100,c);
 	}
 	void TestDrawTriangle() {
-		DrawTriangle(0,50,50,0,50,50);
+		FillTriangle(500,0,300,100,500,500);
+		//FillTriangle(500, 500, 300, 100, 500, 0);
 	}
 	void TestCodeForLerp() {
 		NSMath2d::Vec2 point1 = { 0,500 };
