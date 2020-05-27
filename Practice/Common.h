@@ -3,14 +3,6 @@
 #include "Maths.h"
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
 
-struct videoMemory_t {
-	BITMAPINFO bitmapInfo;
-	void *bitmapMemory;
-	int bitmapWidth;
-	int bitmapHeight;
-	int bytesPerPixel = 4;
-};
-
 namespace BInput {
 	struct Key {
 		bool keyDown = false;

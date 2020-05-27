@@ -77,6 +77,14 @@ private:
 	LPCWSTR windowName;
 	int windowHeight;
 	int windowWidth;
+	//Private struct to handle memory
+	struct videoMemory_t {
+		BITMAPINFO bitmapInfo;
+		void *bitmapMemory;
+		int bitmapWidth;
+		int bitmapHeight;
+		int bytesPerPixel = 4;
+	};
 	videoMemory_t screenInfo;
 
 	//Rendering
@@ -122,7 +130,7 @@ public:
 	void DrawBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, BColors::color_t & color);
 	BMath::Vec2 QuadraticBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, float t);
 	void BezierCurveRecursive(std::vector<BMath::Vec2> points, float t, BMath::Vec2 & ouput);
-	//Helper routines
+	//Routines to manipulate framebuffer
 	void ClearScreen(BColors::color_t & color);
 	void ClearScreen(int colorPacked);
 	void SetPixel(int x, int y, BColors::color_t color);
