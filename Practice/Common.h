@@ -41,7 +41,8 @@ namespace BColors {
 		BLUE = RGBC(0, 0, 255),
 		GREEN = RGBC(0, 255, 0),
 		WHITE = RGBC(255, 255, 255),
-		YELLOW = RGBC(255, 255, 0)
+		YELLOW = RGBC(255, 255, 0),
+		MAROON = RGBC(128,0,0)
 	};
 }
 

@@ -160,6 +160,7 @@
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="Polygon.h" />
+    <ClInclude Include="RayCaster.h" />
     <ClInclude Include="SpaceWars.h" />
     <ClInclude Include="TestCode.h" />
     <ClInclude Include="Timing.h" />
