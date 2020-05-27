@@ -5,20 +5,25 @@
 #define DEBUG_DRAW 1
 
 class RayCaster : public BEngine {
+	//Dimensions of our world
 	int mapWidth = 16;
 	int mapHeight = 16;
-	int windowWidth = 512;
-	int windowHeight = 512;
-
+	int windowWidth = 528;
+	int windowHeight = 528;
+	//Calculated in the OnCreate function
 	int rectangleHeight;
 	int rectangleWidth;
-	
+	//Player postions
 	float playerX = 5;
     float playerY = 5;
+	//Player size
 	int playerSize = 5;
+	//Viewing angle of player
 	float playerAngle = 0.0f;
+	//Field of view in radians
 	float fov = 1.0f;
-	std::vector<int> colors = { BColors::WHITE,BColors::RED,BColors::GREEN,BColors::YELLOW };
+	std::vector<int> colors = { BColors::MAROON,BColors::RED,BColors::GREEN,BColors::YELLOW };
+	//Map of our world -> 16x16
 	std::string map =   "0000000000000000"\
 						"0   3          0"\
 						"0   3          0"\
@@ -71,11 +76,11 @@ class RayCaster : public BEngine {
 				}
 			}
 #if DEBUG_DRAW
-			DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::MAROON);
+			DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::WHITE);
 #endif
 			int screenOffsetX = 600;
 			int segmentHeight = 300 / ((c * std::cos(a-playerAngle)));
-			DrawLine(screenOffsetX + i, GetScreenHeight() / 2, screenOffsetX + i, GetScreenHeight() / 2 - segmentHeight, colors[colorIndex]);
+			DrawLine(screenOffsetX + i, GetScreenHeight() / 1.5, screenOffsetX + i, GetScreenHeight() / 1.5 - segmentHeight, colors[colorIndex]);
 			a += fov / windowWidth;
 			
 		}
@@ -88,14 +93,22 @@ class RayCaster : public BEngine {
 		if (GetKey(VK_UP).keyDown) {
 			float directionX = std::cos(playerAngle);
 			float directionY = std::sin(playerAngle);
-			playerX += directionX * elapsedTime * playerSpeed;
-			playerY += directionY * elapsedTime * playerSpeed;
+			float newX = playerX + directionX * elapsedTime * playerSpeed;
+			float newY = playerY + directionY * elapsedTime * playerSpeed;
+			if (map[int(newX) + int(newY) * mapWidth] == ' ') {
+				playerX = newX;
+				playerY = newY;
+			}
 		}
 		if (GetKey(VK_DOWN).keyDown) {
 			float directionX = std::cos(playerAngle);
 			float directionY = std::sin(playerAngle);
-			playerX -= directionX * elapsedTime * playerSpeed;
-			playerY -= directionY * elapsedTime * playerSpeed;
+			float newX = playerX - directionX * elapsedTime * playerSpeed;
+			float newY = playerY - directionY * elapsedTime * playerSpeed;
+			if (map[int(newX) + int(newY) * mapWidth] == ' ') {
+				playerX = newX;
+				playerY = newY;
+			}
 		}
 		if (GetKey('A').keyDown) {
 			fov += 0.2f * elapsedTime;
