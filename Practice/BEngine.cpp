@@ -589,42 +589,40 @@ BMath::Vec2 BEngine::Lerp(BMath::Vec2 a, BMath::Vec2 b, float t) {
 	BMath::Vec2 vectorFromAToBScaled = vectorFromAToB * t;
 	return a + vectorFromAToBScaled;
 }
-//Our font sprite encodes our characters in hexcadecimal.
-	//i.e. 'A' is 0x41 and in sprite space, 'A' is located at 1,4
-void BEngine::CharToXandY(char c, int & x, int & y) {
-	y = c >> 4 & 0x0F;
-	x = c & 0x0F;
-}
+
 void BEngine::DrawString(std::string string, int posX, int posY, int size, BColors::color_t color) {
 	for (int pq = 0; pq < string.size(); pq++) {
 		char c = string[pq];
 		int drawingX = posX + pq * size * 0.6;
 		int drawingY = posY;
-		//The positon of the font in the sprite
-		int x = 0;
-		int y = 0;
-		CharToXandY(c, x, y);
+		//The positon of the font in the sprite. Our font sprite encodes 
+		//our characters in hexcadecimal.
+		//i.e. 'A' is 0x41 and in sprite space, 'A' is located at 1,4
+		int x = c & 0x0F;
+		int y = c >> 4 & 0x0F;
 		//How many pixels does every font covers - In this case 16x16
 		int pixelsPerFont = 16; //16x16
-		//Real x and y in the image space
+		//I and J are real x and y in the image space
 		int  i = x * pixelsPerFont;
 		int j = y * pixelsPerFont;
 		//Font width and height
 		int fontHeight = size;
 		int fontWidth = size;
+		//Start at drawingX and drawingY
 		for (int x1 = drawingX; x1 < drawingX + fontWidth; x1++) {
 			for (int y1 = drawingY; y1 < drawingY + fontHeight; y1++) {
 				//Normalize the x and y
 				float normalizedX = (float)(x1 - drawingX) / fontWidth;
 				float normalizedY = (float)(y1 - drawingY) / fontHeight;
-				//Now we scale the i and j in respect to x and y. We are normalizing spaces
+				//Now we scale the i and j in respect to x and y. We are normalizing and mapping 
+				//rendering space to font space
 				int iToScale = normalizedX * pixelsPerFont;
 				int jToScale = normalizedY * pixelsPerFont;
 
 				//Then we get the color from the texture and set the pixel
 				BColors::color_t colorFromTexture = GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
 				if (colorFromTexture.alpha > 0) {
-					SetBlendingMode(NORMAL);
+					SetBlendingMode(ALPHA);
 					SetPixel(x1, y1, color);
 					SetBlendingMode(NORMAL);
 				}
@@ -636,43 +634,7 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, BColo
 void BEngine::DrawString(const char * constString, int posX, int posY, int size, BColors::color_t color) {
 	std::string string;
 	string.append(constString);
-	for (int pq = 0; pq < string.size(); pq++) {
-		char c = string[pq];
-		int drawingX = posX + pq * size * 0.6;
-		int drawingY = posY;
-		//The positon of the font in the sprite
-		int x = 0;
-		int y = 0;
-		CharToXandY(c, x, y);
-		//How many pixels does every font covers - In this case 16x16
-		int pixelsPerFont = 16; //16x16
-		//Real x and y in the image space
-		int  i = x * pixelsPerFont;
-		int j = y * pixelsPerFont;
-		//Font width and height
-		int fontHeight = size;
-		int fontWidth = size;
-		for (int x1 = drawingX; x1 < drawingX + fontWidth; x1++) {
-			for (int y1 = drawingY; y1 < drawingY + fontHeight; y1++) {
-				//Normalize the x and y
-				float normalizedX = (float)(x1 - drawingX) / fontWidth;
-				float normalizedY = (float)(y1 - drawingY) / fontHeight;
-				//Now we scale the i and j in respect to x and y. We are normalizing spaces
-				int iToScale = normalizedX * pixelsPerFont;
-				int jToScale = normalizedY * pixelsPerFont;
-
-				//Then we get the color from the texture and set the pixel
-				BColors::color_t colorFromTexture = GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
-				if (colorFromTexture.alpha > 0) {
-					SetBlendingMode(NORMAL);
-					SetPixel(x1, y1, color);
-					SetBlendingMode(NORMAL);
-				}
-			}
-		}
-	}
-
-
+	DrawString(string, posX, posY, size, color);
 }
 void BEngine::DrawString(std::string string, int posX, int posY, int size, int colorPacked) {
 	DrawString(string, posX, posY, size, IntToColor(colorPacked));

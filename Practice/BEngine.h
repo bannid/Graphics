@@ -153,7 +153,6 @@ private:
 	//Private functions
 	void SetPixelInternal(int x, int y, BColors::color_t & color);
 	std::vector<BMath::Vec2>GetTwoLinearPointsFromThreePoints(BMath::Vec2 p1, BMath::Vec2 p2, BMath::Vec2 p3, float t);
-	void CharToXandY(char c, int & x, int & y);
 private:
 	//Timers to control frame rate
 	std::chrono::steady_clock::time_point fct1;
