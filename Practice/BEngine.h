@@ -100,13 +100,19 @@ public:
 	BMath::Vec2 Lerp(BMath::Vec2 pointOne, BMath::Vec2 pointTwo, float t);
 	//Assets
 	bool LoadTexturePNG(const char * fileName, TEXID& idOutput, bool loadAlpha);
+	bool LoadTexturePNG(const char * fileName, Texture * output, bool loadAlpha);
 	bool LoadOBJFile(const char * fileName);
 	BColors::color_t GetColorFromTexture(float xNormalized, float yNormalized, TEXID textureId);
+	BColors::color_t GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture);
 	Texture * GetTexture(TEXID tId);
 	//Drawing routines
 	//Draw line
 	void DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color);
 	void DrawLine(int x1, int y1, int x2, int y2, int color);
+	void DrawString(std::string string, int posX, int posY, int size, BColors::color_t = { 0,0,0 });
+	void DrawString(const char * constString, int posX, int posY, int size, BColors::color_t color = { 0,0,0 });
+	void DrawString(std::string string, int x, int y, int size, int colorPacked = BColors::BLACK);
+	void DrawString(const char * constString, int posX, int posY, int size, int colorPacked = BColors::BLACK);
 	//Circle
 	void DrawCircle(int x, int y, int radius, BColors::color_t & color);
 	void DrawCircle(int x, int y, int radius, int colorPacked);
@@ -147,6 +153,7 @@ private:
 	//Private functions
 	void SetPixelInternal(int x, int y, BColors::color_t & color);
 	std::vector<BMath::Vec2>GetTwoLinearPointsFromThreePoints(BMath::Vec2 p1, BMath::Vec2 p2, BMath::Vec2 p3, float t);
+	void CharToXandY(char c, int & x, int & y);
 private:
 	//Timers to control frame rate
 	std::chrono::steady_clock::time_point fct1;
@@ -157,6 +164,7 @@ private:
 	BInput::Key keys[0xFF];
 	int pixelDimension;
 	std::vector<Texture> textures;
+	Texture fontsTexture;
 	BLENDING_MODE blendMode = NORMAL;
 	//OpenGL
 	GLuint blitTextureHandle;

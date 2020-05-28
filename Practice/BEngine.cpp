@@ -262,6 +262,11 @@ bool BEngine::Construct(int windowWidth, int windowHeight, int pixelDimensions) 
 	this->windowWidth = windowWidth;
 	this->windowHeight = windowHeight;
 	pixelDimension = pixelDimensions;
+
+	if (!this->LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\Fonts.png", &this->fontsTexture, true)) {
+		//Implement a way to know why it failed
+		return false;
+	}
 	running = true;
 	static_enginePtr = this;
 	windowClass.lpfnWndProc = static_Win32MainWindowCallback;
@@ -584,6 +589,97 @@ BMath::Vec2 BEngine::Lerp(BMath::Vec2 a, BMath::Vec2 b, float t) {
 	BMath::Vec2 vectorFromAToBScaled = vectorFromAToB * t;
 	return a + vectorFromAToBScaled;
 }
+//Our font sprite encodes our characters in hexcadecimal.
+	//i.e. 'A' is 0x41 and in sprite space, 'A' is located at 1,4
+void BEngine::CharToXandY(char c, int & x, int & y) {
+	y = c >> 4 & 0x0F;
+	x = c & 0x0F;
+}
+void BEngine::DrawString(std::string string, int posX, int posY, int size, BColors::color_t color) {
+	for (int pq = 0; pq < string.size(); pq++) {
+		char c = string[pq];
+		int drawingX = posX + pq * size * 0.6;
+		int drawingY = posY;
+		//The positon of the font in the sprite
+		int x = 0;
+		int y = 0;
+		CharToXandY(c, x, y);
+		//How many pixels does every font covers - In this case 16x16
+		int pixelsPerFont = 16; //16x16
+		//Real x and y in the image space
+		int  i = x * pixelsPerFont;
+		int j = y * pixelsPerFont;
+		//Font width and height
+		int fontHeight = size;
+		int fontWidth = size;
+		for (int x1 = drawingX; x1 < drawingX + fontWidth; x1++) {
+			for (int y1 = drawingY; y1 < drawingY + fontHeight; y1++) {
+				//Normalize the x and y
+				float normalizedX = (float)(x1 - drawingX) / fontWidth;
+				float normalizedY = (float)(y1 - drawingY) / fontHeight;
+				//Now we scale the i and j in respect to x and y. We are normalizing spaces
+				int iToScale = normalizedX * pixelsPerFont;
+				int jToScale = normalizedY * pixelsPerFont;
+
+				//Then we get the color from the texture and set the pixel
+				BColors::color_t colorFromTexture = GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
+				if (colorFromTexture.alpha > 0) {
+					SetBlendingMode(NORMAL);
+					SetPixel(x1, y1, color);
+					SetBlendingMode(NORMAL);
+				}
+			}
+		}
+	}
+	
+}
+void BEngine::DrawString(const char * constString, int posX, int posY, int size, BColors::color_t color) {
+	std::string string;
+	string.append(constString);
+	for (int pq = 0; pq < string.size(); pq++) {
+		char c = string[pq];
+		int drawingX = posX + pq * size * 0.6;
+		int drawingY = posY;
+		//The positon of the font in the sprite
+		int x = 0;
+		int y = 0;
+		CharToXandY(c, x, y);
+		//How many pixels does every font covers - In this case 16x16
+		int pixelsPerFont = 16; //16x16
+		//Real x and y in the image space
+		int  i = x * pixelsPerFont;
+		int j = y * pixelsPerFont;
+		//Font width and height
+		int fontHeight = size;
+		int fontWidth = size;
+		for (int x1 = drawingX; x1 < drawingX + fontWidth; x1++) {
+			for (int y1 = drawingY; y1 < drawingY + fontHeight; y1++) {
+				//Normalize the x and y
+				float normalizedX = (float)(x1 - drawingX) / fontWidth;
+				float normalizedY = (float)(y1 - drawingY) / fontHeight;
+				//Now we scale the i and j in respect to x and y. We are normalizing spaces
+				int iToScale = normalizedX * pixelsPerFont;
+				int jToScale = normalizedY * pixelsPerFont;
+
+				//Then we get the color from the texture and set the pixel
+				BColors::color_t colorFromTexture = GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
+				if (colorFromTexture.alpha > 0) {
+					SetBlendingMode(NORMAL);
+					SetPixel(x1, y1, color);
+					SetBlendingMode(NORMAL);
+				}
+			}
+		}
+	}
+
+
+}
+void BEngine::DrawString(std::string string, int posX, int posY, int size, int colorPacked) {
+	DrawString(string, posX, posY, size, IntToColor(colorPacked));
+}
+void BEngine::DrawString(const char * constString, int posX, int posY, int size, int colorPacked) {
+	DrawString(constString, posX, posY, size, IntToColor(colorPacked));
+}
 void BEngine::ProcessKeys() {
 	//Note: This function sometimes can take upto 5ms even in release mode,
 	//and may lead to drop in frame rate.  Maybe we should
@@ -637,6 +733,24 @@ bool BEngine::LoadTexturePNG(const char * fileName,
 		}
 		return success;
 	}
+}
+bool BEngine::LoadTexturePNG(const char * fileName, Texture * output, bool loadAlpha) {
+		if (!loadAlpha) {
+			bool success = lodepng_decode24_file(&output->data,
+				&output->width,
+				&output->height,
+				fileName) == 0;
+			output->bytesPerPixel = 3;
+			return success;
+		}
+		else {
+			bool success = lodepng_decode32_file(&output->data,
+				&output->width,
+				&output->height,
+				fileName) == 0;
+			output->bytesPerPixel = 4;
+			return success;
+		}
 }
 bool BEngine::LoadOBJFile(const char * fileName) {
 	std::ifstream f(fileName);
@@ -704,8 +818,8 @@ BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalize
 	assert(textureID > 0 && textureID <= textures.size());
 	Texture * texture = &textures[textureID - 1];
 	BColors::color_t color;
-	int mappedX = normalizedX * (texture->width - 1);
-	int mappedY = normalizedY * (texture->height - 1);
+	int mappedX = normalizedX * texture->width;
+	int mappedY = normalizedY * texture->height;
 	unsigned int index = (mappedY * texture->width * texture->bytesPerPixel) + mappedX * texture->bytesPerPixel;
 	unsigned char * data = &texture->data[index];
 	color.red = (unsigned int)(*data);
@@ -714,7 +828,21 @@ BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalize
 	color.alpha = (unsigned int)(*(data + 3));
 	return color;
 }
-
+BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture) {
+	if (normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
+		return { 0,0,0,0 };
+	}
+	BColors::color_t color;
+	int mappedX = normalizedX * texture->width;
+	int mappedY = normalizedY * texture->height;
+	unsigned int index = (mappedY * texture->width * texture->bytesPerPixel) + mappedX * texture->bytesPerPixel;
+	unsigned char * data = &texture->data[index];
+	color.red = (unsigned int)(*data);
+	color.green = (unsigned int)(*(data + 1));
+	color.blue = (unsigned int)(*(data + 2));
+	color.alpha = (unsigned int)(*(data + 3));
+	return color;
+}
 BInput::Key BEngine::GetKey(unsigned int key) {
 	assert(key > 0 && key < 0xFF);
 	return this->keys[key];
@@ -767,7 +895,7 @@ void BEngine::SetBlendingMode(BLENDING_MODE mode) { this->blendMode = mode; }
 Sprite::Sprite(Texture * t) {
 	this->tex = t;
 	this->width = tex->width;
-	this->height = tex->width;
+	this->height = tex->height;
 }
 Sprite::Sprite(Texture * t, int height, int width, float scale) {
 	this->tex = t;

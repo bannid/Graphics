@@ -156,6 +156,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DrawBezierCurves.h" />
+    <ClInclude Include="DrawFonts.h" />
     <ClInclude Include="DrawLines.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="Maths.h" />

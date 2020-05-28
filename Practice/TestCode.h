@@ -4,7 +4,7 @@
 //Extend the BEngine class
 class Test : public BEngine {
 	void TestCodeForTextureLoading() {
-		bool textureLoaded = LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\SpaceShip.png",
+		bool textureLoaded = LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\Fonts.png",
 			space,true);
 		if (textureLoaded) {
 			OutputDebugString(L"Texture loaded");
@@ -101,14 +101,14 @@ class Test : public BEngine {
 		}
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
-		//TestCodeForDrawingSprite();
-		TestDrawTriangle();
+		TestCodeForDrawingSprite();
+		//TestDrawTriangle();
 		return true;
 	}
 	virtual bool OnCreate() override {
-		//TestCodeForTextureLoading(); 
+		TestCodeForTextureLoading(); 
 		//spaceShipPos = { GetScreenWidth() / 2,GetScreenHeight() / 2 };
-		//spaceShip = new Sprite(GetTexture(space),200,200,1);
+		spaceShip = new Sprite(GetTexture(space),200,200,1);
 		return TestCodeForLoadObjFile();
 	}
 private:

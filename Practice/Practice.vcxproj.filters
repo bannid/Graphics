@@ -75,6 +75,9 @@
     <ClInclude Include="RayCaster.h">
       <Filter>Examples</Filter>
     </ClInclude>
+    <ClInclude Include="DrawFonts.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp">
