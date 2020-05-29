@@ -39,11 +39,13 @@ namespace BMath {
 		}
 		void Normalize() {
 			float magnitude = this->Magnitude();
+			if (magnitude == 0)return;
 			x /= magnitude;
 			y /= magnitude;
 		}
 		Vec2 Normalized() {
 			float magnitude = this->Magnitude();
+			if (magnitude == 0)return Vec2(x, y);
 			return Vec2(x / magnitude, y / magnitude);
 		}
 	};

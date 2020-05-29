@@ -160,6 +160,7 @@
     <ClInclude Include="DrawLines.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="Maths.h" />
+    <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="RayCaster.h" />
     <ClInclude Include="SpaceWars.h" />

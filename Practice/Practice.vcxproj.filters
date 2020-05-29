@@ -78,6 +78,9 @@
     <ClInclude Include="DrawFonts.h">
       <Filter>Examples</Filter>
     </ClInclude>
+    <ClInclude Include="PerlinNoise.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp">
