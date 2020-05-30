@@ -14,10 +14,8 @@ struct Explosion {
 		this->pos = pos;
 		this->active = true;
 		this->start = std::chrono::steady_clock::now();
-		particles.push_back(1);
 	}
 	BMath::Vec2 pos;
-	std::vector<int> particles;
 	std::vector<BMath::Vec2> particlesVelocity;
 	std::chrono::steady_clock::time_point start;
 	std::chrono::steady_clock::time_point measure;
@@ -39,8 +37,7 @@ class SpaceWars : public BEngine {
 	Sprite * enemyShip;
 	//################ End Assets##################
 	//################ Animation ##################
-	static const int maxNumberOfExplosions = 30;
-	Explosion exp[maxNumberOfExplosions];
+	Explosion exp[30];
 	int numberOfActiveExplosions = 0;
 	//################ End animation ##############
 	//################ Player    ##################
@@ -48,10 +45,12 @@ class SpaceWars : public BEngine {
 	BMath::Vec2 shipVelocity;
 	int velocityIncrement = 10;
 	int spaceShipHeight;
+	int spaceShipRadius = 40;
 	float spaceShipScale = 1.0f;
 	int spaceShipWidth;
 	float shipVelocityDampening = 0.99;
-
+	int score = 0;
+	bool gameOver = false;
 	BMath::Vec2 bulletVelocity = { 0,-1000 };
 	std::vector<BMath::Vec2> bullets;
 	int numberOfBullets = 0;
@@ -106,9 +105,12 @@ class SpaceWars : public BEngine {
 #if DEBUG_DRAW
 		DrawCircle(spaceShipPos, spaceShipWidth * 0.5, BColors::WHITE);
 #endif
-		DrawSprite(*spaceShip, spaceShipPos);
+		if (!gameOver) {
+			DrawSprite(*spaceShip, spaceShipPos);
+		}
 	}
 	inline void UpdatePlayerShip(float elapsedTime) {
+		if (gameOver)return;
 		auto velocityScaled = shipVelocity * elapsedTime;
 		spaceShipPos.Add(velocityScaled);
 		if (GetKey(VK_RIGHT).keyHeld) {
@@ -159,11 +161,19 @@ class SpaceWars : public BEngine {
 	}
 	inline void CollisionDetection() {
 		for (int i = 0; i < numberOfShips; i++) {
+			if ((enemyShips[i] - spaceShipPos).Magnitude() < spaceShipRadius &&
+				!gameOver) {
+				gameOver = true;
+				exp[numberOfActiveExplosions].Activate(2, spaceShipPos);
+				numberOfActiveExplosions++;
+				return;
+			}
 			for (int j = 0; j < numberOfBullets; j++) {
 				if ((enemyShips[i] - bullets[j]).Magnitude() < enemyShipRadius * 0.6) {
 	 				exp[numberOfActiveExplosions].Activate(2, enemyShips[i]);
 					numberOfActiveExplosions++;
 					AssignRandomPos(enemyShips[i]);
+					score += 10;
 				}
 			}
 		}
@@ -224,6 +234,11 @@ class SpaceWars : public BEngine {
 		UpdateEnemyShips(elapsedTime);
 		CollisionDetection();
 		DrawExplosions();
+		std::string s("SCORE:");
+		DrawString(s.append(std::to_string(score)), 0, 0, 50, { 255,255,255 });
+		if (gameOver) {
+			DrawString("GAME OVER", GetScreenWidth() / 4, GetScreenHeight() / 2, 50, { 255,255,0 });
+		}
 		return true;
 	}
 	virtual bool OnDestroy() override {

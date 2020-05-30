@@ -12,7 +12,7 @@ class Perlin : public BEngine {
 	int cellSizeL = 20;
 	std::vector<BMath::Vec2> gradientVecs;
 	LerpMethod m = &Perlin::CosineInterpolation;
-
+	float randomValues[800];
 	float CosineInterpolation(float t) {
 		return 1 - (((std::cos(t * 3.15) + 1)) / 2);
 	}
@@ -87,12 +87,12 @@ class Perlin : public BEngine {
 		int outX;
 		int outY;
 		MapXandYToCellSpace(x, y, outX, outY, cellSize);
-		int vectorsPerRow = (width / cellSize)+1;
+		int vectorsPerRow = (width / cellSize) + 1;
 		int vectorTopLeft = outX + outY * vectorsPerRow;
-		int vectorTopRight = (outX +1) + outY * vectorsPerRow;
-		int vectorLowerLeft = outX + (outY+1) * vectorsPerRow;
-		int vectorLowerRight = (outX+1) + (outY+1) * vectorsPerRow;
-		
+		int vectorTopRight = (outX + 1) + outY * vectorsPerRow;
+		int vectorLowerLeft = outX + (outY + 1) * vectorsPerRow;
+		int vectorLowerRight = (outX + 1) + (outY + 1) * vectorsPerRow;
+
 		BMath::Vec2 gVectorOnTopLeftEdge = this->gradientVecs[vectorTopLeft];
 		gVectorOnTopLeftEdge.Normalize();
 
@@ -152,22 +152,63 @@ class Perlin : public BEngine {
 	virtual bool OnCreate() override {
 		int numberOfGraedientVectors = GetNumberOfVectorsToCreate(cellSizeL, screenHeight, screenWidth);
 		for (int i = 0; i < numberOfGraedientVectors; i++) {
-			this->gradientVecs.push_back({ (rand() % 30) - 15,(rand() % 30) -15});
+			this->gradientVecs.push_back({ (rand() % 30) - 15,(rand() % 30) - 15 });
+		}
+		for (int i = 0; i < 256; i++) {
+			randomValues[i] = (float)rand()/RAND_MAX;
 		}
 		return true;
 	}
 	int GetNumbersOfCellsInXDirection(int sizeOfCell, int width) {
 		return width / sizeOfCell;
 	}
-	virtual bool OnUpdate(float elapsedTime) {
-		ClearScreen(BColors::BLACK);
+	void DrawPerlinNoise() {
 		for (int i = 0; i < screenWidth; i++) {
 			for (int j = 0; j < screenWidth; j++) {
 				float perlinNoise = PerlinNoiseAttempt(i, j, cellSizeL, screenWidth, screenHeight);
 				SetBlendingMode(ALPHA);
-				SetPixel(i,j, { 255,255,128,(int)(255 * perlinNoise) });
+				SetPixel(i, j, { 255,255,128,(int)(255 * perlinNoise) });
 				SetBlendingMode(NORMAL);
 			}
+		}
+	}
+	int nOctaves = 1;
+	float PerlinNoise1D(int x)
+	{
+
+		float fNoise = 0.0f;
+		float fScaleAcc = 0.0f;
+		float fScale = 1.0f;
+
+		for (int o = 0; o < nOctaves; o++)
+		{
+			int nPitch = 800 >> o;
+			int nSample1 = (x / nPitch) * nPitch;
+			int nSample2 = (nSample1 + nPitch) % 256;
+
+			float fBlend = (float)(x - nSample1) / (float)nPitch;
+
+			float fSample = (1.0f - fBlend) * randomValues[nSample1] + fBlend * randomValues[nSample2];
+
+			fScaleAcc += fScale;
+			fNoise += fSample * fScale;
+			fScale = fScale / 2;
+		}
+
+		// Scale to seed range
+		return (fNoise / fScaleAcc);
+	}
+	virtual bool OnUpdate(float elapsedTime) {
+		ClearScreen(BColors::BLACK);
+		//DrawPerlinNoise();
+		for (int i = 0; i < 256; i++) {
+			float t = (float)i / 256;
+			float value = PerlinNoise1D(i) * 100;
+			DrawLine(i, 300, i, 300 - value, BColors::MAROON);
+		}
+		if (GetKey(VK_SPACE).keyReleased) {
+			nOctaves++;
+			nOctaves = nOctaves % 10;
 		}
 		return true;
 	}
