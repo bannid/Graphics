@@ -81,7 +81,8 @@ class RayCaster : public BEngine {
 			float hitX;
 			float hitY;
 			float textureCoord;
-			//We increase the c until we hit something
+			//We increase the c until we hit something or 
+			// the maxium value is reached.
 			for (; c < 20; c += 0.01f) {
 				float cx = playerX + (gazeDirectionX * c);
 				float cy = playerY + (gazeDirectionY * c);
@@ -102,11 +103,25 @@ class RayCaster : public BEngine {
 				}
 			}
 			//We multiply by c with cosine of angle b/w ray and player viewing
-			//angle because we want players distance not the ray distance
+			//angle because we want players distance not the ray distance.
+			//We want x in this case not y, otherwise we would have fish eye effect.
+			//As the ray angle approaches player angle, cosine of c*player_angle-angle aprroaches 1.
+			/*
+					---------------------
+					  \    |
+					   \   |
+					   y\  |x
+						 \ |
+						  \|
+			*/
 			int segmentHeight = (windowHeight) / ((c * std::cos(a - playerAngle)));
+			//We have 6 textures inside one with 64x64 dimensions
 			float percentageOfOneTexture = (float) 64.0f / walls.width;
+			//We remap the texture coords by dividing it by 6 and then adding
+			//the current index in hit postion multiplied by the area covered by one texture.
 			float remappedTextureCoord = (textureCoord / 6.0f) + percentageOfOneTexture * colorIndex;
-			int startingY = GetScreenHeight() - 100;
+			//Starting pos to draw lines on y axis
+			int startingY = windowHeight / 2 + segmentHeight / 2;
 			for (int y = startingY; y > startingY - segmentHeight; y--) {
 				float yTextureCoord = (float)std::abs(y - startingY) / segmentHeight;
 				BColors::color_t color = GetColorFromTexture(remappedTextureCoord, yTextureCoord, &walls);
@@ -170,7 +185,8 @@ class RayCaster : public BEngine {
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen(BColors::BLACK);
+		ClearScreen(BColors::GRAY);
+		
 		DrawPlayer();
 #if DEBUG_DRAW
 		DrawMap();
