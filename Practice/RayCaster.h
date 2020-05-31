@@ -8,8 +8,11 @@ class RayCaster : public BEngine {
 	//Dimensions of our world
 	int mapWidth = 16;
 	int mapHeight = 16;
-	int windowWidth = 528;
-	int windowHeight = 528;
+	int windowWidth = 0;
+	int windowHeight = 0;
+
+	int screenOffsetX = 0;
+
 	//Calculated in the OnCreate function
 	int rectangleHeight;
 	int rectangleWidth;
@@ -32,43 +35,39 @@ class RayCaster : public BEngine {
 	};
 	Texture walls;
 	//Map of our world -> 16x16
-	std::string map =   "1111111111111111"\
-						"1   4          1"\
-						"1   4          1"\
-						"1      4       1"\
-						"1      4       1"\
-						"1      4       1"\
-						"1              1"\
-						"1              1"\
-						"1              1"\
-						"1              1"\
-						"1   444        1"\
-						"1   4 4444444  1"\
-						"1   4          1"\
-						"1   444444444441"\
-						"1              1"\
-						"1111111111111111";
+	std::string map = "1111111131111111"\
+		"1   4          1"\
+		"1   4          1"\
+		"1      4       1"\
+		"1      4       1"\
+		"1      4       1"\
+		"1              1"\
+		"1              1"\
+		"1              1"\
+		"1              1"\
+		"1   444        1"\
+		"1   4 4444444  1"\
+		"1   4          1"\
+		"1   444444444441"\
+		"1              1"\
+		"1111111111111111";
 	void DrawMap() {
 		for (int i = 0; i < mapHeight; i++) {
 			for (int j = 0; j < mapWidth; j++) {
 
 				if (map[j + i * mapWidth] == ' ') continue;
-#if DEBUG_DRAW
+
 				int colorIndex = map[j + i * mapWidth] - '0';
 				FillRectangle(j * rectangleWidth,
 					i * rectangleHeight,
 					j * rectangleWidth + rectangleWidth,
 					i * rectangleHeight + rectangleHeight, colors[colorIndex]);
-#endif
+
 			}
 		}
 	}
 	void DrawPlayer() {
-		int remappedX = playerX * rectangleWidth;//Remapped X and Y to our world which is 16x16
-		int remappedY = playerY * rectangleHeight;
-#if DEBUG_DRAW
-		FillRectangle(remappedX, remappedY, remappedX + playerSize, remappedY + playerSize, BColors::WHITE);
-#endif
+
 		//This section draws the vision cone
 		//First we set the first ray angle to 
 		//current player angle - field of view / 2
@@ -102,17 +101,9 @@ class RayCaster : public BEngine {
 					break;
 				}
 			}
-#if DEBUG_DRAW
-			DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::WHITE);
-			if (std::abs(a - playerAngle) < 0.01) {
-				DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::RED);
-			}
-#endif
-
-			int screenOffsetX = 600;
 			//We multiply by c with cosine of angle b/w ray and player viewing
 			//angle because we want players distance not the ray distance
-			int segmentHeight = 300 / ((c * std::cos(a - playerAngle)));
+			int segmentHeight = (windowHeight) / ((c * std::cos(a - playerAngle)));
 			float percentageOfOneTexture = (float) 64.0f / walls.width;
 			float remappedTextureCoord = (textureCoord / 6.0f) + percentageOfOneTexture * colorIndex;
 			int startingY = GetScreenHeight() - 100;
@@ -127,6 +118,15 @@ class RayCaster : public BEngine {
 			//I.e. in this cases 528 times. and fov / 528 * 528 = fov
 			a += fov / windowWidth;
 
+#if DEBUG_DRAW
+			int remappedX = playerX * rectangleWidth;//Remapped X and Y to our world which is 16x16
+			int remappedY = playerY * rectangleHeight;
+			FillRectangle(remappedX, remappedY, remappedX + playerSize, remappedY + playerSize, BColors::WHITE);
+			DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::WHITE);
+			if (std::abs(a - playerAngle) < 0.01) {
+				DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::RED);
+			}
+#endif
 		}
 
 	}
@@ -162,15 +162,19 @@ class RayCaster : public BEngine {
 		}
 	}
 	virtual bool OnCreate() override {
-		rectangleHeight = windowHeight / mapHeight;
-		rectangleWidth = windowWidth / mapWidth;
+		windowHeight = GetScreenHeight();
+		windowWidth = GetScreenWidth();
+		rectangleHeight = 10;
+		rectangleWidth = 10;
 		return LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\walltext.png", &walls, true);
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(BColors::BLACK);
-		DrawMap();
 		DrawPlayer();
+#if DEBUG_DRAW
+		DrawMap();
+#endif
 		HandleInput(elapsedTime);
 		return true;
 	}
