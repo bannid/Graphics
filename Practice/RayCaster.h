@@ -146,8 +146,6 @@ class RayCaster : public BEngine {
 
 	}
 	void HandleInput(float elapsedTime) {
-		GetKey(VK_RIGHT).keyDown ? playerAngle += 1 * elapsedTime : playerAngle = playerAngle;
-		GetKey(VK_LEFT).keyDown ? playerAngle -= 1 * elapsedTime : playerAngle = playerAngle;
 		float playerSpeed = 2.0f;
 		if (GetKey(VK_UP).keyDown) {
 			float directionX = std::cos(playerAngle);
@@ -175,6 +173,14 @@ class RayCaster : public BEngine {
 		if (GetKey('S').keyDown) {
 			fov -= 0.2f * elapsedTime;
 		}
+		int leftOffset = windowWidth / 2 - 10;
+		int rightOffset = windowWidth / 2 + 10;
+		if (mouseInfo.x < leftOffset) {
+			playerAngle -= 1 * elapsedTime * ((float)(leftOffset - mouseInfo.x) / leftOffset);
+		}
+		else if (mouseInfo.x > rightOffset) {
+			playerAngle += 1 * elapsedTime * ((float)(mouseInfo.x - leftOffset) / rightOffset);
+		}
 	}
 	virtual bool OnCreate() override {
 		windowHeight = GetScreenHeight();
@@ -186,7 +192,7 @@ class RayCaster : public BEngine {
 
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(BColors::GRAY);
-		
+
 		DrawPlayer();
 #if DEBUG_DRAW
 		DrawMap();
