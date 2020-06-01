@@ -35,7 +35,7 @@ class RayCaster : public BEngine {
 	//Viewing angle of player
 	float playerAngle = 0.0f;
 	//Field of view in radians
-	float fov = 1.0f;
+	float fov = 1.11f;
 	std::vector<int> colors = {
 		BColors::MAROON,
 		BColors::RED,
@@ -47,22 +47,23 @@ class RayCaster : public BEngine {
 	Texture walls;
 	Texture monstersTex;
 	//Map of our world -> 16x16
-	std::string map =   "1111111131111111"\
-						"1   4          1"\
-						"1   4          1"\
-						"1      4       1"\
-						"1      4       1"\
-						"1      4       1"\
-						"1              1"\
-						"1              1"\
-						"1              1"\
-						"1              1"\
-						"1   444        1"\
-						"1   4 4444444  1"\
-						"1   4          1"\
-						"1   444444444441"\
-						"1              1"\
-						"1111111111111111";
+	std::string map = "1111111131111111"\
+		"1   4          1"\
+		"1   4          1"\
+		"1      4       1"\
+		"1      4       1"\
+		"1      4       1"\
+		"1              1"\
+		"1              1"\
+		"1              1"\
+		"1              1"\
+		"1   444        1"\
+		"1   4 4444444  1"\
+		"1   4          1"\
+		"1   444444444441"\
+		"1              1"\
+		"1111111111111111";
+	float * depth;
 	void DrawMap() {
 		for (int i = 0; i < mapHeight; i++) {
 			for (int j = 0; j < mapWidth; j++) {
@@ -84,6 +85,7 @@ class RayCaster : public BEngine {
 		//First we set the first ray angle to 
 		//current player angle - field of view / 2
 		float a = playerAngle - fov / 2;
+		float previousSegmentHeight = -1;
 		for (int i = 0; i < windowWidth; i++) {
 			//Now we get the rayDirection
 			float gazeDirectionX = std::cos(a);
@@ -101,6 +103,7 @@ class RayCaster : public BEngine {
 				int x = cx;
 				int y = cy;
 				if (map[x + y * mapWidth] != ' ') {
+					depth[i] = c;
 					//Here we want to know which point is 
 					//closest to the near integer value.
 					hitX = cx - floor(cx + .5);
@@ -126,7 +129,8 @@ class RayCaster : public BEngine {
 						 \ |
 						  \|
 			*/
-			int segmentHeight = (windowHeight) / ((c * std::cos(a - playerAngle)));
+			float cosined = c * (std::cosf(a - playerAngle));
+			int segmentHeight = windowHeight / cosined;
 			//We have 6 textures inside one with 64x64 dimensions
 			float percentageOfOneTexture = (float) 64.0f / walls.width;
 			//We remap the texture coords by dividing it by 6 and then adding
@@ -188,6 +192,7 @@ class RayCaster : public BEngine {
 					normalizedX = normalizedX / 4.0f + percentageOfOneTexture * it->indexInTexture;
 					BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, &monstersTex);
 					SetBlendingMode(ALPHA);
+					if (depth[x] < monsterDistance)continue;
 					SetPixel(x, y, color);
 					SetBlendingMode(NORMAL);
 				}
@@ -240,14 +245,15 @@ class RayCaster : public BEngine {
 	}
 	void PopulateNonPlayerCharacters() {
 		monsters.push_back(Monster(10.0f, 10.0f, &monstersTex, 0));
-		monsters.push_back(Monster(8.0f, 10.0f, &monstersTex, 2));
-		monsters.push_back(Monster(6.0f, 10.0f, &monstersTex, 1));
-		monsters.push_back(Monster(4.0f, 10.0f, &monstersTex, 3));
+		monsters.push_back(Monster(8.0f, 8.0f, &monstersTex, 2));
+		monsters.push_back(Monster(6.0f, 6.0f, &monstersTex, 1));
+		monsters.push_back(Monster(4.0f, 5.0f, &monstersTex, 3));
 
 	}
 	virtual bool OnCreate() override {
 		windowHeight = GetScreenHeight();
 		windowWidth = GetScreenWidth();
+		depth = new float[windowWidth];
 		rectangleHeight = 10;
 		rectangleWidth = 10;
 		PopulateNonPlayerCharacters();
@@ -264,6 +270,10 @@ class RayCaster : public BEngine {
 #endif
 		HandleInput(elapsedTime);
 		DrawString(toDraw, 0, 0, 50, BColors::WHITE);
+		return true;
+	}
+	virtual bool OnDestroy() {
+		delete depth;
 		return true;
 	}
 };
