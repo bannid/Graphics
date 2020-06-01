@@ -147,7 +147,7 @@ class RayCaster : public BEngine {
 	}
 	void HandleInput(float elapsedTime) {
 		float playerSpeed = 2.0f;
-		if (GetKey(VK_UP).keyDown) {
+		if (GetKey(VK_UP).keyDown || GetKey(VK_LBUTTON).keyDown) {
 			float directionX = std::cos(playerAngle);
 			float directionY = std::sin(playerAngle);
 			float newX = playerX + directionX * elapsedTime * playerSpeed;
@@ -157,7 +157,7 @@ class RayCaster : public BEngine {
 				playerY = newY;
 			}
 		}
-		if (GetKey(VK_DOWN).keyDown) {
+		if (GetKey(VK_DOWN).keyDown || GetKey(VK_RBUTTON).keyDown) {
 			float directionX = std::cos(playerAngle);
 			float directionY = std::sin(playerAngle);
 			float newX = playerX - directionX * elapsedTime * playerSpeed;
