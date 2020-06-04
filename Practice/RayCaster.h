@@ -10,6 +10,8 @@ struct Monster {
 	float y;
 	Texture * texture;
 	unsigned int indexInTexture;
+	//Calculated on every frame
+	float distanceFromPlayer;
 	Monster(float x, float y, Texture * tex, unsigned int index) :x(x), y(y), texture(tex), indexInTexture(index) {}
 };
 class RayCaster : public BEngine {
@@ -35,7 +37,7 @@ class RayCaster : public BEngine {
 	//Viewing angle of player
 	float playerAngle = 0.0f;
 	//Field of view in radians
-	float fov = 1.11f;
+	float fov = 1.0f;
 	std::vector<int> colors = {
 		BColors::MAROON,
 		BColors::RED,
@@ -141,6 +143,10 @@ class RayCaster : public BEngine {
 			for (int y = startingY; y > startingY - segmentHeight; y--) {
 				float yTextureCoord = (float)std::abs(y - startingY) / segmentHeight;
 				BColors::color_t color = GetColorFromTexture(remappedTextureCoord, yTextureCoord, &walls);
+				float alpha = (c / 20) * 0.3;
+				color.red = (color.red * (1 - alpha));
+				color.green = (color.green * (1 - alpha));
+				color.blue = (color.blue * (1 - alpha));
 				SetPixel(screenOffsetX + i, y, color);
 			}
 			//Increase the ray angle with respect to the screen width.
@@ -163,16 +169,28 @@ class RayCaster : public BEngine {
 		for (auto it = monsters.begin(); it != monsters.end(); it++) {
 			float vectorXOfMonster = it->x - playerX;
 			float vectorYOfMonster = it->y - playerY;
-			float monsterDistance = std::sqrt(vectorXOfMonster * vectorXOfMonster + vectorYOfMonster * vectorYOfMonster);
+			it->distanceFromPlayer = std::sqrt(vectorXOfMonster * vectorXOfMonster + vectorYOfMonster * vectorYOfMonster);
+		}
+		//Just use simple bubble sort to sort the monsters based 
+		//on their distance to make sure we dont draw the further 
+		//monsters over the nearer once.
+		for (int m = 0; m < monsters.size(); m++) {
+			for (int k = 0; k < monsters.size() - m - 1; k++) {
+				if (monsters[k].distanceFromPlayer < monsters[k - 1].distanceFromPlayer) {
+					std::swap(monsters[k], monsters[k + 1]);
+				}
+			}
+		}
+		for (auto it = monsters.begin(); it != monsters.end(); it++) {
+			float vectorXOfMonster = it->x - playerX;
+			float vectorYOfMonster = it->y - playerY;
+			float monsterDistance = it->distanceFromPlayer;
 			if (monsterDistance < 1.0f)continue;
 			float spriteAngle = std::atan2(vectorYOfMonster, vectorXOfMonster);
 			float spriteAngleBwPlayerGazeDirecton = spriteAngle - playerAngle;
 			if (spriteAngleBwPlayerGazeDirecton > M_PI) spriteAngleBwPlayerGazeDirecton -= 2 * M_PI;
 			if (spriteAngleBwPlayerGazeDirecton < -M_PI) spriteAngleBwPlayerGazeDirecton += 2 * M_PI;
-			int spriteSize = (windowHeight) / monsterDistance;
-			if (spriteSize > 1000) {
-				spriteSize = 1000;
-			}
+			int spriteSize = windowHeight / monsterDistance < 1000 ? windowHeight / monsterDistance : 1000;
 			//HOffset is calculated by determining how much percentagle of fov/2 is taken
 			//by the angle bw monster and the player. and then we multiply it by windowWidth/2
 			//because half of fov (fov/2) takes half of the screen.
