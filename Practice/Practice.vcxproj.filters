@@ -81,6 +81,9 @@
     <ClInclude Include="PerlinNoise.h">
       <Filter>Examples</Filter>
     </ClInclude>
+    <ClInclude Include="TestMathLib.h">
+      <Filter>Testing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp">
@@ -93,5 +96,8 @@
       <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32Main.cpp" />
+    <ClCompile Include="Maths.cpp">
+      <Filter>Maths</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -50,18 +50,17 @@ namespace BMath {
 		}
 	};
 	struct Mat4 {
-		float m11, m12, m13, m14,
-			m21, m22, m23, m24,
-			m31, m32, m33, m34,
-			m41, m42, m43, m44;
+		float m[4][4];
+		Mat4();
+		Mat4(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float);
+		Mat4(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
+		void operator=(Mat4 &);
 		void Transpose();
 		Mat4 Transposed();
 		Mat4 Inverted();
-		Mat4 Invert();
-		Mat4 ReturnIdent();
-		void Ident();
-		Mat4 operator*(Mat4 that);
-		Vec4 operator*(Vec4 that);
+		void Invert();
+		Mat4 operator*(Mat4 & that);
+		void ReduceToZero(int pivotRow,int pivotCol,int targetRow, int targetCol, Mat4&);
 	};
 	struct Vec4 {
 		float x;
@@ -74,12 +73,16 @@ namespace BMath {
 		Vec4(int x, int y, int z, int w) :x(x), y(y), z(z), w(w) {}
 
 		float Magnitude();
-		void Scale();
-		Vec4 Cross(Vec4 that);
+		void Subtract(Vec4 & that);
+		void Scale(float scalar);
+		Vec4 Cross(Vec4 & that);
 		Vec4 operator*(float scalar);
-		Vec4 operator+(Vec4 that);
-		Vec4 operator-(Vec4 that);
-		Vec4 operator*(Vec4 that);
-		Vec4 operator*(Mat4 mat);
+		Vec4 operator+(Vec4 & that);
+		Vec4 operator-(Vec4 & that);
+		float operator*(Vec4 & that);
+		Vec4 operator*(Mat4 & mat);
+		void operator=(Vec4 that);
+		void Normalize();
+		Vec4 Normalized();
 	};
 }
