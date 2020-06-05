@@ -81,10 +81,9 @@ bool Mesh::LoadFromObjFile(const char * fileName) {
 
 BMath::Mat4 Mesh::GetModelMat() {
 	BMath::Mat4 mat;
-	float screenSize = 1000.0f;
-	mat.m[0][0] = size/ screenSize;
-	mat.m[1][1] = -size/ screenSize;
-	mat.m[2][2] = size/ screenSize;
+	mat.m[0][0] = size;
+	mat.m[1][1] = -size;
+	mat.m[2][2] = size;
 	mat.m[3][0] = position.x;
 	mat.m[3][1] = position.y;
 	mat.m[3][2] = position.z;

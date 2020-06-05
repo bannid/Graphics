@@ -70,10 +70,10 @@
     <ClInclude Include="lodepng.h">
       <Filter>3rdParty</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>BEngine</Filter>
-    </ClInclude>
     <ClInclude Include="BEngine3D.h">
+      <Filter>BEngine3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
       <Filter>BEngine3D</Filter>
     </ClInclude>
   </ItemGroup>
@@ -91,10 +91,10 @@
     <ClCompile Include="BEngine.cpp">
       <Filter>BEngine</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>BEngine</Filter>
-    </ClCompile>
     <ClCompile Include="BEngine3D.cpp">
+      <Filter>BEngine3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
       <Filter>BEngine3D</Filter>
     </ClCompile>
   </ItemGroup>

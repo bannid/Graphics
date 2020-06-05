@@ -3,7 +3,9 @@
 void BEngine3D::DrawMesh(Mesh & mesh) {
 	assert(this->initialised);
 	BMath::Mat4 modelMat = mesh.GetModelMat();
-	BMath::Vec4 lightDir = { 0,0,1,0 };
+	BMath::Vec4 lightDir = { 0,0,-1,0 };
+	//This is not the real screen.
+	float screenDimensions = 1000.0f;
 	for (auto it = mesh.triangles.begin(); it != mesh.triangles.end(); it++) {
 		Triangle t = *it;
 		float zInverse = 1.0f / mesh.position.z;
@@ -20,18 +22,13 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 		t.vertices[0].color.red *= intensity;
 		t.vertices[0].color.green *= intensity;
 		t.vertices[0].color.blue *= intensity;
+		this->toNDC.m[0][0] = 1.0f / screenDimensions;
+		this->toNDC.m[1][1] = 1.0f / screenDimensions;
+		BMath::Mat4 M = modelMat * projectionMatrix * toNDC * viewPortMatrix;
 
-		t.vertices[0].vector = t.vertices[0].vector * modelMat;
-		t.vertices[1].vector = t.vertices[1].vector * modelMat;
-		t.vertices[2].vector = t.vertices[2].vector * modelMat;
-
-		t.vertices[0].vector = t.vertices[0].vector * this->projectionMatrix;
-		t.vertices[1].vector = t.vertices[1].vector * this->projectionMatrix;
-		t.vertices[2].vector = t.vertices[2].vector * this->projectionMatrix;
-		
-		t.vertices[0].vector = t.vertices[0].vector * this->viewPortMatrix;
-		t.vertices[1].vector = t.vertices[1].vector * this->viewPortMatrix;
-		t.vertices[2].vector = t.vertices[2].vector * this->viewPortMatrix;
+		t.vertices[0].vector = t.vertices[0].vector * M;
+		t.vertices[1].vector = t.vertices[1].vector * M;
+		t.vertices[2].vector = t.vertices[2].vector * M;
 		
 		FillTriangle(t);
 	}
