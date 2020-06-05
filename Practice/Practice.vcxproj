@@ -162,11 +162,13 @@
     <ClInclude Include="DrawLines.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="Maths.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="RayCaster.h" />
     <ClInclude Include="SpaceWars.h" />
     <ClInclude Include="TestCode.h" />
+    <ClInclude Include="TestCode3D.h" />
     <ClInclude Include="TestMathLib.h" />
     <ClInclude Include="Timing.h" />
   </ItemGroup>
@@ -175,6 +177,7 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="Maths.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Win32Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

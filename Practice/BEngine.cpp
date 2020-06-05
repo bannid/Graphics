@@ -82,8 +82,6 @@ bool BEngine::InitOpenGl()
 {
 	HDC WindowDC = GetDC(window);
 
-	// TODO(casey): Hey Raymond Chen - what's the deal here?
-	// Is cColorBits ACTUALLY supposed to exclude the alpha bits, like MSDN says, or not?
 	PIXELFORMATDESCRIPTOR DesiredPixelFormat = {};
 	DesiredPixelFormat.nSize = sizeof(DesiredPixelFormat);
 	DesiredPixelFormat.nVersion = 1;
@@ -146,7 +144,6 @@ void BEngine::Win32UpdateWindowOpenGL(HDC deviceContext, RECT* clientRect, int x
 
 	float P = 1.0f;
 
-	// NOTE(casey): Lower triangle
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex2f(-P, -P);
 
@@ -156,7 +153,6 @@ void BEngine::Win32UpdateWindowOpenGL(HDC deviceContext, RECT* clientRect, int x
 	glTexCoord2f(1.0f, 0.0f);
 	glVertex2f(P, P);
 
-	// NOTE(casey): Upper triangle
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex2f(-P, -P);
 
@@ -715,62 +711,7 @@ bool BEngine::LoadTexturePNG(const char * fileName, Texture * output, bool loadA
 		}
 }
 bool BEngine::LoadOBJFile(const char * fileName) {
-	std::ifstream f(fileName);
-	if (!f.is_open())
-		return false;
-
-	// Local cache of verts
-	std::vector<BMath::Vec4> verts;
-
-	while (!f.eof())
-	{
-		char line[128];
-		f.getline(line, 128);
-
-		std::strstream s;
-		s << line;
-
-		char junk;
-
-		if (line[0] == 'v')
-		{
-			BMath::Vec4 v;
-			s >> junk >> v.x >> v.y >> v.z;
-			v.w = 1;
-			verts.push_back(v);
-		}
-
-		if (line[0] == 'f')
-		{
-			int f[3];
-			s >> junk >> f[0] >> f[1] >> f[2];
-			BMath::Vec4 vec = verts[f[0] - 1], vec2 = verts[f[1] - 1], vec3 = verts[f[2] - 1];
-			int offset = 300;
-			int scalar = 20;
-			vec.x *= scalar;
-			vec.y *= scalar;
-			vec.z *= scalar;
-			vec.x += offset;
-			vec.y += offset;
-			vec.z += offset;
-
-			vec2.x *= scalar;
-			vec2.y *= scalar;
-			vec2.z *= scalar;
-			vec2.x += offset;
-			vec2.y += offset;
-			vec2.z += offset;
-
-			vec3.x *= scalar;
-			vec3.y *= scalar;
-			vec3.z *= scalar;
-			vec3.x += offset;
-			vec3.y += offset;
-			vec3.z += offset;
-			BPolygon::Triangle t = { vec,vec2,vec3 };
-			this->triangles.push_back(t);
-		}
-	}
+	
 	return true;
 }
 BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {

@@ -84,6 +84,8 @@ class TestMath : public BEngine {
 		1,2,3,1 };
 		BMath::Vec4 vec = { 2,2,2,1 };
 		vec = vec * mat;
+		mat.Invert();
+		vec = vec * mat;
 		PrintAVector(vec);
 	}
 	virtual bool OnCreate() override {

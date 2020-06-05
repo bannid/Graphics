@@ -69,7 +69,6 @@ public:
 public:
 	bool running;
 	POINT mouseInfo;
-	std::vector<BPolygon::Triangle> triangles;
 	//Debug
 	std::map<std::string, std::vector<int>> timingData;
 private:

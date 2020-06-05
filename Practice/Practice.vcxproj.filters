@@ -84,6 +84,12 @@
     <ClInclude Include="TestMathLib.h">
       <Filter>Testing</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Polygons</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCode3D.h">
+      <Filter>Testing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp">
@@ -98,6 +104,9 @@
     <ClCompile Include="Win32Main.cpp" />
     <ClCompile Include="Maths.cpp">
       <Filter>Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Polygons</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

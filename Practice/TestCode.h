@@ -24,9 +24,9 @@ class Test : public BEngine {
 	void TestDrawTriangle() {
 		//FillTriangle(500,0,300,100,500,500);
 		//FillTriangle(500, 500, 300, 100, 500, 0);
-		for (auto it = triangles.begin(); it != triangles.end(); it++) {
+		/*for (auto it = triangles.begin(); it != triangles.end(); it++) {
 			FillTriangle(*it);
-		}
+		}*/
 	}
 	bool TestCodeForLoadObjFile() {
 		return LoadOBJFile("C:\\Users\\Winny-Banni\\Desktop\\videos\\teapot.obj");
@@ -101,14 +101,14 @@ class Test : public BEngine {
 		}
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
-		TestCodeForDrawingSprite();
-		//TestDrawTriangle();
+		//TestCodeForDrawingSprite();
+		TestDrawTriangle();
 		return true;
 	}
 	virtual bool OnCreate() override {
-		TestCodeForTextureLoading(); 
+		//TestCodeForTextureLoading(); 
 		//spaceShipPos = { GetScreenWidth() / 2,GetScreenHeight() / 2 };
-		spaceShip = new Sprite(GetTexture(space),200,200,1);
+		//spaceShip = new Sprite(GetTexture(space),200,200,1);
 		return TestCodeForLoadObjFile();
 	}
 private:

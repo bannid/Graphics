@@ -46,10 +46,3 @@ namespace BColors {
 		MAROON = RGBC(128, 0, 0)
 	};
 }
-
-struct Vertex {
-	BMath::Vec4 vector;
-	BMath::Vec2 uv;
-	BColors::color_t color;
-	BMath::Vec4 Normal;
-};
