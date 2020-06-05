@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BEngine.h" />
+    <ClInclude Include="BEngine3D.h" />
     <ClInclude Include="BouncingBall.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debug.h" />
@@ -164,16 +165,15 @@
     <ClInclude Include="Maths.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PerlinNoise.h" />
-    <ClInclude Include="Polygon.h" />
     <ClInclude Include="RayCaster.h" />
     <ClInclude Include="SpaceWars.h" />
     <ClInclude Include="TestCode.h" />
     <ClInclude Include="TestCode3D.h" />
     <ClInclude Include="TestMathLib.h" />
-    <ClInclude Include="Timing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp" />
+    <ClCompile Include="BEngine3D.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="Maths.cpp" />

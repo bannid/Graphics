@@ -1,17 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Examples">
       <UniqueIdentifier>{7dca5cad-9c02-49b5-9046-7a873f8d7211}</UniqueIdentifier>
@@ -25,28 +17,16 @@
     <Filter Include="Testing">
       <UniqueIdentifier>{35588aed-cf5c-4740-92eb-439f7f30b0ea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Timings">
-      <UniqueIdentifier>{e2bd9e8f-93ac-4fb0-9a64-b9a5b13aae8a}</UniqueIdentifier>
+    <Filter Include="BEngine">
+      <UniqueIdentifier>{473ea43f-a024-4d8e-8481-0cb6516a93c7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Maths">
-      <UniqueIdentifier>{a5984af7-c96b-4de0-88ce-7c4fd63ab05b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Polygons">
-      <UniqueIdentifier>{1dbe472b-f665-40e9-951a-8dd46d93fe33}</UniqueIdentifier>
+    <Filter Include="BEngine3D">
+      <UniqueIdentifier>{9351aa30-4fed-4092-96b6-ca85b0f018f9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DrawLines.h">
       <Filter>Examples</Filter>
-    </ClInclude>
-    <ClInclude Include="lodepng.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DrawBezierCurves.h">
       <Filter>Examples</Filter>
@@ -57,20 +37,11 @@
     <ClInclude Include="TestCode.h">
       <Filter>Testing</Filter>
     </ClInclude>
-    <ClInclude Include="Timing.h">
-      <Filter>Timings</Filter>
-    </ClInclude>
     <ClInclude Include="BouncingBall.h">
       <Filter>Examples</Filter>
     </ClInclude>
     <ClInclude Include="SpaceWars.h">
       <Filter>Examples</Filter>
-    </ClInclude>
-    <ClInclude Include="Maths.h">
-      <Filter>Maths</Filter>
-    </ClInclude>
-    <ClInclude Include="Polygon.h">
-      <Filter>Polygons</Filter>
     </ClInclude>
     <ClInclude Include="RayCaster.h">
       <Filter>Examples</Filter>
@@ -84,17 +55,29 @@
     <ClInclude Include="TestMathLib.h">
       <Filter>Testing</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Polygons</Filter>
-    </ClInclude>
     <ClInclude Include="TestCode3D.h">
       <Filter>Testing</Filter>
     </ClInclude>
+    <ClInclude Include="Maths.h">
+      <Filter>BEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="BEngine.h">
+      <Filter>BEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>BEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="lodepng.h">
+      <Filter>3rdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>BEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="BEngine3D.h">
+      <Filter>BEngine3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="lodepng.cpp">
       <Filter>3rdParty</Filter>
     </ClCompile>
@@ -103,10 +86,16 @@
     </ClCompile>
     <ClCompile Include="Win32Main.cpp" />
     <ClCompile Include="Maths.cpp">
-      <Filter>Maths</Filter>
+      <Filter>BEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="BEngine.cpp">
+      <Filter>BEngine</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Polygons</Filter>
+      <Filter>BEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="BEngine3D.cpp">
+      <Filter>BEngine3D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

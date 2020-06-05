@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include "Maths.h"
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
-
+#define M_PI 3.1415926535
 namespace BInput {
 	struct Key {
 		bool keyDown = false;

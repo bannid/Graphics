@@ -2,7 +2,11 @@
 #include "BEngine.h"
 
 Mesh::Mesh(const char * objFile) {
-	std::ifstream f(objFile);
+	LoadFromObjFile(objFile);
+}
+
+bool Mesh::LoadFromObjFile(const char * fileName) {
+	std::ifstream f(fileName);
 	// Local cache of verts
 	std::vector<BMath::Vec4> verts;
 
@@ -62,13 +66,27 @@ Mesh::Mesh(const char * objFile) {
 
 		if (line[0] == 'v' && line[1] == 't') {
 			BMath::Vec4 uv;
-			s >> junk >>junk>> uv.x >> uv.y;
+			s >> junk >> junk >> uv.x >> uv.y;
 			this->textureCoords.push_back(uv);
 		}
 		if (line[0] == 'v' && line[1] == 'n') {
 			BMath::Vec4 normal;
-			s >> junk >> junk>> normal.x >> normal.y >> normal.z;
+			s >> junk >> junk >> normal.x >> normal.y >> normal.z;
+			normal.Normalize();
 			this->normals.push_back(normal);
 		}
 	}
+	return true;
+}
+
+BMath::Mat4 Mesh::GetModelMat() {
+	BMath::Mat4 mat;
+	float screenSize = 1000.0f;
+	mat.m[0][0] = size/ screenSize;
+	mat.m[1][1] = -size/ screenSize;
+	mat.m[2][2] = size/ screenSize;
+	mat.m[3][0] = position.x;
+	mat.m[3][1] = position.y;
+	mat.m[3][2] = position.z;
+	return mat;
 }

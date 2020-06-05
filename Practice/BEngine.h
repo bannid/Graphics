@@ -8,9 +8,9 @@
 #include <cmath>
 #include <strstream>
 #include "Common.h"
-#include "Polygon.h"
 #include "Maths.h"
 #include "Debug.h"
+#include "Mesh.h"
 #include "lodepng.h"
 
 #define TEXID int
@@ -33,14 +33,14 @@ struct Sprite {
 	float tintingPercentage;
 	Texture * tex;
 	Sprite(Texture *);
-	Sprite(Texture *,int height, int width, float scale);
+	Sprite(Texture *, int height, int width, float scale);
 	void ScaleSprite(float newScaleValue);
 	void SetTinting(BColors::color_t color, float percentage);
 	unsigned int GetHeight();
 	unsigned int GetWidth();
-	
+
 };
-enum BLENDING_MODE {ALPHA, NORMAL};
+enum BLENDING_MODE { ALPHA, NORMAL };
 class BEngine
 {
 public:
@@ -100,7 +100,6 @@ public:
 	//Assets
 	bool LoadTexturePNG(const char * fileName, TEXID& idOutput, bool loadAlpha);
 	bool LoadTexturePNG(const char * fileName, Texture * output, bool loadAlpha);
-	bool LoadOBJFile(const char * fileName);
 	BColors::color_t GetColorFromTexture(float xNormalized, float yNormalized, TEXID textureId);
 	BColors::color_t GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture);
 	Texture * GetTexture(TEXID tId);
@@ -127,8 +126,8 @@ public:
 	void DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	void FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked);
 	//Triangle 
-	void FillTriangle(BPolygon::Triangle t);
-	void DrawTriangle(BPolygon::Triangle t);
+	void FillTriangle(Triangle & t);
+	void DrawTriangle(Triangle & t);
 	//Sprite - Affine transformations cannot be applied
 	void DrawSprite(Sprite & sprite, BMath::Vec2 pos);
 	//Functions to draw bezier curve in screen space.
@@ -148,6 +147,7 @@ public:
 	void ProcessKeys();
 	//Debug
 	void WriteTimingOutput();
+	
 private:
 	//Private functions
 	void SetPixelInternal(int x, int y, BColors::color_t & color);

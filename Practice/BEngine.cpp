@@ -297,13 +297,15 @@ BEngine::BEngine()
 {
 
 }
-
-
 BEngine::~BEngine()
 {
 
 }
 //Getters
+BInput::Key BEngine::GetKey(unsigned int key) {
+	assert(key > 0 && key < 0xFF);
+	return this->keys[key];
+}
 int BEngine::GetPixelDimension() {
 	return this->pixelDimension;
 }
@@ -316,9 +318,11 @@ int BEngine::GetScreenWidth() {
 POINT BEngine::GetMouseInfo() {
 	return this->mouseInfo;
 }
-float BEngine::Lerp(float a, float b, float t) {
-	return ((1 - t) * a) + (t * b);
+Texture * BEngine::GetTexture(TEXID tId) {
+	return &textures[tId - 1];
 }
+//Setters
+void BEngine::SetBlendingMode(BLENDING_MODE mode) { this->blendMode = mode; }
 void BEngine::SetPixelInternal(int x, int y, BColors::color_t & color) {
 	if (x < 0 || x >= this->screenInfo.bitmapWidth || y < 0 || y >= this->screenInfo.bitmapHeight) {
 		return;
@@ -365,6 +369,7 @@ void BEngine::ClearScreen(int colorPacked) {
 	BColors::color_t color = IntToColor(colorPacked);
 	ClearScreen(color);
 }
+//############################## Circles ###############################
 void BEngine::DrawCircle(int x, int y, int radius, BColors::color_t & color) {
 	float tau = 6.28318530718;
 	for (float t = 0; t < 1; t += 0.001) {
@@ -410,6 +415,8 @@ void BEngine::FillCircle(int x, int y, int radius, BColors::color_t & color) {
 		}
 	}
 }
+//############################### End Circles ############################
+//############################## Rectangle ############################
 void BEngine::DrawRectangle(int x1, int y1, int x2, int y2, BColors::color_t & color) {
 	DrawLine(x1, y1, x2, y1, color);
 	DrawLine(x1, y1, x1, y2, color);
@@ -432,15 +439,22 @@ void BEngine::FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int co
 	BColors::color_t color = IntToColor(colorPacked);
 	FillRectangle(xTop, yTop, xBottom, yBottom, color);
 }
-void BEngine::DrawTriangle(BPolygon::Triangle t) {
-	DrawLine(t.v1.x, t.v1.y, t.v2.x, t.v2.y, BColors::WHITE);
-	DrawLine(t.v2.x, t.v2.y, t.v3.x, t.v3.y, BColors::WHITE);
-	DrawLine(t.v2.x, t.v2.y, t.v1.x, t.v1.y, BColors::WHITE);
+//############################## End rectangle #################################
+//################################ Triangle ##############################
+void BEngine::DrawTriangle(Triangle & t) {
+	auto & v1 = t.vertices[0].vector;
+	auto & v2 = t.vertices[1].vector;
+	auto & v3 = t.vertices[2].vector;
+	DrawLine(v1.x, v1.y, v2.x, v2.y, t.vertices[0].color);
+	DrawLine(v2.x, v2.y, v3.x, v3.y, t.vertices[0].color);
+	DrawLine(v3.x, v3.y, v1.x, v1.y, t.vertices[0].color);
 }
-
 //Fill triangle - Scanline method
-void BEngine::FillTriangle(BPolygon::Triangle t) {
-	int x1 = t.v1.x, y1 = t.v1.y, x2 = t.v2.x, y2 = t.v2.y, x3 = t.v3.x, y3 = t.v3.y;
+void BEngine::FillTriangle(Triangle & t) {
+	auto & v1 = t.vertices[0].vector;
+	auto & v2 = t.vertices[1].vector;
+	auto & v3 = t.vertices[2].vector;
+	int x1 = v1.x, y1 = v1.y, x2 = v2.x, y2 = v2.y, x3 = v3.x, y3 = v3.y;
 	if (y1 > y2) {
 		std::swap(y1, y2);
 		std::swap(x1, x2);
@@ -466,7 +480,7 @@ void BEngine::FillTriangle(BPolygon::Triangle t) {
 		}
 		int xFirst = beta * x1 + (1.0f - beta) * x2 + percision;
 		int xSecond = alpha * x1 + (1.0f - alpha) * x3 + percision;
-		DrawLine(xFirst, y, xSecond, y, BColors::YELLOW);
+		DrawLine(xFirst, y, xSecond, y, t.vertices[0].color);
 	}
 	//Draw the lower part
 	segmentHeight = y3 - y2;
@@ -475,10 +489,11 @@ void BEngine::FillTriangle(BPolygon::Triangle t) {
 		float beta = (float)(y3 - y) / segmentHeight;
 		int xSecond = alpha * x1 + (1 - alpha) * x3 + percision;
 		int xFirst = beta * x2 + (1 - beta) * x3 + percision;
-		DrawLine(xFirst, y, xSecond, y, BColors::YELLOW);
+		DrawLine(xFirst, y, xSecond, y, t.vertices[0].color);
 	}
 }
-
+//######################## End triangle##################################
+//######################### Lines and Curves ############################
 void BEngine::DrawLine(int x1, int y1, int x2, int y2, int colorPacked) {
 	BColors::color_t color = IntToColor(colorPacked);
 	DrawLine(x1, y1, x2, y2, color);
@@ -580,12 +595,18 @@ void BEngine::BezierCurveRecursive(std::vector<BMath::Vec2> points,
 		BezierCurveRecursive(run, t, output);
 	}
 }
+//############################ End lines and curves #####################
+//############################# Interpolation #######################333
 BMath::Vec2 BEngine::Lerp(BMath::Vec2 a, BMath::Vec2 b, float t) {
 	BMath::Vec2 vectorFromAToB = b - a;
 	BMath::Vec2 vectorFromAToBScaled = vectorFromAToB * t;
 	return a + vectorFromAToBScaled;
 }
-
+float BEngine::Lerp(float a, float b, float t) {
+	return ((1 - t) * a) + (t * b);
+}
+//######################## End interpolation #########################
+//######################## String and sprite drawing ############################
 void BEngine::DrawString(std::string string, int posX, int posY, int size, BColors::color_t color) {
 	for (int pq = 0; pq < string.size(); pq++) {
 		char c = string[pq];
@@ -638,6 +659,39 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, int c
 void BEngine::DrawString(const char * constString, int posX, int posY, int size, int colorPacked) {
 	DrawString(constString, posX, posY, size, IntToColor(colorPacked));
 }
+void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
+	int width = sprite.width * sprite.scale;
+	int height = sprite.height * sprite.scale;
+	bool modeChanged = false;
+	if (blendMode == NORMAL) { modeChanged = true; blendMode = ALPHA; }
+	int startingX = pos.x - width / 2;
+	int startingY = pos.y - height / 2;
+	int endingX = pos.x + width / 2;
+	int endingY = pos.y + height / 2;
+
+	//TODO: We shouldnt be getting the pixel value from the texture
+	//at every draw sprite call. I think we should attach some memory
+	//to the sprite and everytime we want to draw the sprite, we copy
+	//that memory to the sprite current pos.
+	for (int x = startingX; x < endingX; x += pixelDimension) {
+		for (int y = startingY; y < endingY; y += pixelDimension) {
+			float normalizedX = 1.0f - ((float)(endingX - x) / width);
+			float normalizedY = 1.0f - ((float)(endingY - y) / height);
+			BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
+			if (sprite.tint) {
+				float t = sprite.tintingPercentage;
+				float t2 = 1 - t;
+				color.red = color.red * t2 + sprite.tinting.red * t;
+				color.green = color.green * t2 + sprite.tinting.green * t;
+				color.blue = color.blue * t2 + sprite.tinting.blue * t;
+			}
+			SetPixel(x, y, color);
+		}
+	}
+	if (modeChanged)blendMode = NORMAL;
+}
+//########################### End string drawing ######################
+//######################## Input #############################
 void BEngine::ProcessKeys() {
 	//Note: This function sometimes can take upto 5ms even in release mode,
 	//and may lead to drop in frame rate.  Maybe we should
@@ -663,6 +717,8 @@ void BEngine::ProcessKeys() {
 	GetCursorPos(&this->mouseInfo);
 	ScreenToClient(this->window, &this->mouseInfo);
 }
+//######################### end input #####################
+//###################### Assets loading ####################
 bool BEngine::LoadTexturePNG(const char * fileName,
 	TEXID & id,
 	bool loadAlpha = true) {
@@ -710,10 +766,6 @@ bool BEngine::LoadTexturePNG(const char * fileName, Texture * output, bool loadA
 			return success;
 		}
 }
-bool BEngine::LoadOBJFile(const char * fileName) {
-	
-	return true;
-}
 BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {
 	if(normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
 		return { 0,0,0,0 };
@@ -746,44 +798,13 @@ BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalize
 	color.alpha = (unsigned int)(*(data + 3));
 	return color;
 }
-BInput::Key BEngine::GetKey(unsigned int key) {
-	assert(key > 0 && key < 0xFF);
-	return this->keys[key];
-}
+//############################ End assets ########################3
+//######################### Debug ######################
 void BEngine::WriteTimingOutput() {
 	NSDebug::WriteTimingDataOut(&this->timingData);
 }
-void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
-	int width = sprite.width * sprite.scale;
-	int height = sprite.height * sprite.scale;
-	bool modeChanged = false;
-	if (blendMode == NORMAL) { modeChanged = true; blendMode = ALPHA; }
-	int startingX = pos.x - width / 2;
-	int startingY = pos.y - height / 2;
-	int endingX = pos.x + width / 2;
-	int endingY = pos.y + height / 2;
-	
-	//TODO: We shouldnt be getting the pixel value from the texture
-	//at every draw sprite call. I think we should attach some memory
-	//to the sprite and everytime we want to draw the sprite, we copy
-	//that memory to the sprite current pos.
-	for (int x = startingX; x < endingX; x += pixelDimension) {
-		for (int y = startingY; y < endingY; y += pixelDimension) {
-			float normalizedX = 1.0f - ((float)(endingX - x) / width);
-			float normalizedY = 1.0f - ((float)(endingY - y) / height);
-			BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
-			if (sprite.tint) {
-				float t = sprite.tintingPercentage;
-				float t2 = 1 - t;
-				color.red = color.red * t2 + sprite.tinting.red * t;
-				color.green = color.green * t2 + sprite.tinting.green * t;
-				color.blue = color.blue * t2 + sprite.tinting.blue * t;
-			}
-			SetPixel(x, y, color);
-		}
-	}
-	if (modeChanged)blendMode = NORMAL;
-}
+//###################### End debug #######################
+//###################### Helper functions ################
 BColors::color_t BEngine::IntToColor(int color) {
 	BColors::color_t toReturn;
 	toReturn.red = color >> 16 & 0xFF;
@@ -791,10 +812,8 @@ BColors::color_t BEngine::IntToColor(int color) {
 	toReturn.blue = color & 0xFF;
 	return toReturn;
 }
-Texture * BEngine::GetTexture(TEXID tId) {
-	return &textures[tId - 1];
-}
-void BEngine::SetBlendingMode(BLENDING_MODE mode) { this->blendMode = mode; }
+//###################### End helper functions
+//####################### Sprites implementation
 Sprite::Sprite(Texture * t) {
 	this->tex = t;
 	this->width = tex->width;
@@ -818,3 +837,5 @@ unsigned int Sprite::GetHeight() {
 unsigned int Sprite::GetWidth() {
 	return this->width * scale;
 }
+//################ end Sprites ########################
+//################################### 3D Stuff###############################

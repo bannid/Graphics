@@ -29,7 +29,7 @@ class Test : public BEngine {
 		}*/
 	}
 	bool TestCodeForLoadObjFile() {
-		return LoadOBJFile("C:\\Users\\Winny-Banni\\Desktop\\videos\\teapot.obj");
+		return true;// return LoadOBJFile("C:\\Users\\Winny-Banni\\Desktop\\videos\\teapot.obj");
 	}
 	void TestCodeForLerp() {
 		BMath::Vec2 point1 = { 0,500 };
