@@ -71,20 +71,31 @@ void BEngine3D::FillTriangleBC(Triangle & t) {
 	minY = Max(0, minY);
 	maxX = Min(GetScreenWidth(), maxX);
 	maxY = Min(GetScreenWidth(), maxY);
-	float mainTriangleArea = t.Area();
+	BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
+	BMath::Vec2 pointB = { t.vertices[1].vector.x,t.vertices[1].vector.y };
+	BMath::Vec2 pointC = { t.vertices[2].vector.x,t.vertices[2].vector.y };
+	BMath::Vec2 edge1 = pointB - pointA;
+	BMath::Vec2 edge2 = pointC - pointA;
+	BMath::Vec2 edge3 = pointA - pointC;
+	BMath::Vec2 edge4 = pointC - pointB;
+	float mainTriangleArea = (edge1.x * edge2.y - edge1.y * edge2.x) * 0.5f;
 	for (int x = minX; x < maxX; x++) {
 		for (int y = minY; y < maxY; y++) {
 			BMath::Vec2 point = { x,y };
-			BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
-			BMath::Vec2 pointB= { t.vertices[1].vector.x,t.vertices[1].vector.y };
-			BMath::Vec2 pointC = { t.vertices[2].vector.x,t.vertices[2].vector.y };
-			BMath::Vec4 first(pointC.x - pointA.x, pointB.x - pointA.x, pointA.x - point.x,1.0f);
-			BMath::Vec4 second(pointC.y - pointA.y, pointB.y - pointA.y, pointA.y - point.y, 1.0f);
-			BMath::Vec4 cross = first.Cross(second);
-			float Gamma = cross.x / cross.z;
-			float Beta = cross.y / cross.z;
-			float Alpha = 1.f - (cross.x + cross.y) / cross.z;
-			BMath::Vec4 lightDir = { 1,0,0,0 };
+
+			BMath::Vec2 vp1 = point - pointA;
+			float gamma = (edge1.x * vp1.y - edge1.y * vp1.x) * 0.5f;
+			gamma /= mainTriangleArea;
+
+			BMath::Vec2 vp2 = point - pointC;
+			float beta = (edge3.x * vp2.y - edge3.y * vp2.x) * 0.5;
+			beta /= mainTriangleArea;
+			
+			BMath::Vec2 vp3 = point - pointB;
+			float alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
+			alpha /= mainTriangleArea;
+			
+			BMath::Vec4 lightDir = { 0,0,-1,0 };
 			
 			float dotAlpha = t.vertices[0].normal * lightDir;
 			float dotBeta = t.vertices[1].normal * lightDir;
@@ -96,13 +107,13 @@ void BEngine3D::FillTriangleBC(Triangle & t) {
 			InterpolateColor(dotBeta, colorBeta);
 			InterpolateColor(dotGamma, colorGamma);
 			BColors::color_t finalColor;
-			finalColor.red = Alpha * colorAlpha.red + Beta * colorBeta.red + Gamma * colorGamma.red;
-			finalColor.green = Alpha * colorAlpha.green+ Beta * colorBeta.green+ Gamma * colorGamma.green;
-			finalColor.blue = Alpha * colorAlpha.blue + Beta * colorBeta.blue + Gamma * colorGamma.blue;
+			finalColor.red = alpha * colorAlpha.red + beta * colorBeta.red + gamma * colorGamma.red;
+			finalColor.green = alpha * colorAlpha.green+ beta * colorBeta.green+ gamma * colorGamma.green;
+			finalColor.blue = alpha * colorAlpha.blue + beta * colorBeta.blue + gamma * colorGamma.blue;
 			float value = 0;
-			if (Alpha > value &&
-				Beta > value &&
-				Gamma > value) {
+			if (alpha > value &&
+				beta > value &&
+				gamma > value) {
 				SetPixel(x, y, finalColor);
 			}
 		}
