@@ -56,6 +56,7 @@ float Max(float a, float b) {
 }
 
 void InterpolateColor(float t, BColors::color_t & color) {
+	if (t < 0)t = 0.05;
 	color.red *= t;
 	color.green *= t;
 	color.blue *= t;
@@ -66,6 +67,10 @@ void BEngine3D::FillTriangleBC(Triangle & t) {
 	float minY = Min(t.vertices[0].vector.y, Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
 	float maxX = Max(t.vertices[0].vector.x, Max(t.vertices[1].vector.x, t.vertices[2].vector.x));
 	float maxY = Max(t.vertices[0].vector.y, Max(t.vertices[1].vector.y, t.vertices[2].vector.y));
+	minX = Max(0, minX);
+	minY = Max(0, minY);
+	maxX = Min(GetScreenWidth(), maxX);
+	maxY = Min(GetScreenWidth(), maxY);
 	float mainTriangleArea = t.Area();
 	for (int x = minX; x < maxX; x++) {
 		for (int y = minY; y < maxY; y++) {
@@ -79,7 +84,7 @@ void BEngine3D::FillTriangleBC(Triangle & t) {
 			float Gamma = cross.x / cross.z;
 			float Beta = cross.y / cross.z;
 			float Alpha = 1.f - (cross.x + cross.y) / cross.z;
-			BMath::Vec4 lightDir = { 0,0,-1,0 };
+			BMath::Vec4 lightDir = { 1,0,0,0 };
 			
 			float dotAlpha = t.vertices[0].normal * lightDir;
 			float dotBeta = t.vertices[1].normal * lightDir;

@@ -43,10 +43,10 @@ class TestCode3D : public BEngine3D {
 			selector->position.z -= 5.0f * elapsedTime;
 		}
 		if (GetKey(VK_RIGHT).keyDown) {
-			selector->position.x += 5.0f * elapsedTime;
+			selector->position.x += 50.0f * elapsedTime;
 		}
 		if (GetKey(VK_LEFT).keyDown) {
-			selector->position.x -= 5.0f * elapsedTime;
+			selector->position.x -= 50.0f * elapsedTime;
 		}
 		return true;
 	}
