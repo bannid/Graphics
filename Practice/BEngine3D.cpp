@@ -30,7 +30,7 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 		t.vertices[1].vector = t.vertices[1].vector * M;
 		t.vertices[2].vector = t.vertices[2].vector * M;
 		
-		FillTriangle(t);
+		FillTriangleBC(t);
 	}
 }
 
@@ -45,4 +45,39 @@ void BEngine3D::Initialise() {
 	mat.m[3][1] = screenHeight / 2;
 	this->viewPortMatrix = mat;
 	this->initialised = true;
+}
+
+float Min(float a, float b) {
+	return a < b ? a : b;
+}
+float Max(float a, float b) {
+
+	return a > b ? a : b;
+}
+void BEngine3D::FillTriangleBC(Triangle & t) {
+	float minX = Min(t.vertices[0].vector.x, Min(t.vertices[1].vector.x,t.vertices[2].vector.x));
+	float minY = Min(t.vertices[0].vector.y, Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
+	float maxX = Max(t.vertices[0].vector.x, Max(t.vertices[1].vector.x, t.vertices[2].vector.x));
+	float maxY = Max(t.vertices[0].vector.y, Max(t.vertices[1].vector.y, t.vertices[2].vector.y));
+	float mainTriangleArea = t.Area();
+	for (int x = minX; x < maxX; x++) {
+		for (int y = minY; y < maxY; y++) {
+			BMath::Vec2 point = { x,y };
+			BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
+			BMath::Vec2 pointB= { t.vertices[1].vector.x,t.vertices[1].vector.y };
+			BMath::Vec2 pointC = { t.vertices[2].vector.x,t.vertices[2].vector.y };
+			BMath::Vec4 first(pointC.x - pointA.x, pointB.x - pointA.x, pointA.x - point.x,1.0f);
+			BMath::Vec4 second(pointC.y - pointA.y, pointB.y - pointA.y, pointA.y - point.y, 1.0f);
+			BMath::Vec4 cross = first.Cross(second);
+			float Gamma = cross.y / cross.z;
+			float Beta = cross.x / cross.z;
+			float Alpha = 1.f - (cross.x + cross.y) / cross.z;
+			float value = 0;
+			if (Alpha > value &&
+				Beta > value &&
+				Gamma > value) {
+				SetPixel(x, y, t.vertices[0].color);
+			}
+		}
+	}
 }

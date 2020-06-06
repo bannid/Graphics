@@ -12,4 +12,5 @@ private:
 public:
 	void DrawMesh(Mesh & mesh);
 	void Initialise();
+	void FillTriangleBC(Triangle & t);
 };

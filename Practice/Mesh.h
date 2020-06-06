@@ -11,6 +11,7 @@ struct Vertex {
 struct Triangle {
 	Vertex vertices[3];
 	Triangle(){}
+	float Area();
 };
 struct Mesh {
 	float size = 500;

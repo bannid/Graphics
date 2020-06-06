@@ -32,17 +32,18 @@ class TestCode3D : public BEngine3D {
 		ClearScreen(BColors::BLACK);
 		//this->DrawMesh(this->triangle);
 		this->DrawMesh(*this->africanHead);
+		Mesh * selector = this->africanHead;
 		if (GetKey(VK_UP).keyDown) {
-			triangle.position.z += 5.0f * elapsedTime;
+			selector->position.z += 5.0f * elapsedTime;
 		}
 		if (GetKey(VK_DOWN).keyDown) {
-			triangle.position.z -= 5.0f * elapsedTime;
+			selector->position.z -= 5.0f * elapsedTime;
 		}
 		if (GetKey(VK_RIGHT).keyDown) {
-			triangle.position.x += 5.0f * elapsedTime;
+			selector->position.x += 5.0f * elapsedTime;
 		}
 		if (GetKey(VK_LEFT).keyDown) {
-			triangle.position.x -= 5.0f * elapsedTime;
+			selector->position.x -= 5.0f * elapsedTime;
 		}
 		return true;
 	}

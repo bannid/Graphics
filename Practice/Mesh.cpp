@@ -89,3 +89,9 @@ BMath::Mat4 Mesh::GetModelMat() {
 	mat.m[3][2] = position.z;
 	return mat;
 }
+
+float Triangle::Area() {
+	auto first = this->vertices[1].vector - this->vertices[0].vector;
+	auto second = this->vertices[2].vector - this->vertices[0].vector;
+	return first.Cross(second).Magnitude() * 0.5;
+}
