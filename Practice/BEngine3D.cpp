@@ -54,6 +54,13 @@ float Max(float a, float b) {
 
 	return a > b ? a : b;
 }
+
+void InterpolateColor(float t, BColors::color_t & color) {
+	color.red *= t;
+	color.green *= t;
+	color.blue *= t;
+}
+
 void BEngine3D::FillTriangleBC(Triangle & t) {
 	float minX = Min(t.vertices[0].vector.x, Min(t.vertices[1].vector.x,t.vertices[2].vector.x));
 	float minY = Min(t.vertices[0].vector.y, Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
@@ -69,14 +76,29 @@ void BEngine3D::FillTriangleBC(Triangle & t) {
 			BMath::Vec4 first(pointC.x - pointA.x, pointB.x - pointA.x, pointA.x - point.x,1.0f);
 			BMath::Vec4 second(pointC.y - pointA.y, pointB.y - pointA.y, pointA.y - point.y, 1.0f);
 			BMath::Vec4 cross = first.Cross(second);
-			float Gamma = cross.y / cross.z;
-			float Beta = cross.x / cross.z;
+			float Gamma = cross.x / cross.z;
+			float Beta = cross.y / cross.z;
 			float Alpha = 1.f - (cross.x + cross.y) / cross.z;
+			BMath::Vec4 lightDir = { 0,0,-1,0 };
+			
+			float dotAlpha = t.vertices[0].normal * lightDir;
+			float dotBeta = t.vertices[1].normal * lightDir;
+			float dotGamma = t.vertices[2].normal * lightDir;
+			BColors::color_t colorAlpha = IntToColor(BColors::WHITE);
+			BColors::color_t colorBeta = IntToColor(BColors::WHITE);
+			BColors::color_t colorGamma = IntToColor(BColors::WHITE);
+			InterpolateColor(dotAlpha, colorAlpha);
+			InterpolateColor(dotBeta, colorBeta);
+			InterpolateColor(dotGamma, colorGamma);
+			BColors::color_t finalColor;
+			finalColor.red = Alpha * colorAlpha.red + Beta * colorBeta.red + Gamma * colorGamma.red;
+			finalColor.green = Alpha * colorAlpha.green+ Beta * colorBeta.green+ Gamma * colorGamma.green;
+			finalColor.blue = Alpha * colorAlpha.blue + Beta * colorBeta.blue + Gamma * colorGamma.blue;
 			float value = 0;
 			if (Alpha > value &&
 				Beta > value &&
 				Gamma > value) {
-				SetPixel(x, y, t.vertices[0].color);
+				SetPixel(x, y, finalColor);
 			}
 		}
 	}

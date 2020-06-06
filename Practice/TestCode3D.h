@@ -16,6 +16,9 @@ class TestCode3D : public BEngine3D {
 		t.vertices[0].vector = triangle.vertices[0];
 		t.vertices[1].vector = triangle.vertices[1];
 		t.vertices[2].vector = triangle.vertices[2];
+		t.vertices[0].normal = { 0,0,-1,0 };
+		t.vertices[1].normal = { 0,0,-1,0 };
+		t.vertices[2].normal = { 0,0,-1,0 };
 		triangle.triangles.push_back(t);
 		triangle.position.x = 0;
 		triangle.position.y = 0;
