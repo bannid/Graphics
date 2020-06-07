@@ -200,16 +200,7 @@ class Perlin : public BEngine {
 	}
 	virtual bool OnUpdate(float elapsedTime) {
 		ClearScreen(BColors::BLACK);
-		//DrawPerlinNoise();
-		for (int i = 0; i < 256; i++) {
-			float t = (float)i / 256;
-			float value = PerlinNoise1D(i) * 100;
-			DrawLine(i, 300, i, 300 - value, BColors::MAROON);
-		}
-		if (GetKey(VK_SPACE).keyReleased) {
-			nOctaves++;
-			nOctaves = nOctaves % 10;
-		}
+		DrawPerlinNoise();
 		return true;
 	}
 };

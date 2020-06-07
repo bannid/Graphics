@@ -195,20 +195,12 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 	unsigned int bitmapMemorySize = (screenInfo.bitmapWidth*screenInfo.bitmapHeight)*screenInfo.bytesPerPixel;
 	screenInfo.bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 }
-BEngine::BEngine(LPCWSTR windowName, int width, int height) :windowName(windowName),
-windowHeight(height),
-windowWidth(width) {
-
-}
 bool BEngine::OnDestroy() {
-	
 	return true;
 }
 bool BEngine::Start() {
 	assert(window);
 	if (!InitOpenGl()) { return false; }
-	this->fct1 = std::chrono::steady_clock::now();
-	this->fct2 = std::chrono::steady_clock::now();
 	this->uct1 = std::chrono::steady_clock::now();
 	this->uct2 = std::chrono::steady_clock::now();
 	while (running)
@@ -237,14 +229,6 @@ bool BEngine::Start() {
 		HDC DC = GetDC(window);
 		Win32UpdateWindowOpenGL(DC, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DC);
-		//Lock the frame rate
-		this->fct2 = std::chrono::steady_clock::now();
-		float durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
-		/*while (durationSinceLastFrame < FPS_60) {
-			this->fct2 = std::chrono::steady_clock::now();
-			durationSinceLastFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fct2 - fct1).count();
-		}*/
-		this->fct1 = this->fct2;
 		if (!running) { running = !OnDestroy(); }
 	}
 	return true;
@@ -317,9 +301,6 @@ int BEngine::GetScreenWidth() {
 }
 POINT BEngine::GetMouseInfo() {
 	return this->mouseInfo;
-}
-Texture * BEngine::GetTexture(TEXID tId) {
-	return &textures[tId - 1];
 }
 //Setters
 void BEngine::SetBlendingMode(BLENDING_MODE mode) { this->blendMode = mode; }
@@ -470,14 +451,11 @@ void BEngine::FillTriangle(Triangle & t) {
 	int triangleHeight = y3 - y1;
 	if (triangleHeight == 0) { return; }//Dont draw triangles that are not triangles.
 	int segmentHeight = y2 - y1;
-	float percision = 0.4;
+	float percision = 0.4f;
 	//Draw the upper part
 	for (int y = y1; y < y2; y++) {
 		float alpha = (float)(y3 - y) / triangleHeight;
 		float beta = (float)(y2 - y) / segmentHeight;
-		if (beta > 1.0f || alpha > 1.0f) {
-			DebugBreak();
-		}
 		int xFirst = beta * x1 + (1.0f - beta) * x2 + percision;
 		int xSecond = alpha * x1 + (1.0f - alpha) * x3 + percision;
 		DrawLine(xFirst, y, xSecond, y, t.vertices[0].color);
@@ -530,7 +508,7 @@ void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color)
 }
 void BEngine::DrawBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, BColors::color_t & color) {
 	auto currentPoint = p1;
-	for (float t = 0; t <= 1.05; t += 0.05) {
+	for (float t = 0; t <= 1.05; t += 0.05f) {
 		BMath::Vec2 temp2(0, 0);
 		temp2 = QuadraticBezierCurve(p1, cp, p2, t);
 		DrawLine(currentPoint.x, currentPoint.y, temp2.x, temp2.y, color);
@@ -596,15 +574,6 @@ void BEngine::BezierCurveRecursive(std::vector<BMath::Vec2> points,
 	}
 }
 //############################ End lines and curves #####################
-//############################# Interpolation #######################333
-BMath::Vec2 BEngine::Lerp(BMath::Vec2 a, BMath::Vec2 b, float t) {
-	BMath::Vec2 vectorFromAToB = b - a;
-	BMath::Vec2 vectorFromAToBScaled = vectorFromAToB * t;
-	return a + vectorFromAToBScaled;
-}
-float BEngine::Lerp(float a, float b, float t) {
-	return ((1 - t) * a) + (t * b);
-}
 //######################## End interpolation #########################
 //######################## String and sprite drawing ############################
 void BEngine::DrawString(std::string string, int posX, int posY, int size, BColors::color_t color) {
@@ -677,7 +646,7 @@ void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
 		for (int y = startingY; y < endingY; y += pixelDimension) {
 			float normalizedX = 1.0f - ((float)(endingX - x) / width);
 			float normalizedY = 1.0f - ((float)(endingY - y) / height);
-			BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex->id);
+			BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex);
 			if (sprite.tint) {
 				float t = sprite.tintingPercentage;
 				float t2 = 1 - t;
@@ -719,35 +688,6 @@ void BEngine::ProcessKeys() {
 }
 //######################### end input #####################
 //###################### Assets loading ####################
-bool BEngine::LoadTexturePNG(const char * fileName,
-	TEXID & id,
-	bool loadAlpha = true) {
-	Texture tex;
-	if (!loadAlpha) {
-		bool success = lodepng_decode24_file(&tex.data,
-			&tex.width,
-			&tex.height,
-			fileName) == 0;
-		tex.bytesPerPixel = 3;
-		tex.id = id = textures.size();
-		if (success) {
-			textures.push_back(tex);
-		}
-		return success;
-	}
-	else {
-		bool success = lodepng_decode32_file(&tex.data,
-			&tex.width,
-			&tex.height,
-			fileName) == 0;
-		tex.bytesPerPixel = 4;
-		tex.id = id = textures.size() + 1;
-		if (success) {
-			textures.push_back(tex);
-		}
-		return success;
-	}
-}
 bool BEngine::LoadTexturePNG(const char * fileName, Texture * output, bool loadAlpha) {
 		if (!loadAlpha) {
 			bool success = lodepng_decode24_file(&output->data,
@@ -765,23 +705,6 @@ bool BEngine::LoadTexturePNG(const char * fileName, Texture * output, bool loadA
 			output->bytesPerPixel = 4;
 			return success;
 		}
-}
-BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, TEXID textureID) {
-	if(normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
-		return { 0,0,0,0 };
-	}
-	assert(textureID > 0 && textureID <= textures.size());
-	Texture * texture = &textures[textureID - 1];
-	BColors::color_t color;
-	int mappedX = normalizedX * texture->width;
-	int mappedY = normalizedY * texture->height;
-	unsigned int index = (mappedY * texture->width * texture->bytesPerPixel) + mappedX * texture->bytesPerPixel;
-	unsigned char * data = &texture->data[index];
-	color.red = (unsigned int)(*data);
-	color.green = (unsigned int)(*(data + 1));
-	color.blue = (unsigned int)(*(data + 2));
-	color.alpha = (unsigned int)(*(data + 3));
-	return color;
 }
 BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture) {
 	if (normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
@@ -838,4 +761,3 @@ unsigned int Sprite::GetWidth() {
 	return this->width * scale;
 }
 //################ end Sprites ########################
-//################################### 3D Stuff###############################

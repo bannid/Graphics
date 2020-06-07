@@ -17,11 +17,8 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 		BMath::Vec4 vec1 = t.vertices[1].vector - t.vertices[0].vector;
 		BMath::Vec4 vec2 = t.vertices[2].vector - t.vertices[0].vector;
 		BMath::Vec4 normal = vec1.Cross(vec2).Normalized();
-		float intensity = normal * lightDir;
-		if (intensity < 0)continue;
-		t.vertices[0].color.red *= intensity;
-		t.vertices[0].color.green *= intensity;
-		t.vertices[0].color.blue *= intensity;
+		float dot = normal * lightDir;
+		if (dot < 0)continue;
 		this->toNDC.m[0][0] = 1.0f / screenDimensions;
 		this->toNDC.m[1][1] = 1.0f / screenDimensions;
 		BMath::Mat4 M = modelMat * projectionMatrix * toNDC * viewPortMatrix;
@@ -30,7 +27,7 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 		t.vertices[1].vector = t.vertices[1].vector * M;
 		t.vertices[2].vector = t.vertices[2].vector * M;
 		
-		FillTriangleBC(t);
+		FillTriangleBC(t,&mesh.tex);
 	}
 }
 
@@ -51,26 +48,27 @@ float Min(float a, float b) {
 	return a < b ? a : b;
 }
 float Max(float a, float b) {
-
 	return a > b ? a : b;
 }
 
-void InterpolateColor(float t, BColors::color_t & color) {
+void ScaleColor(float t, BColors::color_t & color) {
 	if (t < 0)t = 0.05;
 	color.red *= t;
 	color.green *= t;
 	color.blue *= t;
 }
 
-void BEngine3D::FillTriangleBC(Triangle & t) {
+void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 	float minX = Min(t.vertices[0].vector.x, Min(t.vertices[1].vector.x,t.vertices[2].vector.x));
 	float minY = Min(t.vertices[0].vector.y, Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
 	float maxX = Max(t.vertices[0].vector.x, Max(t.vertices[1].vector.x, t.vertices[2].vector.x));
 	float maxY = Max(t.vertices[0].vector.y, Max(t.vertices[1].vector.y, t.vertices[2].vector.y));
+	//Clamp to screen
 	minX = Max(0, minX);
 	minY = Max(0, minY);
 	maxX = Min(GetScreenWidth(), maxX);
 	maxY = Min(GetScreenWidth(), maxY);
+	
 	BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
 	BMath::Vec2 pointB = { t.vertices[1].vector.x,t.vertices[1].vector.y };
 	BMath::Vec2 pointC = { t.vertices[2].vector.x,t.vertices[2].vector.y };
@@ -78,6 +76,7 @@ void BEngine3D::FillTriangleBC(Triangle & t) {
 	BMath::Vec2 edge2 = pointC - pointA;
 	BMath::Vec2 edge3 = pointA - pointC;
 	BMath::Vec2 edge4 = pointC - pointB;
+	
 	float mainTriangleArea = (edge1.x * edge2.y - edge1.y * edge2.x) * 0.5f;
 	for (int x = minX; x < maxX; x++) {
 		for (int y = minY; y < maxY; y++) {
@@ -95,26 +94,32 @@ void BEngine3D::FillTriangleBC(Triangle & t) {
 			float alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
 			alpha /= mainTriangleArea;
 			
-			BMath::Vec4 lightDir = { 0,0,-1,0 };
-			
+			BMath::Vec4 lightDir = { 0,1,-1,0 };
+			lightDir.Normalize();
 			float dotAlpha = t.vertices[0].normal * lightDir;
 			float dotBeta = t.vertices[1].normal * lightDir;
 			float dotGamma = t.vertices[2].normal * lightDir;
-			BColors::color_t colorAlpha = IntToColor(BColors::WHITE);
-			BColors::color_t colorBeta = IntToColor(BColors::WHITE);
-			BColors::color_t colorGamma = IntToColor(BColors::WHITE);
-			InterpolateColor(dotAlpha, colorAlpha);
-			InterpolateColor(dotBeta, colorBeta);
-			InterpolateColor(dotGamma, colorGamma);
-			BColors::color_t finalColor;
-			finalColor.red = alpha * colorAlpha.red + beta * colorBeta.red + gamma * colorGamma.red;
-			finalColor.green = alpha * colorAlpha.green+ beta * colorBeta.green+ gamma * colorGamma.green;
-			finalColor.blue = alpha * colorAlpha.blue + beta * colorBeta.blue + gamma * colorGamma.blue;
+			
+			float uvXAlpha = t.vertices[0].uv.x;
+			float uvYAlpha = t.vertices[0].uv.y;
+
+			float uvXBeta = t.vertices[1].uv.x;
+			float uvYBeta = t.vertices[1].uv.y;
+
+			float uvXGamma = t.vertices[2].uv.x;
+			float uvYGamma = t.vertices[2].uv.y;
+
+			float finalUVx = alpha * uvXAlpha + beta * uvXBeta + gamma * uvXGamma;
+			float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
+			//We are subtracting from one because model is being flipped.
+			BColors::color_t colorFromTex = GetColorFromTexture(finalUVx, 1.0f-finalUVy, tex);
+			float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
+			ScaleColor(intensityFinal, colorFromTex);
 			float value = 0;
 			if (alpha > value &&
 				beta > value &&
 				gamma > value) {
-				SetPixel(x, y, finalColor);
+				SetPixel(x, y, colorFromTex);
 			}
 		}
 	}

@@ -267,4 +267,45 @@ namespace BMath {
 		vec.Normalize();
 		return vec;
 	}
+	//Vectors 2D
+	Vec2::Vec2(float x, float y) :x(x), y(y) {}
+	Vec2::Vec2(int x, int y) :x(x), y(y) {}
+	Vec2::Vec2() :x(0), y(0) {}
+	float Vec2::Magnitude() { return std::sqrtf(x * x + y * y); }
+	void Vec2::Add(Vec2 that) { this->x += that.x; this->y += that.y; }
+	void Vec2::Subtract(Vec2 & that) {
+		this->x -= that.x;
+		this->y -= that.y;
+	}
+	float Vec2::Cross(Vec2 that) {
+		return this->x * that.y - this->y * that.x;
+	}
+	float Vec2::operator*(Vec2 & that) {
+		return x * that.x + y * that.y;
+	}
+	Vec2 Vec2::operator-(Vec2 & that) {
+		return Vec2(x - that.x, y - that.y);
+	}
+	Vec2 Vec2::operator+(Vec2 that) {
+		return Vec2(x + that.x, y + that.y);
+	}
+	Vec2 Vec2::operator*(float scalar) {
+		return Vec2(x * scalar, y * scalar);
+	}
+	void Vec2::Scale(float scalar) {
+		x *= scalar;
+		y *= scalar;
+	}
+	void Vec2::Normalize() {
+		float magnitude = this->Magnitude();
+		if (magnitude == 0)return;
+		x /= magnitude;
+		y /= magnitude;
+	}
+	Vec2 Vec2::Normalized() {
+		float magnitude = this->Magnitude();
+		if (magnitude == 0)return Vec2(x, y);
+		return Vec2(x / magnitude, y / magnitude);
+	}
+
 }

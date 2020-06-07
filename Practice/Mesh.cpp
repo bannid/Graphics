@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include "BEngine.h"
 
 Mesh::Mesh(const char * objFile) {
 	LoadFromObjFile(objFile);

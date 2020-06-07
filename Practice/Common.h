@@ -3,6 +3,11 @@
 #include "Maths.h"
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
 #define M_PI 3.1415926535
+#define RAD_TO_DEGREE(x) 180.0f/M_PI
+#define TEXID int
+#define MILISECONDS_TO_SEC(VAL) VAL /= 1000.0f
+#define FPS_60 16
+#define FPS_30 32
 namespace BInput {
 	struct Key {
 		bool keyDown = false;
@@ -46,3 +51,37 @@ namespace BColors {
 		MAROON = RGBC(128, 0, 0)
 	};
 }
+struct Vertex {
+	BMath::Vec4 vector;
+	BColors::color_t color;
+	BMath::Vec4 normal;
+	BMath::Vec4 uv;
+};
+struct Triangle {
+	Vertex vertices[3];
+	float Area();
+};
+struct Texture {
+	unsigned char * data;
+	unsigned int width;
+	unsigned int height;
+	unsigned int bytesPerPixel;
+	TEXID id;
+};
+struct Sprite {
+	float scale = 1;
+	unsigned int height;
+	unsigned int width;
+	BColors::color_t tinting;
+	bool tint = false;
+	float tintingPercentage;
+	Texture * tex;
+	Sprite(Texture *);
+	Sprite(Texture *, int height, int width, float scale);
+	void ScaleSprite(float newScaleValue);
+	void SetTinting(BColors::color_t color, float percentage);
+	unsigned int GetHeight();
+	unsigned int GetWidth();
+
+};
+enum BLENDING_MODE { ALPHA, NORMAL };

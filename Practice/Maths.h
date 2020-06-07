@@ -6,48 +6,20 @@ namespace BMath {
 	struct Mat4;
 	struct Vec2 {
 		float x, y;
-		Vec2(float x, float y) :x(x), y(y) {}
-		Vec2(int x, int y) :x(x), y(y) {}
-		Vec2() :x(0), y(0) {}
-		float Magnitude() { return std::sqrtf(x * x + y * y); }
-		void Add(Vec2 that) {
-			this->x += that.x;
-			this->y += that.y;
-		}
-		void Subtract(Vec2 & that) {
-			this->x -= that.x;
-			this->y -= that.y;
-		}
-		float Cross(Vec2 that) {
-			return this->x * that.y - this->y * that.x;
-		}
-		float operator*(Vec2 & that) {
-			return x * that.x + y * that.y;
-		}
-		Vec2 operator-(Vec2 & that) {
-			return Vec2(x - that.x, y - that.y);
-		}
-		Vec2 operator+(Vec2 that) {
-			return Vec2(x + that.x, y + that.y);
-		}
-		Vec2 operator*(float scalar) {
-			return Vec2(x * scalar, y * scalar);
-		}
-		void Scale(float scalar) {
-			x *= scalar;
-			y *= scalar;
-		}
-		void Normalize() {
-			float magnitude = this->Magnitude();
-			if (magnitude == 0)return;
-			x /= magnitude;
-			y /= magnitude;
-		}
-		Vec2 Normalized() {
-			float magnitude = this->Magnitude();
-			if (magnitude == 0)return Vec2(x, y);
-			return Vec2(x / magnitude, y / magnitude);
-		}
+		Vec2(float x, float y);
+		Vec2(int x, int y);
+		Vec2();
+		float Magnitude();
+		void Add(Vec2 that);
+		void Subtract(Vec2 & that);
+		float Cross(Vec2 that);
+		float operator*(Vec2 & that);
+		Vec2 operator-(Vec2 & that);
+		Vec2 operator+(Vec2 that);
+		Vec2 operator*(float scalar);
+		void Scale(float scalar);
+		void Normalize();
+		Vec2 Normalized();
 	};
 	struct Mat4 {
 		float m[4][4];
@@ -60,7 +32,7 @@ namespace BMath {
 		Mat4 Inverted();
 		void Invert();
 		Mat4 operator*(Mat4 & that);
-		void ReduceToZero(int pivotRow,int pivotCol,int targetRow, int targetCol, Mat4&);
+		void ReduceToZero(int pivotRow, int pivotCol, int targetRow, int targetCol, Mat4&);
 	};
 	struct Vec4 {
 		float x;

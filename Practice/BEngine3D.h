@@ -1,7 +1,8 @@
 #pragma once
 #include "BEngine.h"
 #include "Maths.h"
-#define RAD_TO_DEGREE(x) 180.0f/M_PI
+#include "Common.h"
+
 class BEngine3D : public BEngine {
 private:
 	BMath::Mat4 viewPortMatrix;
@@ -12,5 +13,5 @@ private:
 public:
 	void DrawMesh(Mesh & mesh);
 	void Initialise();
-	void FillTriangleBC(Triangle & t);
+	void FillTriangleBC(Triangle & t, Texture * tex);
 };

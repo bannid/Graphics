@@ -175,7 +175,7 @@ class RayCaster : public BEngine {
 		//on their distance to make sure we dont draw the further 
 		//monsters over the nearer once.
 		for (int m = 0; m < monsters.size(); m++) {
-			for (int k = 0; k < monsters.size() - m - 1; k++) {
+			for (int k = 1; k < monsters.size() - m - 1; k++) {
 				if (monsters[k].distanceFromPlayer < monsters[k - 1].distanceFromPlayer) {
 					std::swap(monsters[k], monsters[k + 1]);
 				}

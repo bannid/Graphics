@@ -27,14 +27,13 @@ class SpaceWars : public BEngine {
 	const char * spaceShipTextureFile = "C:\\Users\\Winny-Banni\\Pictures\\SpaceShip.png";
 	const char * bulletTextureFile = "C:\\Users\\Winny-Banni\\Pictures\\bullet.png";
 	const char * enemyShipTextureFile = "C:\\Users\\Winny-Banni\\Pictures\\enemyShip.png";
-	
-	TEXID spaceshipId;
-	TEXID bulletId;
-	TEXID enemyShipId;
 
 	Sprite * spaceShip;
 	Sprite * bullet;
 	Sprite * enemyShip;
+	Texture spaceShipTex;
+	Texture bulletTex;
+	Texture enemyShipTex;
 	//################ End Assets##################
 	//################ Animation ##################
 	Explosion exp[30];
@@ -68,14 +67,14 @@ class SpaceWars : public BEngine {
 	//############### End enemy ships ##############
 	bool LoadTextureFiles() {
 		if (LoadTexturePNG(spaceShipTextureFile,
-			spaceshipId, true) &&
+			&spaceShipTex, true) &&
 			LoadTexturePNG(bulletTextureFile,
-				bulletId, true) &&
+				&bulletTex, true) &&
 			LoadTexturePNG(enemyShipTextureFile,
-				enemyShipId, true)) {
-			spaceShip = new Sprite(GetTexture(spaceshipId), spaceShipHeight, spaceShipWidth, spaceShipScale);
-			bullet = new Sprite(GetTexture(bulletId), bulletHeight, bulletWidth, 1);
-			enemyShip = new Sprite(GetTexture(enemyShipId), enemyShipRadius, enemyShipRadius, 1);
+				&enemyShipTex, true)) {
+			spaceShip = new Sprite(&spaceShipTex, spaceShipHeight, spaceShipWidth, spaceShipScale);
+			bullet = new Sprite(&bulletTex, bulletHeight, bulletWidth, 1);
+			enemyShip = new Sprite(&enemyShipTex, enemyShipRadius, enemyShipRadius, 1);
 			enemyShip->SetTinting({ 255,255,0 }, 0.3);
 
 		}

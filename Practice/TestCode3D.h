@@ -8,7 +8,7 @@ class TestCode3D : public BEngine3D {
 	virtual bool OnCreate() override {
 		triangle = Mesh();
 		africanHead = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj");
-		
+		LoadTexturePNG("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head_diffuse.png",&africanHead->tex,true);
 		triangle.vertices.push_back({ -1,0,0,1 });
 		triangle.vertices.push_back({ 0,1,0,1 });
 		triangle.vertices.push_back({ 1,0,0,1 });
