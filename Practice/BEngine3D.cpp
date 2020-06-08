@@ -20,6 +20,7 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 		bool drawTri = true;
 		for (int i = 0; i < 3; i++) {
 			t.vertices[i].vector = t.vertices[i].vector * modelMat;
+			t.vertices[i].normal = t.vertices[i].normal * modelMat;
 			if (
 				t.vertices[i].vector.z < zNear) {
 				drawTri = false;
@@ -92,6 +93,9 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			
 			BMath::Vec4 lightDir = { 0,1,-1,0 };
 			lightDir.Normalize();
+			t.vertices[0].normal.Normalize();
+			t.vertices[1].normal.Normalize();
+			t.vertices[2].normal.Normalize();
 			float dotAlpha = t.vertices[0].normal * lightDir;
 			float dotBeta = t.vertices[1].normal * lightDir;
 			float dotGamma = t.vertices[2].normal * lightDir;
@@ -115,7 +119,7 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			if (alpha > value &&
 				beta > value &&
 				gamma > value) {
-				SetPixel(x, y, colorFromTex);
+					SetPixel(x, y, colorFromTex);
 			}
 		}
 	}

@@ -196,6 +196,7 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 	unsigned int bitmapMemorySize = (screenInfo.bitmapWidth*screenInfo.bitmapHeight)*screenInfo.bytesPerPixel;
 	screenInfo.bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 	screenInfo.zBuffer = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
+	memset(screenInfo.zBuffer,-1,bitmapMemorySize);
 }
 bool BEngine::OnDestroy() {
 	return true;
@@ -292,6 +293,10 @@ BInput::Key BEngine::GetKey(unsigned int key) {
 	assert(key > 0 && key < 0xFF);
 	return this->keys[key];
 }
+int BEngine::GetZBuffer(int x, int y) {
+	int * ptr = (int*)this->screenInfo.zBuffer;
+	return ptr[x + y * this->screenInfo.bitmapWidth];
+}
 int BEngine::GetPixelDimension() {
 	return this->pixelDimension;
 }
@@ -340,6 +345,10 @@ void BEngine::SetPixel(int x, int y, BColors::color_t color) {
 void BEngine::SetPixel(int x, int y, int colorPacked) {
 	SetPixel(x, y, IntToColor(colorPacked));
 }
+void BEngine::SetZBuffer(int x, int y, int value) {
+	int * ptr = (int*)this->screenInfo.zBuffer;
+	ptr[x + y * this->screenInfo.bitmapWidth] = value;
+}
 void BEngine::ClearScreen(BColors::color_t & color) {
 	unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 	unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
@@ -347,6 +356,10 @@ void BEngine::ClearScreen(BColors::color_t & color) {
 		*pixel = (((color.red << 8) | color.green) << 8) | color.blue;
 		pixel++;
 	}
+}
+void BEngine::ClearZBuffer() {
+	unsigned int bitmapMemorySize = (screenInfo.bitmapWidth*screenInfo.bitmapHeight)*screenInfo.bytesPerPixel;
+	memset(screenInfo.zBuffer, -1, bitmapMemorySize);
 }
 void BEngine::ClearScreen(int colorPacked) {
 	BColors::color_t color = IntToColor(colorPacked);
@@ -719,14 +732,16 @@ BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalize
 		return { 0,0,0,0 };
 	}
 	BColors::color_t color;
-	int mappedX = normalizedX * texture->width;
-	int mappedY = normalizedY * texture->height;
-	unsigned int index = (mappedY * texture->width * texture->bytesPerPixel) + mappedX * texture->bytesPerPixel;
-	unsigned char * data = &texture->data[index];
-	color.red = (unsigned int)(*data);
-	color.green = (unsigned int)(*(data + 1));
-	color.blue = (unsigned int)(*(data + 2));
-	color.alpha = (unsigned int)(*(data + 3));
+	int width = texture->width;
+	int height = texture->height;
+	int mappedX = normalizedX * width;
+	int mappedY = normalizedY * height;
+	unsigned int * intData = (unsigned int*)texture->data;
+	int value = intData[mappedX + mappedY * width];
+	color.alpha =   value >> 24 & 0xFF;
+	color.blue  =   value >> 16 & 0xFF;
+	color.green =   value >> 8 & 0xFF;
+	color.red   =   value & 0xFF;
 	return color;
 }
 //############################ End assets ########################3

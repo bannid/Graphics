@@ -7,7 +7,7 @@ class TestCode3D : public BEngine3D {
 	Mesh * africanHead;
 	virtual bool OnCreate() override {
 		triangle = Mesh(1);
-		africanHead = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj",1);
+		africanHead = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj",10);
 		LoadTexturePNG("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head_diffuse.png",&africanHead->tex,true);
 		triangle.vertices.push_back({ -1,0,0,1 });
 		triangle.vertices.push_back({ 0,1,0,1 });
@@ -24,15 +24,16 @@ class TestCode3D : public BEngine3D {
 		triangle.position.y = 0;
 		triangle.position.z = 2;
 		
-		africanHead->position.x = 0;
+		africanHead->position.x = -500;
 		africanHead->position.y = 0;
-		africanHead->position.z = 5;
+		africanHead->position.z = 50;
 		this->Initialise();
 		return true;
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(BColors::BLACK);
+		ClearZBuffer();
 		//this->DrawMesh(this->triangle);
 		this->DrawMesh(*this->africanHead);
 		
