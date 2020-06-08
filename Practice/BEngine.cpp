@@ -182,6 +182,7 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 	if (screenInfo.bitmapMemory)
 	{
 		VirtualFree(screenInfo.bitmapMemory, 0, MEM_RELEASE);
+		VirtualFree(screenInfo.zBuffer, 0, MEM_RELEASE);
 	}
 	screenInfo.bitmapWidth = Width;
 	screenInfo.bitmapHeight = Height;
@@ -194,6 +195,7 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 	screenInfo.bitmapInfo.bmiHeader.biCompression = BI_RGB;
 	unsigned int bitmapMemorySize = (screenInfo.bitmapWidth*screenInfo.bitmapHeight)*screenInfo.bytesPerPixel;
 	screenInfo.bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
+	screenInfo.zBuffer = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 }
 bool BEngine::OnDestroy() {
 	return true;
@@ -627,6 +629,12 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, int c
 }
 void BEngine::DrawString(const char * constString, int posX, int posY, int size, int colorPacked) {
 	DrawString(constString, posX, posY, size, IntToColor(colorPacked));
+}
+void BEngine::DrawVector(int posX, int posY,int size, BMath::Vec4 & vector, BColors::color_t color) {
+	DrawString(std::to_string(vector.x), posX, posY, size, color);
+	DrawString(std::to_string(vector.y), posX, posY + size, size, color);
+	DrawString(std::to_string(vector.z), posX, posY + size * 2, size, color);
+	DrawString(std::to_string(vector.w), posX, posY + size * 3, size, color);
 }
 void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
 	int width = sprite.width * sprite.scale;

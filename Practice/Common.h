@@ -3,7 +3,8 @@
 #include "Maths.h"
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
 #define M_PI 3.1415926535
-#define RAD_TO_DEGREE(x) 180.0f/M_PI
+#define RAD_TO_DEGREE(x) 180.0f/M_PI * x
+#define DEGREE_TO_RAD(x) M_PI/180.0f * x
 #define TEXID int
 #define MILISECONDS_TO_SEC(VAL) VAL /= 1000.0f
 #define FPS_60 16

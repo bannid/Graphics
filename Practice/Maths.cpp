@@ -247,6 +247,12 @@ namespace BMath {
 		vec.y = this->x * mat.m[0][1] + this->y * mat.m[1][1] + this->z * mat.m[2][1] + this->w * mat.m[3][1];
 		vec.z = this->x * mat.m[0][2] + this->y * mat.m[1][2] + this->z * mat.m[2][2] + this->w * mat.m[3][2];
 		vec.w = this->x * mat.m[0][3] + this->y * mat.m[1][3] + this->z * mat.m[2][3] + this->w * mat.m[3][3];
+		if (vec.w != 0.0f) {
+			vec.x /= vec.w;
+			vec.y /= vec.w;
+			vec.z /= vec.w;
+			vec.w /= vec.w;
+		}
 		return vec;
 	}
 	void Vec4::operator=(Vec4 that) {

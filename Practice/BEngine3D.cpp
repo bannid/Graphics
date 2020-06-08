@@ -1,46 +1,42 @@
 #include "BEngine3D.h"
 
+
 void BEngine3D::DrawMesh(Mesh & mesh) {
 	assert(this->initialised);
+	if (GetKey('A').keyDown) {
+		fov--;
+		SetProjectionMatrix();
+	}
+	if (GetKey('S').keyDown) {
+		fov++;
+		SetProjectionMatrix();
+	}
+	DrawString(std::to_string(fov), 500, 0, 25, { 255,255,255 });
 	BMath::Mat4 modelMat = mesh.GetModelMat();
 	BMath::Vec4 lightDir = { 0,0,-1,0 };
-	//This is not the real screen.
-	float screenDimensions = 1000.0f;
 	for (auto it = mesh.triangles.begin(); it != mesh.triangles.end(); it++) {
 		Triangle t = *it;
-		float zInverse = 1.0f / mesh.position.z;
-		projectionMatrix.m[0][0] = zInverse;
-		projectionMatrix.m[1][1] = zInverse;
-		projectionMatrix.m[2][2] = zInverse;
-		
-		t.vertices[0].color = IntToColor(BColors::WHITE);
-		BMath::Vec4 vec1 = t.vertices[1].vector - t.vertices[0].vector;
-		BMath::Vec4 vec2 = t.vertices[2].vector - t.vertices[0].vector;
-		BMath::Vec4 normal = vec1.Cross(vec2).Normalized();
-		float dot = normal * lightDir;
-		if (dot < 0)continue;
-		this->toNDC.m[0][0] = 1.0f / screenDimensions;
-		this->toNDC.m[1][1] = 1.0f / screenDimensions;
-		BMath::Mat4 M = modelMat * projectionMatrix * toNDC * viewPortMatrix;
-
-		t.vertices[0].vector = t.vertices[0].vector * M;
-		t.vertices[1].vector = t.vertices[1].vector * M;
-		t.vertices[2].vector = t.vertices[2].vector * M;
-		
-		FillTriangleBC(t,&mesh.tex);
+		t.vertices[0].color = { 255,255,255 };
+		bool drawTri = true;
+		for (int i = 0; i < 3; i++) {
+			t.vertices[i].vector = t.vertices[i].vector * modelMat;
+			if (
+				t.vertices[i].vector.z < zNear) {
+				drawTri = false;
+				break;
+			}
+			t.vertices[i].vector = t.vertices[i].vector * projectionMatrix;
+			t.vertices[i].vector = t.vertices[i].vector * viewPortMatrix;
+		}
+		if(drawTri)FillTriangleBC(t,&mesh.tex);
+		//if (drawTri)DrawTriangle(t);
 	}
 }
 
 void BEngine3D::Initialise() {
-	float screenHeight = GetScreenHeight();
-	float screenWidth = GetScreenWidth();
-	BMath::Mat4 mat;
-	float aspectRatio = screenHeight / screenWidth;
-	mat.m[0][0] = (screenWidth / 2.0f) * aspectRatio;
-	mat.m[1][1] = (screenHeight / 2.0f);
-	mat.m[3][0] = screenWidth / 2;
-	mat.m[3][1] = screenHeight / 2;
-	this->viewPortMatrix = mat;
+	SetViewportMatrix();
+	SetProjectionMatrix();
+	SetNDCMatrix();
 	this->initialised = true;
 }
 
@@ -112,7 +108,7 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			float finalUVx = alpha * uvXAlpha + beta * uvXBeta + gamma * uvXGamma;
 			float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
 			//We are subtracting from one because model is being flipped.
-			BColors::color_t colorFromTex = GetColorFromTexture(finalUVx, 1.0f-finalUVy, tex);
+			BColors::color_t colorFromTex = GetColorFromTexture(finalUVx,1.0f - finalUVy,tex);
 			float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
 			ScaleColor(intensityFinal, colorFromTex);
 			float value = 0;
@@ -123,4 +119,28 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			}
 		}
 	}
+}
+void BEngine3D::SetProjectionMatrix() {
+	float fovL = DEGREE_TO_RAD(fov);
+	float fovInverse = 1 / tanf(fovL/2) * zNear;
+	float aspectRatio = (float)GetScreenHeight() / GetScreenWidth();
+	projectionMatrix.m[0][0] = aspectRatio * fovInverse;
+	projectionMatrix.m[1][1] = fovInverse;
+	projectionMatrix.m[2][2] = zFar / (zFar - zNear);
+	projectionMatrix.m[3][2] = -zNear * zFar / (zFar-zNear);
+	projectionMatrix.m[2][3] = 1;
+	projectionMatrix.m[3][3] = 0;
+}
+void BEngine3D::SetViewportMatrix() {
+	float screenHeight = GetScreenHeight();
+	float screenWidth = GetScreenWidth();
+	float aspectRatio = screenHeight / screenWidth;
+	viewPortMatrix.m[0][0] = screenWidth/2.0f;
+	viewPortMatrix.m[1][1] = screenHeight/2.0f;
+	viewPortMatrix.m[3][0] = screenWidth / 2;
+	viewPortMatrix.m[3][1] = screenHeight / 2;
+}
+void BEngine3D::SetNDCMatrix() {
+	NDC.m[0][0] = 1.0f / (screenWidth/2.0f);
+	NDC.m[1][1] = 1.0f / (screenHeight/2.0f);
 }

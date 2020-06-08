@@ -6,8 +6,8 @@ class TestCode3D : public BEngine3D {
 	Mesh triangle;
 	Mesh * africanHead;
 	virtual bool OnCreate() override {
-		triangle = Mesh();
-		africanHead = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj");
+		triangle = Mesh(1);
+		africanHead = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj",1);
 		LoadTexturePNG("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head_diffuse.png",&africanHead->tex,true);
 		triangle.vertices.push_back({ -1,0,0,1 });
 		triangle.vertices.push_back({ 0,1,0,1 });
@@ -26,7 +26,7 @@ class TestCode3D : public BEngine3D {
 		
 		africanHead->position.x = 0;
 		africanHead->position.y = 0;
-		africanHead->position.z = 1;
+		africanHead->position.z = 5;
 		this->Initialise();
 		return true;
 	}
@@ -35,12 +35,13 @@ class TestCode3D : public BEngine3D {
 		ClearScreen(BColors::BLACK);
 		//this->DrawMesh(this->triangle);
 		this->DrawMesh(*this->africanHead);
+		
 		Mesh * selector = this->africanHead;
 		if (GetKey(VK_UP).keyDown) {
-			selector->position.z += 5.0f * elapsedTime;
+			selector->position.z += 50.0f * elapsedTime;
 		}
 		if (GetKey(VK_DOWN).keyDown) {
-			selector->position.z -= 5.0f * elapsedTime;
+			selector->position.z -= 50.0f * elapsedTime;
 		}
 		if (GetKey(VK_RIGHT).keyDown) {
 			selector->position.x += 50.0f * elapsedTime;
@@ -48,6 +49,7 @@ class TestCode3D : public BEngine3D {
 		if (GetKey(VK_LEFT).keyDown) {
 			selector->position.x -= 50.0f * elapsedTime;
 		}
+		DrawVector(0, 0, 25, selector->position);
 		return true;
 	}
 };

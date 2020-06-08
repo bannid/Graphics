@@ -50,6 +50,7 @@ private:
 	struct videoMemory_t {
 		BITMAPINFO bitmapInfo;
 		void *bitmapMemory;
+		void *zBuffer;
 		int bitmapWidth;
 		int bitmapHeight;
 		int bytesPerPixel = 4;
@@ -74,6 +75,7 @@ public:
 	void DrawString(const char * constString, int posX, int posY, int size, BColors::color_t color = { 0,0,0 });
 	void DrawString(std::string string, int x, int y, int size, int colorPacked = BColors::BLACK);
 	void DrawString(const char * constString, int posX, int posY, int size, int colorPacked = BColors::BLACK);
+	void DrawVector(int posX, int posY, int size,BMath::Vec4 & vector, BColors::color_t = { 255,255,255 });
 	//Circle
 	void DrawCircle(int x, int y, int radius, BColors::color_t & color);
 	void DrawCircle(int x, int y, int radius, int colorPacked);
