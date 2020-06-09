@@ -5,10 +5,13 @@
 class TestCode3D : public BEngine3D {
 	Mesh triangle;
 	Mesh * africanHead;
+	Mesh * plane;
 	virtual bool OnCreate() override {
 		triangle = Mesh(1);
 		africanHead = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj",10);
+		plane = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\plane.obj", 10);
 		LoadTexturePNG("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head_diffuse.png",&africanHead->tex,true);
+		LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\red.png", &plane->tex, true);
 		triangle.vertices.push_back({ -1,0,0,1 });
 		triangle.vertices.push_back({ 0,1,0,1 });
 		triangle.vertices.push_back({ 1,0,0,1 });
@@ -22,11 +25,14 @@ class TestCode3D : public BEngine3D {
 		triangle.triangles.push_back(t);
 		triangle.position.x = 0;
 		triangle.position.y = 0;
-		triangle.position.z = 2;
+		triangle.position.z = 5;
 		
-		africanHead->position.x = -500;
+		africanHead->position.x = -50;
 		africanHead->position.y = 0;
 		africanHead->position.z = 50;
+		plane->position.x = 0;
+		plane->position.y = 0;
+		plane->position.z = 500;
 		this->Initialise();
 		return true;
 	}
@@ -34,7 +40,7 @@ class TestCode3D : public BEngine3D {
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(BColors::BLACK);
 		ClearZBuffer();
-		//this->DrawMesh(this->triangle);
+		//this->DrawMesh(*this->plane);
 		this->DrawMesh(*this->africanHead);
 		
 		Mesh * selector = this->africanHead;

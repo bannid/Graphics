@@ -61,7 +61,7 @@ public:
 	int GetScreenWidth();
 	int GetScreenHeight();
 	int GetPixelDimension();
-	int GetZBuffer(int x, int y);
+	float GetZBuffer(int x, int y);
 	BColors::color_t GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture);
 	//Returns the state of the key - key -> 0 to 0xff
 	BInput::Key GetKey(unsigned int key);
@@ -106,7 +106,7 @@ public:
 	void ClearScreen(int colorPacked);
 	void SetPixel(int x, int y, BColors::color_t color);
 	void SetPixel(int x, int y, int colorPacked);
-	void SetZBuffer(int x, int y,int value);
+	void SetZBuffer(int x, int y,float value);
 	//Set blending mode - ALPHA or NORMAL
 	void SetBlendingMode(BLENDING_MODE mode);
 	//Helper functions

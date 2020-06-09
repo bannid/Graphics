@@ -4,6 +4,9 @@ namespace BMath {
 	struct Vec2;
 	struct Vec4;
 	struct Mat4;
+	Mat4 RotationZ(float angleInDegrees);
+	Mat4 RotationY(float angleInDegrees);
+	Mat4 RotationX(float angleInDegrees);
 	struct Vec2 {
 		float x, y;
 		Vec2(float x, float y);
@@ -26,7 +29,7 @@ namespace BMath {
 		Mat4();
 		Mat4(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float);
 		Mat4(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
-		void operator=(Mat4 &);
+		void operator=(Mat4);
 		void Transpose();
 		Mat4 Transposed();
 		Mat4 Inverted();

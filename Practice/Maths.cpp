@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "Maths.h"
+#include "Common.h"
 namespace BMath {
 	void Swap(float & a, float & b) {
 		float temp = a;
@@ -71,7 +72,7 @@ namespace BMath {
 
 	}
 
-	void Mat4::operator=(Mat4 & that) {
+	void Mat4::operator=(Mat4 that) {
 		for (int row = 0; row < 4; row++) {
 			for (int col = 0; col < 4; col++) {
 				this->m[row][col] = that.m[row][col];
@@ -195,7 +196,33 @@ namespace BMath {
 		mat.Invert();
 		return mat;
 	}
-	
+	Mat4 RotationZ(float angleInDegrees) {
+		float angleInRad = DEGREE_TO_RAD(angleInDegrees);
+		Mat4 mat;
+		mat.m[0][0] = cos(angleInRad);
+		mat.m[0][1] = sin(angleInRad);
+		mat.m[1][0] = sin(-angleInRad);
+		mat.m[1][1] = cos(angleInRad);
+		return mat;
+	}
+	Mat4 RotationY(float angleInDegrees) {
+		float angleInRad = DEGREE_TO_RAD(angleInDegrees);
+		Mat4 mat;
+		mat.m[0][0] = cos(angleInRad);
+		mat.m[0][2] = sin(-angleInRad);
+		mat.m[2][0] = sin(angleInRad);
+		mat.m[2][2] = cos(angleInRad);
+		return mat;
+	}
+	Mat4 RotationX(float angleInDegrees) {
+		float angleInRad = DEGREE_TO_RAD(angleInDegrees);
+		Mat4 mat;
+		mat.m[1][1] = cos(angleInRad);
+		mat.m[1][2] = sin(angleInRad);
+		mat.m[2][1] = sin(-angleInRad);
+		mat.m[2][2] = cos(angleInRad);
+		return mat;
+	}
 	//############################## VECTORS ####################
 	Vec4 Vec4::operator*(float scalar) {
 		return Vec4(this->x * scalar, this->y * scalar, this->z * scalar, this->w * scalar);

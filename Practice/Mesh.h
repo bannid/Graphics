@@ -21,4 +21,8 @@ struct Mesh {
 	Mesh();
 	bool LoadFromObjFile(const char * fileName);
 	BMath::Mat4 GetModelMat();
+	void ApplyRotationMatrix(BMath::Mat4 & mat);
+	void RotateX(float angleInDegree);
+	void RotateY(float angleInDegree);
+	void RotateZ(float angleInDegree);
 };

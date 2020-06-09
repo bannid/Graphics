@@ -196,7 +196,7 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 	unsigned int bitmapMemorySize = (screenInfo.bitmapWidth*screenInfo.bitmapHeight)*screenInfo.bytesPerPixel;
 	screenInfo.bitmapMemory = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 	screenInfo.zBuffer = VirtualAlloc(0, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
-	memset(screenInfo.zBuffer,-1,bitmapMemorySize);
+	ClearZBuffer();
 }
 bool BEngine::OnDestroy() {
 	return true;
@@ -293,8 +293,8 @@ BInput::Key BEngine::GetKey(unsigned int key) {
 	assert(key > 0 && key < 0xFF);
 	return this->keys[key];
 }
-int BEngine::GetZBuffer(int x, int y) {
-	int * ptr = (int*)this->screenInfo.zBuffer;
+float BEngine::GetZBuffer(int x, int y) {
+	float * ptr = (float*)this->screenInfo.zBuffer;
 	return ptr[x + y * this->screenInfo.bitmapWidth];
 }
 int BEngine::GetPixelDimension() {
@@ -345,8 +345,8 @@ void BEngine::SetPixel(int x, int y, BColors::color_t color) {
 void BEngine::SetPixel(int x, int y, int colorPacked) {
 	SetPixel(x, y, IntToColor(colorPacked));
 }
-void BEngine::SetZBuffer(int x, int y, int value) {
-	int * ptr = (int*)this->screenInfo.zBuffer;
+void BEngine::SetZBuffer(int x, int y, float value) {
+	float * ptr = (float*)this->screenInfo.zBuffer;
 	ptr[x + y * this->screenInfo.bitmapWidth] = value;
 }
 void BEngine::ClearScreen(BColors::color_t & color) {
@@ -358,8 +358,12 @@ void BEngine::ClearScreen(BColors::color_t & color) {
 	}
 }
 void BEngine::ClearZBuffer() {
-	unsigned int bitmapMemorySize = (screenInfo.bitmapWidth*screenInfo.bitmapHeight)*screenInfo.bytesPerPixel;
-	memset(screenInfo.zBuffer, -1, bitmapMemorySize);
+	for (int x = 0; x < screenInfo.bitmapWidth; x++) {
+		for (int y = 0; y < screenInfo.bitmapHeight; y++) {
+			float * ptr = (float*)screenInfo.zBuffer;
+			ptr[x + y * screenInfo.bitmapWidth] = -1.0f;
+		}
+	}
 }
 void BEngine::ClearScreen(int colorPacked) {
 	BColors::color_t color = IntToColor(colorPacked);
@@ -736,6 +740,8 @@ BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalize
 	int height = texture->height;
 	int mappedX = normalizedX * width;
 	int mappedY = normalizedY * height;
+	if (mappedX != 0) mappedX--;
+	if (mappedY != 0) mappedY--;
 	unsigned int * intData = (unsigned int*)texture->data;
 	int value = intData[mappedX + mappedY * width];
 	color.alpha =   value >> 24 & 0xFF;

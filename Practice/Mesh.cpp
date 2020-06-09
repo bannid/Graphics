@@ -86,40 +86,59 @@ bool Mesh::LoadFromObjFile(const char * fileName) {
 }
 
 BMath::Mat4 Mesh::GetModelMat() {
-	BMath::Mat4 rotation;
 	BMath::Mat4 scale;
 	BMath::Mat4 translation;
-	rotation.m[0][0] = std::cos(0.01f);
-	rotation.m[2][0] = std::sin(0.01f);
-	rotation.m[0][2] = std::sin(-0.01f);
-	rotation.m[2][2] = std::cos(0.01f);
-	up = up * rotation;
-	forward = forward * rotation;
-	right = right * rotation;
+	BMath::Mat4 orientation;
+	orientation.m[0][0] = this->right.x;
+	orientation.m[0][1] = this->right.y;
+	orientation.m[0][2] = this->right.z;
+	orientation.m[0][3] = this->right.w;
+
+	orientation.m[1][0] = this->up.x;
+	orientation.m[1][1] = this->up.y;
+	orientation.m[1][2] = this->up.z;
+	orientation.m[1][3] = this->up.w;
+
+	orientation.m[2][0] = this->forward.x;
+	orientation.m[2][1] = this->forward.y;
+	orientation.m[2][2] = this->forward.z;
+	orientation.m[2][3] = this->forward.w;
+
 	scale.m[0][0] = size;
 	scale.m[1][1] = -size;
 	scale.m[2][2] = size;
-	rotation.m[0][0] = right.x;
-	rotation.m[0][1] = right.y;
-	rotation.m[0][2] = right.z;
-	rotation.m[0][3] = right.w;
-
-	rotation.m[1][0] = up.x;
-	rotation.m[1][1] = up.y;
-	rotation.m[1][2] = up.z;
-	rotation.m[1][3] = up.w;
-	
-	rotation.m[2][0] = forward.x;
-	rotation.m[2][1] = forward.y;
-	rotation.m[2][2] = forward.z;
-	rotation.m[2][3] = forward.w;
 
 	translation.m[3][0] = position.x;
 	translation.m[3][1] = position.y;
 	translation.m[3][2] = position.z;
-	return rotation * scale * translation;
+	return orientation * scale * translation;
 }
-
+void Mesh::ApplyRotationMatrix(BMath::Mat4 & mat) {
+	this->up = this->up * mat;
+	this->right = this->right * mat;
+	this->forward = this->forward * mat;
+}
+void Mesh::RotateX(float angleInDegree) {
+	float angleInRad = DEGREE_TO_RAD(angleInDegree);
+	BMath::Mat4 mat = BMath::RotationX(angleInRad);
+	this->up = this->up * mat;
+	this->right = this->right * mat;
+	this->forward = this->forward * mat;
+}
+void Mesh::RotateY(float angleInDegree){
+	float angleInRad = DEGREE_TO_RAD(angleInDegree);
+	BMath::Mat4 mat = BMath::RotationY(angleInRad);
+	this->up = this->up * mat;
+	this->right = this->right * mat;
+	this->forward = this->forward * mat;
+}
+void Mesh::RotateZ(float angleInDegree){
+	float angleInRad = DEGREE_TO_RAD(angleInDegree);
+	BMath::Mat4 mat = BMath::RotationZ(angleInRad);
+	this->up = this->up * mat;
+	this->right = this->right * mat;
+	this->forward = this->forward * mat;
+}
 float Triangle::Area() {
 	auto first = this->vertices[1].vector - this->vertices[0].vector;
 	auto second = this->vertices[2].vector - this->vertices[0].vector;

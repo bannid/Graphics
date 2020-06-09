@@ -20,7 +20,6 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 		bool drawTri = true;
 		for (int i = 0; i < 3; i++) {
 			t.vertices[i].vector = t.vertices[i].vector * modelMat;
-			t.vertices[i].normal = t.vertices[i].normal * modelMat;
 			if (
 				t.vertices[i].vector.z < zNear) {
 				drawTri = false;
@@ -30,14 +29,12 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 			t.vertices[i].vector = t.vertices[i].vector * viewPortMatrix;
 		}
 		if(drawTri)FillTriangleBC(t,&mesh.tex);
-		//if (drawTri)DrawTriangle(t);
 	}
 }
 
 void BEngine3D::Initialise() {
 	SetViewportMatrix();
 	SetProjectionMatrix();
-	SetNDCMatrix();
 	this->initialised = true;
 }
 
@@ -64,7 +61,7 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 	minX = Max(0, minX);
 	minY = Max(0, minY);
 	maxX = Min(GetScreenWidth(), maxX);
-	maxY = Min(GetScreenWidth(), maxY);
+	maxY = Min(GetScreenHeight(), maxY);
 	
 	BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
 	BMath::Vec2 pointB = { t.vertices[1].vector.x,t.vertices[1].vector.y };
@@ -86,7 +83,6 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			BMath::Vec2 vp2 = point - pointC;
 			float beta = (edge3.x * vp2.y - edge3.y * vp2.x) * 0.5;
 			beta /= mainTriangleArea;
-			
 			BMath::Vec2 vp3 = point - pointB;
 			float alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
 			alpha /= mainTriangleArea;
@@ -115,11 +111,16 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			BColors::color_t colorFromTex = GetColorFromTexture(finalUVx,1.0f - finalUVy,tex);
 			float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
 			ScaleColor(intensityFinal, colorFromTex);
+			//colorFromTex = { 255,255,0 };
 			float value = 0;
-			if (alpha > value &&
-				beta > value &&
-				gamma > value) {
+			if (alpha > value && beta > 0 && gamma > 0) {
+				float zBuffer = GetZBuffer(x, y);
+				float finalZ = alpha * t.vertices[0].vector.z + beta * t.vertices[1].vector.z + gamma * t.vertices[2].vector.z;
+				if (zBuffer == -1.0f || zBuffer > finalZ) {
 					SetPixel(x, y, colorFromTex);
+					SetZBuffer(x, y, finalZ);
+					float s = GetZBuffer(x, y);
+				}
 			}
 		}
 	}
@@ -143,8 +144,4 @@ void BEngine3D::SetViewportMatrix() {
 	viewPortMatrix.m[1][1] = screenHeight/2.0f;
 	viewPortMatrix.m[3][0] = screenWidth / 2;
 	viewPortMatrix.m[3][1] = screenHeight / 2;
-}
-void BEngine3D::SetNDCMatrix() {
-	NDC.m[0][0] = 1.0f / (screenWidth/2.0f);
-	NDC.m[1][1] = 1.0f / (screenHeight/2.0f);
 }
