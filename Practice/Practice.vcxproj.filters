@@ -76,6 +76,9 @@
     <ClInclude Include="Mesh.h">
       <Filter>BEngine3D</Filter>
     </ClInclude>
+    <ClInclude Include="EarthAndLuna.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lodepng.cpp">

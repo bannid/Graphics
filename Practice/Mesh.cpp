@@ -119,22 +119,19 @@ void Mesh::ApplyRotationMatrix(BMath::Mat4 & mat) {
 	this->forward = this->forward * mat;
 }
 void Mesh::RotateX(float angleInDegree) {
-	float angleInRad = DEGREE_TO_RAD(angleInDegree);
-	BMath::Mat4 mat = BMath::RotationX(angleInRad);
+	BMath::Mat4 mat = BMath::RotationX(angleInDegree);
 	this->up = this->up * mat;
 	this->right = this->right * mat;
 	this->forward = this->forward * mat;
 }
 void Mesh::RotateY(float angleInDegree){
-	float angleInRad = DEGREE_TO_RAD(angleInDegree);
-	BMath::Mat4 mat = BMath::RotationY(angleInRad);
+	BMath::Mat4 mat = BMath::RotationY(angleInDegree);
 	this->up = this->up * mat;
 	this->right = this->right * mat;
 	this->forward = this->forward * mat;
 }
 void Mesh::RotateZ(float angleInDegree){
-	float angleInRad = DEGREE_TO_RAD(angleInDegree);
-	BMath::Mat4 mat = BMath::RotationZ(angleInRad);
+	BMath::Mat4 mat = BMath::RotationZ(angleInDegree);
 	this->up = this->up * mat;
 	this->right = this->right * mat;
 	this->forward = this->forward * mat;

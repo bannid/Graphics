@@ -163,6 +163,7 @@
     <ClInclude Include="DrawBezierCurves.h" />
     <ClInclude Include="DrawFonts.h" />
     <ClInclude Include="DrawLines.h" />
+    <ClInclude Include="EarthAndLuna.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="Mesh.h" />

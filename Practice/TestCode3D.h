@@ -4,14 +4,15 @@
 
 class TestCode3D : public BEngine3D {
 	Mesh triangle;
-	Mesh * africanHead;
-	Mesh * plane;
+	Mesh * earth;
+	Mesh * moon;
 	virtual bool OnCreate() override {
 		triangle = Mesh(1);
-		africanHead = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj",10);
-		plane = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\plane.obj", 10);
-		LoadTexturePNG("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head_diffuse.png",&africanHead->tex,true);
-		LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\red.png", &plane->tex, true);
+		earth = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\sphere.obj",100);
+		moon = new Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\sphere.obj", 27);
+		//LoadTexturePNG("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head_diffuse.png",&africanHead->tex,true);
+		LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\earth.png",&earth->tex,true);
+		LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\moon.png", &moon->tex, true);
 		triangle.vertices.push_back({ -1,0,0,1 });
 		triangle.vertices.push_back({ 0,1,0,1 });
 		triangle.vertices.push_back({ 1,0,0,1 });
@@ -27,12 +28,12 @@ class TestCode3D : public BEngine3D {
 		triangle.position.y = 0;
 		triangle.position.z = 5;
 		
-		africanHead->position.x = -50;
-		africanHead->position.y = 0;
-		africanHead->position.z = 50;
-		plane->position.x = 0;
-		plane->position.y = 0;
-		plane->position.z = 500;
+		earth->position.x = 0;
+		earth->position.y = 0;
+		earth->position.z = 500;
+		moon->position.x = 100;
+		moon->position.y = 0;
+		moon->position.z = 500;
 		this->Initialise();
 		return true;
 	}
@@ -40,10 +41,9 @@ class TestCode3D : public BEngine3D {
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(BColors::BLACK);
 		ClearZBuffer();
-		//this->DrawMesh(*this->plane);
-		this->DrawMesh(*this->africanHead);
-		
-		Mesh * selector = this->africanHead;
+		this->DrawMesh(*this->earth);
+		this->DrawMesh(*this->moon);
+		Mesh * selector = this->earth;
 		if (GetKey(VK_UP).keyDown) {
 			selector->position.z += 50.0f * elapsedTime;
 		}

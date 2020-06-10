@@ -1,34 +1,24 @@
 #include "BEngine3D.h"
 
-
 void BEngine3D::DrawMesh(Mesh & mesh) {
-	assert(this->initialised);
-	if (GetKey('A').keyDown) {
-		fov--;
-		SetProjectionMatrix();
-	}
-	if (GetKey('S').keyDown) {
-		fov++;
-		SetProjectionMatrix();
-	}
-	DrawString(std::to_string(fov), 500, 0, 25, { 255,255,255 });
+	if (!this->initialised)return;
 	BMath::Mat4 modelMat = mesh.GetModelMat();
-	BMath::Vec4 lightDir = { 0,0,-1,0 };
 	for (auto it = mesh.triangles.begin(); it != mesh.triangles.end(); it++) {
 		Triangle t = *it;
 		t.vertices[0].color = { 255,255,255 };
 		bool drawTri = true;
 		for (int i = 0; i < 3; i++) {
 			t.vertices[i].vector = t.vertices[i].vector * modelMat;
-			if (
-				t.vertices[i].vector.z < zNear) {
+			auto mat = modelMat;
+			t.vertices[i].normal = t.vertices[i].normal * mat;
+			if (t.vertices[i].vector.z < zNear) {
 				drawTri = false;
 				break;
 			}
 			t.vertices[i].vector = t.vertices[i].vector * projectionMatrix;
 			t.vertices[i].vector = t.vertices[i].vector * viewPortMatrix;
 		}
-		if(drawTri)FillTriangleBC(t,&mesh.tex);
+		if(drawTri)FillTriangleBC(t,&mesh.tex);		
 	}
 }
 
@@ -46,7 +36,10 @@ float Max(float a, float b) {
 }
 
 void ScaleColor(float t, BColors::color_t & color) {
-	if (t < 0)t = 0.05;
+	
+	if (t < 0.05) {
+		t = 0.05f;
+	}
 	color.red *= t;
 	color.green *= t;
 	color.blue *= t;
@@ -71,7 +64,8 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 	BMath::Vec2 edge3 = pointA - pointC;
 	BMath::Vec2 edge4 = pointC - pointB;
 	
-	float mainTriangleArea = (edge1.x * edge2.y - edge1.y * edge2.x) * 0.5f;
+	float mainTriangleArea = std::abs((edge1.x * edge2.y - edge1.y * edge2.x) * 0.5f);
+	if (mainTriangleArea == 0)return;
 	for (int x = minX; x < maxX; x++) {
 		for (int y = minY; y < maxY; y++) {
 			BMath::Vec2 point = { x,y };
@@ -87,7 +81,7 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			float alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
 			alpha /= mainTriangleArea;
 			
-			BMath::Vec4 lightDir = { 0,1,-1,0 };
+			BMath::Vec4 lightDir = { 1,0,0,0 };
 			lightDir.Normalize();
 			t.vertices[0].normal.Normalize();
 			t.vertices[1].normal.Normalize();
@@ -107,11 +101,9 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 
 			float finalUVx = alpha * uvXAlpha + beta * uvXBeta + gamma * uvXGamma;
 			float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
-			//We are subtracting from one because model is being flipped.
-			BColors::color_t colorFromTex = GetColorFromTexture(finalUVx,1.0f - finalUVy,tex);
+			BColors::color_t colorFromTex = GetColorFromTexture(finalUVx, 1 - finalUVy, tex);
 			float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
 			ScaleColor(intensityFinal, colorFromTex);
-			//colorFromTex = { 255,255,0 };
 			float value = 0;
 			if (alpha > value && beta > 0 && gamma > 0) {
 				float zBuffer = GetZBuffer(x, y);
@@ -129,8 +121,8 @@ void BEngine3D::SetProjectionMatrix() {
 	float fovL = DEGREE_TO_RAD(fov);
 	float fovInverse = 1 / tanf(fovL/2) * zNear;
 	float aspectRatio = (float)GetScreenHeight() / GetScreenWidth();
-	projectionMatrix.m[0][0] = aspectRatio * fovInverse;
-	projectionMatrix.m[1][1] = fovInverse;
+	projectionMatrix.m[0][0] = 2 * aspectRatio * fovInverse;
+	projectionMatrix.m[1][1] = 2 * fovInverse;
 	projectionMatrix.m[2][2] = zFar / (zFar - zNear);
 	projectionMatrix.m[3][2] = -zNear * zFar / (zFar-zNear);
 	projectionMatrix.m[2][3] = 1;
