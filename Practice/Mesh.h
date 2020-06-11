@@ -3,13 +3,15 @@
 #include "Common.h"
 #include "Maths.h"
 #include "BEngine.h"
-
+#include "Shaders.h"
+class IShader;
 struct Mesh {
 	float size;
 	std::vector<BMath::Vec4> vertices;
 	std::vector<BMath::Vec4> normals;
 	std::vector<BMath::Vec4> textureCoords;
 	std::vector<int[3]> faces;
+	IShader * shader;
 	Texture tex;
 	std::vector<Triangle> triangles;
 	BMath::Vec4 position;

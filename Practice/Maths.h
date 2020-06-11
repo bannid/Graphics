@@ -52,8 +52,8 @@ namespace BMath {
 		void Scale(float scalar);
 		Vec4 Cross(Vec4 & that);
 		Vec4 operator*(float scalar);
-		Vec4 operator+(Vec4 & that);
-		Vec4 operator-(Vec4 & that);
+		Vec4 operator+(Vec4  that);
+		Vec4 operator-(Vec4  that);
 		float operator*(Vec4 & that);
 		Vec4 operator*(Mat4 & mat);
 		void operator=(Vec4 that);

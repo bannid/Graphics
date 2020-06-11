@@ -79,6 +79,12 @@
     <ClInclude Include="EarthAndLuna.h">
       <Filter>Examples</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>BEngine3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>BEngine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lodepng.cpp">
@@ -98,6 +104,12 @@
       <Filter>BEngine3D</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
+      <Filter>BEngine3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>BEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders.cpp">
       <Filter>BEngine3D</Filter>
     </ClCompile>
   </ItemGroup>

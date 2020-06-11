@@ -62,7 +62,6 @@ public:
 	int GetScreenHeight();
 	int GetPixelDimension();
 	float GetZBuffer(int x, int y);
-	BColors::color_t GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture);
 	//Returns the state of the key - key -> 0 to 0xff
 	BInput::Key GetKey(unsigned int key);
 	POINT GetMouseInfo();

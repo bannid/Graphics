@@ -169,10 +169,12 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="RayCaster.h" />
+    <ClInclude Include="Shaders.h" />
     <ClInclude Include="SpaceWars.h" />
     <ClInclude Include="TestCode.h" />
     <ClInclude Include="TestCode3D.h" />
     <ClInclude Include="TestMathLib.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BEngine.cpp" />
@@ -181,6 +183,8 @@
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Shaders.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Win32Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

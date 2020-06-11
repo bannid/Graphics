@@ -252,7 +252,7 @@ namespace BMath {
 		vec.w = 0;//Cross product returns a normal vector
 		return vec;
 	}
-	Vec4 Vec4::operator+(Vec4 & that) {
+	Vec4 Vec4::operator+(Vec4 that) {
 		Vec4 vec;
 		vec.x = this->x + that.x;
 		vec.y = this->y + that.y;
@@ -260,7 +260,7 @@ namespace BMath {
 		vec.w = this->w + that.w;
 		return vec;
 	}
-	Vec4 Vec4::operator-(Vec4 & that) {
+	Vec4 Vec4::operator-(Vec4 that) {
 		Vec4 vec;
 		vec.x = this->x - that.x;
 		vec.y = this->y - that.y;

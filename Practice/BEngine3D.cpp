@@ -1,16 +1,17 @@
 #include "BEngine3D.h"
-
+#include "Utils.h"
 void BEngine3D::DrawMesh(Mesh & mesh) {
 	if (!this->initialised)return;
 	BMath::Mat4 modelMat = mesh.GetModelMat();
+	BMath::Mat4 viewMatrix = cam.GetViewMatrix().Inverted();
 	for (auto it = mesh.triangles.begin(); it != mesh.triangles.end(); it++) {
 		Triangle t = *it;
-		t.vertices[0].color = { 255,255,255 };
 		bool drawTri = true;
 		for (int i = 0; i < 3; i++) {
 			t.vertices[i].vector = t.vertices[i].vector * modelMat;
-			auto mat = modelMat;
+			auto mat = modelMat;;
 			t.vertices[i].normal = t.vertices[i].normal * mat;
+			t.vertices[i].vector = t.vertices[i].vector * viewMatrix;
 			if (t.vertices[i].vector.z < zNear) {
 				drawTri = false;
 				break;
@@ -18,7 +19,8 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 			t.vertices[i].vector = t.vertices[i].vector * projectionMatrix;
 			t.vertices[i].vector = t.vertices[i].vector * viewPortMatrix;
 		}
-		if(drawTri)FillTriangleBC(t,&mesh.tex);		
+		if(drawTri)FillTriangleBC(t,mesh);	
+		//if (drawTri)DrawTriangle(t);
 	}
 }
 
@@ -28,33 +30,16 @@ void BEngine3D::Initialise() {
 	this->initialised = true;
 }
 
-float Min(float a, float b) {
-	return a < b ? a : b;
-}
-float Max(float a, float b) {
-	return a > b ? a : b;
-}
-
-void ScaleColor(float t, BColors::color_t & color) {
-	
-	if (t < 0.05) {
-		t = 0.05f;
-	}
-	color.red *= t;
-	color.green *= t;
-	color.blue *= t;
-}
-
-void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
-	float minX = Min(t.vertices[0].vector.x, Min(t.vertices[1].vector.x,t.vertices[2].vector.x));
-	float minY = Min(t.vertices[0].vector.y, Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
-	float maxX = Max(t.vertices[0].vector.x, Max(t.vertices[1].vector.x, t.vertices[2].vector.x));
-	float maxY = Max(t.vertices[0].vector.y, Max(t.vertices[1].vector.y, t.vertices[2].vector.y));
+void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
+	float minX = BUtils::Min(t.vertices[0].vector.x, BUtils::Min(t.vertices[1].vector.x,t.vertices[2].vector.x));
+	float minY = BUtils::Min(t.vertices[0].vector.y, BUtils::Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
+	float maxX = BUtils::Max(t.vertices[0].vector.x, BUtils::Max(t.vertices[1].vector.x, t.vertices[2].vector.x));
+	float maxY = BUtils::Max(t.vertices[0].vector.y, BUtils::Max(t.vertices[1].vector.y, t.vertices[2].vector.y));
 	//Clamp to screen
-	minX = Max(0, minX);
-	minY = Max(0, minY);
-	maxX = Min(GetScreenWidth(), maxX);
-	maxY = Min(GetScreenHeight(), maxY);
+	minX = BUtils::Max(0, minX);
+	minY = BUtils::Max(0, minY);
+	maxX = BUtils::Min(GetScreenWidth(), maxX);
+	maxY = BUtils::Min(GetScreenHeight(), maxY);
 	
 	BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
 	BMath::Vec2 pointB = { t.vertices[1].vector.x,t.vertices[1].vector.y };
@@ -80,38 +65,16 @@ void BEngine3D::FillTriangleBC(Triangle & t, Texture * tex) {
 			BMath::Vec2 vp3 = point - pointB;
 			float alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
 			alpha /= mainTriangleArea;
-			
-			BMath::Vec4 lightDir = { 1,0,0,0 };
-			lightDir.Normalize();
-			t.vertices[0].normal.Normalize();
-			t.vertices[1].normal.Normalize();
-			t.vertices[2].normal.Normalize();
-			float dotAlpha = t.vertices[0].normal * lightDir;
-			float dotBeta = t.vertices[1].normal * lightDir;
-			float dotGamma = t.vertices[2].normal * lightDir;
-			
-			float uvXAlpha = t.vertices[0].uv.x;
-			float uvYAlpha = t.vertices[0].uv.y;
 
-			float uvXBeta = t.vertices[1].uv.x;
-			float uvYBeta = t.vertices[1].uv.y;
-
-			float uvXGamma = t.vertices[2].uv.x;
-			float uvYGamma = t.vertices[2].uv.y;
-
-			float finalUVx = alpha * uvXAlpha + beta * uvXBeta + gamma * uvXGamma;
-			float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
-			BColors::color_t colorFromTex = GetColorFromTexture(finalUVx, 1 - finalUVy, tex);
-			float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
-			ScaleColor(intensityFinal, colorFromTex);
 			float value = 0;
 			if (alpha > value && beta > 0 && gamma > 0) {
+				BColors::color_t finalColor;
+				mesh.shader->GetColor(t, alpha, beta, gamma, mesh, finalColor);
 				float zBuffer = GetZBuffer(x, y);
 				float finalZ = alpha * t.vertices[0].vector.z + beta * t.vertices[1].vector.z + gamma * t.vertices[2].vector.z;
-				if (zBuffer == -1.0f || zBuffer > finalZ) {
-					SetPixel(x, y, colorFromTex);
+				if (zBuffer > finalZ) {
+					SetPixel(x, y, finalColor);
 					SetZBuffer(x, y, finalZ);
-					float s = GetZBuffer(x, y);
 				}
 			}
 		}
@@ -121,8 +84,8 @@ void BEngine3D::SetProjectionMatrix() {
 	float fovL = DEGREE_TO_RAD(fov);
 	float fovInverse = 1 / tanf(fovL/2) * zNear;
 	float aspectRatio = (float)GetScreenHeight() / GetScreenWidth();
-	projectionMatrix.m[0][0] = 2 * aspectRatio * fovInverse;
-	projectionMatrix.m[1][1] = 2 * fovInverse;
+	projectionMatrix.m[0][0] = aspectRatio * fovInverse;
+	projectionMatrix.m[1][1] = fovInverse;
 	projectionMatrix.m[2][2] = zFar / (zFar - zNear);
 	projectionMatrix.m[3][2] = -zNear * zFar / (zFar-zNear);
 	projectionMatrix.m[2][3] = 1;
@@ -137,3 +100,55 @@ void BEngine3D::SetViewportMatrix() {
 	viewPortMatrix.m[3][0] = screenWidth / 2;
 	viewPortMatrix.m[3][1] = screenHeight / 2;
 }
+
+BMath::Mat4 Camera::GetViewMatrix() {
+	BMath::Mat4 mat;
+	mat.m[0][0] = this->right.x;
+	mat.m[0][1] = this->right.y;
+	mat.m[0][2] = this->right.z;
+	mat.m[0][3] = this->right.w;
+
+	mat.m[1][0] = this->up.x;
+	mat.m[1][1] = this->up.y;
+	mat.m[1][2] = this->up.z;
+	mat.m[1][3] = this->up.w;
+
+	mat.m[2][0] = this->forward.x;
+	mat.m[2][1] = this->forward.y;
+	mat.m[2][2] = this->forward.z;
+	mat.m[2][3] = this->forward.w;
+
+	mat.m[3][0] = this->position.x;
+	mat.m[3][1] = this->position.y;
+	mat.m[3][2] = this->position.z;
+	mat.m[3][3] = 1;//todo: make sure
+	return mat;
+}
+void Camera::Yaw(float angleInDegrees) {
+	BMath::Mat4 mat = BMath::RotationY(angleInDegrees);
+	this->right = this->right * mat;
+	this->forward = this->forward * mat;
+	this->right.Normalize();
+	this->forward.Normalize();
+	this->up = this->forward.Cross(right).Normalized();
+}
+
+void Camera::Pitch(float angleInDegrees) {
+	BMath::Mat4 mat = BMath::RotationX(angleInDegrees);
+	this->up = this->up * mat;
+	this->forward = this->forward * mat;
+	this->up.Normalize();
+	this->forward.Normalize();
+	this->right = this->up.Cross(this->forward).Normalized();
+}
+
+void Camera::Roll(float angleInDegrees) {
+	BMath::Mat4 mat = BMath::RotationZ(angleInDegrees);
+	this->right = this->right * mat;
+	this->up = this->up * mat;
+	this->right.Normalize();
+	this->up.Normalize();
+	this->forward = this->up.Cross(this->right).Normalized();
+}
+
+

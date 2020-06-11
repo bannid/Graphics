@@ -1,5 +1,5 @@
 #include "BEngine.h"
-
+#include "Utils.h"
 static BEngine * static_enginePtr = nullptr;
 static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 	UINT message,
@@ -201,8 +201,7 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 bool BEngine::OnDestroy() {
 	return true;
 }
-bool BEngine::Start() {
-	assert(window);
+bool BEngine::Start() {		
 	if (!InitOpenGl()) { return false; }
 	this->uct1 = std::chrono::steady_clock::now();
 	this->uct2 = std::chrono::steady_clock::now();
@@ -361,7 +360,7 @@ void BEngine::ClearZBuffer() {
 	for (int x = 0; x < screenInfo.bitmapWidth; x++) {
 		for (int y = 0; y < screenInfo.bitmapHeight; y++) {
 			float * ptr = (float*)screenInfo.zBuffer;
-			ptr[x + y * screenInfo.bitmapWidth] = -1.0f;
+			ptr[x + y * screenInfo.bitmapWidth] = 100000.0f;
 		}
 	}
 }
@@ -445,9 +444,10 @@ void BEngine::DrawTriangle(Triangle & t) {
 	auto & v1 = t.vertices[0].vector;
 	auto & v2 = t.vertices[1].vector;
 	auto & v3 = t.vertices[2].vector;
-	DrawLine(v1.x, v1.y, v2.x, v2.y, t.vertices[0].color);
-	DrawLine(v2.x, v2.y, v3.x, v3.y, t.vertices[0].color);
-	DrawLine(v3.x, v3.y, v1.x, v1.y, t.vertices[0].color);
+
+	DrawLine(v1.x, v1.y, v2.x, v2.y, BColors::WHITE);
+	DrawLine(v2.x, v2.y, v3.x, v3.y, BColors::WHITE);
+	DrawLine(v3.x, v3.y, v1.x, v1.y, BColors::WHITE);
 }
 //Fill triangle - Scanline method
 void BEngine::FillTriangle(Triangle & t) {
@@ -497,6 +497,16 @@ void BEngine::DrawLine(int x1, int y1, int x2, int y2, int colorPacked) {
 }
 void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color) {
 	bool steep = false;
+	//TODO: Remove once clipping is done.
+	x1 = BUtils::Max(0, x1);
+	x1 = BUtils::Min(GetScreenWidth(), x1);
+	y1 = BUtils::Max(0, y1);
+	y1 = BUtils::Min(GetScreenHeight(), y1);
+
+	x2 = BUtils::Max(0, x2);
+	x2 = BUtils::Min(GetScreenWidth(), x2);
+	y2 = BUtils::Max(0, y2);
+	y2 = BUtils::Min(GetScreenHeight(), y2);
 	if (std::abs(y2 - y1) > std::abs(x2 - x1)) {
 		steep = true;
 		std::swap(x1, y1);
@@ -506,6 +516,7 @@ void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color)
 		std::swap(x2, x1);
 		std::swap(y2, y1);
 	}
+	
 	float dy = std::abs(y2 - y1);
 	float dx = std::abs(x2 - x1);
 	float slope = dy / dx;
@@ -625,7 +636,7 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, BColo
 				int jToScale = normalizedY * pixelsPerFont;
 
 				//Then we get the color from the texture and set the pixel
-				BColors::color_t colorFromTexture = GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
+				BColors::color_t colorFromTexture = BUtils::GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
 				if (colorFromTexture.alpha > 0) {
 					SetBlendingMode(ALPHA);
 					SetPixel(x1, y1, color);
@@ -671,7 +682,7 @@ void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
 		for (int y = startingY; y < endingY; y += pixelDimension) {
 			float normalizedX = 1.0f - ((float)(endingX - x) / width);
 			float normalizedY = 1.0f - ((float)(endingY - y) / height);
-			BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, sprite.tex);
+			BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, sprite.tex);
 			if (sprite.tint) {
 				float t = sprite.tintingPercentage;
 				float t2 = 1 - t;
@@ -730,25 +741,6 @@ bool BEngine::LoadTexturePNG(const char * fileName, Texture * output, bool loadA
 			output->bytesPerPixel = 4;
 			return success;
 		}
-}
-BColors::color_t BEngine::GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture) {
-	if (normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
-		return { 0,0,0,0 };
-	}
-	BColors::color_t color;
-	int width = texture->width;
-	int height = texture->height;
-	int mappedX = normalizedX * width;
-	int mappedY = normalizedY * height;
-	if (mappedX != 0) mappedX--;
-	if (mappedY != 0) mappedY--;
-	unsigned int * intData = (unsigned int*)texture->data;
-	int value = intData[mappedX + mappedY * width];
-	color.alpha =   value >> 24 & 0xFF;
-	color.blue  =   value >> 16 & 0xFF;
-	color.green =   value >> 8 & 0xFF;
-	color.red   =   value & 0xFF;
-	return color;
 }
 //############################ End assets ########################3
 //######################### Debug ######################
