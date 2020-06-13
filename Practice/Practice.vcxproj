@@ -171,6 +171,8 @@
     <ClInclude Include="RayCaster.h" />
     <ClInclude Include="Shaders.h" />
     <ClInclude Include="SpaceWars.h" />
+    <ClInclude Include="SSloyGeometry.h" />
+    <ClInclude Include="SSloyRayTracing.h" />
     <ClInclude Include="TestCode.h" />
     <ClInclude Include="TestCode3D.h" />
     <ClInclude Include="TestMathLib.h" />

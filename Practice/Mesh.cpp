@@ -2,7 +2,7 @@
 
 Mesh::Mesh(const char * objFile, float size) {
 	LoadFromObjFile(objFile);
-	this->shader = new GourardShader();
+	this->shader = new GourardShaderTextured();
 	this->size = size;
 }
 Mesh::Mesh(float size) { this->size = size; }

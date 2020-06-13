@@ -39,6 +39,9 @@ public:
 public:
 	bool running;
 	POINT mouseInfo;
+	POINT mouseInfoOld;
+	float mouseDeltaX;
+	float mouseDeltaY;
 	//Debug
 	std::map<std::string, std::vector<int>> timingData;
 private:
@@ -101,6 +104,7 @@ public:
 	void BezierCurveRecursive(std::vector<BMath::Vec2> points, float t, BMath::Vec2 & ouput);
 	//Routines to manipulate framebuffer
 	void ClearScreen(BColors::color_t & color);
+	void ClearScreenWithTexture(Texture * texture);
 	void ClearZBuffer();
 	void ClearScreen(int colorPacked);
 	void SetPixel(int x, int y, BColors::color_t color);

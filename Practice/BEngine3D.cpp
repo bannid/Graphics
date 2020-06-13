@@ -19,8 +19,11 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 			t.vertices[i].vector = t.vertices[i].vector * projectionMatrix;
 			t.vertices[i].vector = t.vertices[i].vector * viewPortMatrix;
 		}
-		if(drawTri)FillTriangleBC(t,mesh);	
-		//if (drawTri)DrawTriangle(t);
+		if (drawWireframe) {
+			if (drawTri)DrawTriangle(t);
+		}
+		if (drawTri)FillTriangleBC(t, mesh);
+		
 	}
 }
 
@@ -31,7 +34,7 @@ void BEngine3D::Initialise() {
 }
 
 void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
-	float minX = BUtils::Min(t.vertices[0].vector.x, BUtils::Min(t.vertices[1].vector.x,t.vertices[2].vector.x));
+	float minX = BUtils::Min(t.vertices[0].vector.x, BUtils::Min(t.vertices[1].vector.x, t.vertices[2].vector.x));
 	float minY = BUtils::Min(t.vertices[0].vector.y, BUtils::Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
 	float maxX = BUtils::Max(t.vertices[0].vector.x, BUtils::Max(t.vertices[1].vector.x, t.vertices[2].vector.x));
 	float maxY = BUtils::Max(t.vertices[0].vector.y, BUtils::Max(t.vertices[1].vector.y, t.vertices[2].vector.y));
@@ -40,7 +43,7 @@ void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
 	minY = BUtils::Max(0, minY);
 	maxX = BUtils::Min(GetScreenWidth(), maxX);
 	maxY = BUtils::Min(GetScreenHeight(), maxY);
-	
+
 	BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
 	BMath::Vec2 pointB = { t.vertices[1].vector.x,t.vertices[1].vector.y };
 	BMath::Vec2 pointC = { t.vertices[2].vector.x,t.vertices[2].vector.y };
@@ -48,7 +51,7 @@ void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
 	BMath::Vec2 edge2 = pointC - pointA;
 	BMath::Vec2 edge3 = pointA - pointC;
 	BMath::Vec2 edge4 = pointC - pointB;
-	
+
 	float mainTriangleArea = std::abs((edge1.x * edge2.y - edge1.y * edge2.x) * 0.5f);
 	if (mainTriangleArea == 0)return;
 	for (int x = minX; x < maxX; x++) {
@@ -66,8 +69,8 @@ void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
 			float alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
 			alpha /= mainTriangleArea;
 
-			float value = 0;
-			if (alpha > value && beta > 0 && gamma > 0) {
+			float value = 0 - 0.01;
+			if (alpha > value && beta > value && gamma > value) {
 				BColors::color_t finalColor;
 				mesh.shader->GetColor(t, alpha, beta, gamma, mesh, finalColor);
 				float zBuffer = GetZBuffer(x, y);
@@ -82,21 +85,20 @@ void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
 }
 void BEngine3D::SetProjectionMatrix() {
 	float fovL = DEGREE_TO_RAD(fov);
-	float fovInverse = 1 / tanf(fovL/2) * zNear;
+	float fovInverse = 1 / tanf(fovL / 2) * zNear;
 	float aspectRatio = (float)GetScreenHeight() / GetScreenWidth();
 	projectionMatrix.m[0][0] = aspectRatio * fovInverse;
 	projectionMatrix.m[1][1] = fovInverse;
 	projectionMatrix.m[2][2] = zFar / (zFar - zNear);
-	projectionMatrix.m[3][2] = -zNear * zFar / (zFar-zNear);
+	projectionMatrix.m[3][2] = -zNear * zFar / (zFar - zNear);
 	projectionMatrix.m[2][3] = 1;
 	projectionMatrix.m[3][3] = 0;
 }
 void BEngine3D::SetViewportMatrix() {
-	float screenHeight = GetScreenHeight();
-	float screenWidth = GetScreenWidth();
-	float aspectRatio = screenHeight / screenWidth;
-	viewPortMatrix.m[0][0] = screenWidth/2.0f;
-	viewPortMatrix.m[1][1] = screenHeight/2.0f;
+	int screenHeight = GetScreenHeight();
+	int screenWidth = GetScreenWidth();
+	viewPortMatrix.m[0][0] = screenWidth / 2.0f;
+	viewPortMatrix.m[1][1] = screenHeight / 2.0f;
 	viewPortMatrix.m[3][0] = screenWidth / 2;
 	viewPortMatrix.m[3][1] = screenHeight / 2;
 }
@@ -125,30 +127,36 @@ BMath::Mat4 Camera::GetViewMatrix() {
 	return mat;
 }
 void Camera::Yaw(float angleInDegrees) {
-	BMath::Mat4 mat = BMath::RotationY(angleInDegrees);
-	this->right = this->right * mat;
-	this->forward = this->forward * mat;
-	this->right.Normalize();
+	this->yaw += angleInDegrees * 0.01;
+	this->forward.z = std::cos(yaw);
+	this->forward.x = std::sin(yaw);
+	this->forward.y = std::sin(pitch);
 	this->forward.Normalize();
-	this->up = this->forward.Cross(right).Normalized();
+	this->up = { 0.0f,1.0f,0.0f,0.0f };
+	this->up.Normalize();
+	this->right = this->up.Cross(this->forward);
+	this->right.Normalize();
 }
 
 void Camera::Pitch(float angleInDegrees) {
-	BMath::Mat4 mat = BMath::RotationX(angleInDegrees);
-	this->up = this->up * mat;
-	this->forward = this->forward * mat;
-	this->up.Normalize();
+	this->pitch += angleInDegrees * 0.01;
+	float pitchInDegrees = RAD_TO_DEGREE(pitch);
+	if (pitchInDegrees > 89.9)this->pitch = DEGREE_TO_RAD(89.9);
+	if (pitchInDegrees < -89.9)this->pitch = DEGREE_TO_RAD(-89.9);
+	this->forward.z = std::cos(yaw);
+	this->forward.x = std::sin(yaw);
+	this->forward.y = std::sin(pitch);
 	this->forward.Normalize();
-	this->right = this->up.Cross(this->forward).Normalized();
-}
-
-void Camera::Roll(float angleInDegrees) {
-	BMath::Mat4 mat = BMath::RotationZ(angleInDegrees);
-	this->right = this->right * mat;
-	this->up = this->up * mat;
-	this->right.Normalize();
+	this->up = { 0.0f,1.0f,0.0f,0.0f };
 	this->up.Normalize();
-	this->forward = this->up.Cross(this->right).Normalized();
+	this->right = this->up.Cross(this->forward);
+	this->right.Normalize();
 }
 
-
+void Camera::LookAt(BMath::Vec4 pos, BMath::Vec4 target, BMath::Vec4 up) {
+	this->position = pos;
+	this->forward = target - pos;
+	this->forward.Normalize();
+	this->right = this->up.Cross(forward).Normalized();
+	this->up = this->forward.Cross(right).Normalized();
+}

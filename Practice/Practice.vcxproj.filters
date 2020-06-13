@@ -23,6 +23,9 @@
     <Filter Include="BEngine3D">
       <UniqueIdentifier>{9351aa30-4fed-4092-96b6-ca85b0f018f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OthersCode">
+      <UniqueIdentifier>{1e8bfcc5-c176-4952-b68f-14b2b92347d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DrawLines.h">
@@ -84,6 +87,12 @@
     </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>BEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="SSloyRayTracing.h">
+      <Filter>OthersCode</Filter>
+    </ClInclude>
+    <ClInclude Include="SSloyGeometry.h">
+      <Filter>OthersCode</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

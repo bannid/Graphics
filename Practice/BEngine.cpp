@@ -228,6 +228,10 @@ bool BEngine::Start() {
 		MILISECONDS_TO_SEC(elapsedTime);
 		running = running && OnUpdate(elapsedTime);
 		this->uct1 = this->uct2;
+		std::string s = std::to_string(this->mouseInfo.x);
+		s.append(",");
+		s.append(std::to_string(this->mouseInfo.y));
+		SetWindowTextA(window,s.c_str());
 		HDC DC = GetDC(window);
 		Win32UpdateWindowOpenGL(DC, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DC);
@@ -354,6 +358,18 @@ void BEngine::ClearScreen(BColors::color_t & color) {
 	for (unsigned int i = 0; i < memorySize; i++) {
 		*pixel = (((color.red << 8) | color.green) << 8) | color.blue;
 		pixel++;
+	}
+}
+void BEngine::ClearScreenWithTexture(Texture * texture) {
+	int screenHeight = GetScreenHeight();
+	int screenWidth = GetScreenWidth();
+	for (int x = 0; x < screenWidth; x++) {
+		for (int y = 0; y < screenHeight; y++) {
+			float normalizedX = (float)x / screenWidth;
+			float normalizedY = (float)y / screenHeight;
+			BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, texture);
+			SetPixel(x, y, color);
+		}
 	}
 }
 void BEngine::ClearZBuffer() {
@@ -719,8 +735,12 @@ void BEngine::ProcessKeys() {
 			}
 		}
 	}
+	this->mouseInfoOld.x = mouseInfo.x;
+	this->mouseInfoOld.y = mouseInfo.y;
 	GetCursorPos(&this->mouseInfo);
 	ScreenToClient(this->window, &this->mouseInfo);
+	mouseDeltaX = mouseInfo.x - mouseInfoOld.x;
+	mouseDeltaY = mouseInfo.y - mouseInfoOld.y;
 }
 //######################### end input #####################
 //###################### Assets loading ####################
