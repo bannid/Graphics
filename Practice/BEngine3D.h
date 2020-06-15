@@ -32,6 +32,7 @@ public:
 	void SetProjectionMatrix();
 	void SetViewportMatrix();
 	void FillTriangleBC(Triangle & t, Mesh & mesh);
+	void FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh);
 	//Settings
 	bool doLighting = false;
 	bool drawWireframe = false;

@@ -1,29 +1,23 @@
 #include "BEngine3D.h"
 #include "Utils.h"
 void BEngine3D::DrawMesh(Mesh & mesh) {
-	if (!this->initialised)return;
+	if (!this->initialised) { 
+		return;
+	}
 	BMath::Mat4 modelMat = mesh.GetModelMat();
-	BMath::Mat4 viewMatrix = cam.GetViewMatrix().Inverted();
-	for (auto it = mesh.triangles.begin(); it != mesh.triangles.end(); it++) {
-		Triangle t = *it;
-		bool drawTri = true;
-		for (int i = 0; i < 3; i++) {
-			t.vertices[i].vector = t.vertices[i].vector * modelMat;
-			auto mat = modelMat;;
-			t.vertices[i].normal = t.vertices[i].normal * mat;
-			t.vertices[i].vector = t.vertices[i].vector * viewMatrix;
-			if (t.vertices[i].vector.z < zNear) {
-				drawTri = false;
-				break;
-			}
-			t.vertices[i].vector = t.vertices[i].vector * projectionMatrix;
-			t.vertices[i].vector = t.vertices[i].vector * viewPortMatrix;
-		}
-		if (drawWireframe) {
-			if (drawTri)DrawTriangle(t);
-		}
-		if (drawTri)FillTriangleBC(t, mesh);
-		
+	auto m = cam.GetViewMatrix();
+	BMath::Mat4 viewMatrix = m.Inverted();
+	auto vertices = mesh.vertexes;
+	for (auto it = vertices.begin(); it != vertices.end(); it++) {
+		it->vector = it->vector * modelMat;
+		auto mat = modelMat;;
+		it->normal = it->normal * mat;
+		it->vector = it->vector * viewMatrix;
+		it->vector = it->vector * projectionMatrix;
+		it->vector = it->vector * viewPortMatrix;
+	}
+	for (int i = 0; i < mesh.indices.size(); i += 3) {
+		FillTriangleBC(vertices[i], vertices[i + 1], vertices[i + 2], mesh);
 	}
 }
 
@@ -33,20 +27,51 @@ void BEngine3D::Initialise() {
 	this->initialised = true;
 }
 
-void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
-	float minX = BUtils::Min(t.vertices[0].vector.x, BUtils::Min(t.vertices[1].vector.x, t.vertices[2].vector.x));
-	float minY = BUtils::Min(t.vertices[0].vector.y, BUtils::Min(t.vertices[1].vector.y, t.vertices[2].vector.y));
-	float maxX = BUtils::Max(t.vertices[0].vector.x, BUtils::Max(t.vertices[1].vector.x, t.vertices[2].vector.x));
-	float maxY = BUtils::Max(t.vertices[0].vector.y, BUtils::Max(t.vertices[1].vector.y, t.vertices[2].vector.y));
+void TempGetColor(float alpha, float beta, float gamma,
+	Vertex one, Vertex two, Vertex three, Mesh & mesh, BColors::color_t & output) {
+	BMath::Vec4 lightDir = { 0,0,-1,0 };
+	lightDir.Normalize();
+	one.normal.Normalize();
+	two.normal.Normalize();
+	three.normal.Normalize();
+	float dotAlpha = one.normal * lightDir;
+	float dotBeta =  two.normal * lightDir;
+	float dotGamma = three.normal * lightDir;
+
+	float uvXAlpha = one.uv.x;
+	float uvYAlpha = one.uv.y;
+
+	float uvXBeta = two.uv.x;
+	float uvYBeta = two.uv.y;
+
+	float uvXGamma = three.uv.x;
+	float uvYGamma = three.uv.y;
+
+	float finalUVx = alpha * uvXAlpha + beta * uvXBeta + gamma * uvXGamma;
+	float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
+	output = BUtils::GetColorFromTexture(finalUVx, 1 - finalUVy, &mesh.tex);
+	float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
+	if (intensityFinal < 0.05) {
+		intensityFinal = 0.05f;
+	}
+	output.red *=   intensityFinal;
+	output.green *= intensityFinal;
+	output.blue *=  intensityFinal;
+}
+void BEngine3D::FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh) {
+	float minX = BUtils::Min(one.vector.x, BUtils::Min(two.vector.x, three.vector.x));
+	float minY = BUtils::Min(one.vector.y, BUtils::Min(two.vector.y, three.vector.y));
+	float maxX = BUtils::Max(one.vector.x, BUtils::Max(two.vector.x, three.vector.x));
+	float maxY = BUtils::Max(one.vector.y, BUtils::Max(two.vector.y, three.vector.y));
 	//Clamp to screen
 	minX = BUtils::Max(0, minX);
 	minY = BUtils::Max(0, minY);
 	maxX = BUtils::Min(GetScreenWidth(), maxX);
 	maxY = BUtils::Min(GetScreenHeight(), maxY);
 
-	BMath::Vec2 pointA = { t.vertices[0].vector.x,t.vertices[0].vector.y };
-	BMath::Vec2 pointB = { t.vertices[1].vector.x,t.vertices[1].vector.y };
-	BMath::Vec2 pointC = { t.vertices[2].vector.x,t.vertices[2].vector.y };
+	BMath::Vec2 pointA = { one.vector.x,one.vector.y };
+	BMath::Vec2 pointB = { two.vector.x,two.vector.y };
+	BMath::Vec2 pointC = { three.vector.x,three.vector.y };
 	BMath::Vec2 edge1 = pointB - pointA;
 	BMath::Vec2 edge2 = pointC - pointA;
 	BMath::Vec2 edge3 = pointA - pointC;
@@ -72,9 +97,9 @@ void BEngine3D::FillTriangleBC(Triangle & t, Mesh & mesh) {
 			float value = 0 - 0.01;
 			if (alpha > value && beta > value && gamma > value) {
 				BColors::color_t finalColor;
-				mesh.shader->GetColor(t, alpha, beta, gamma, mesh, finalColor);
+				TempGetColor(alpha, beta, gamma, one, two, three, mesh, finalColor);
 				float zBuffer = GetZBuffer(x, y);
-				float finalZ = alpha * t.vertices[0].vector.z + beta * t.vertices[1].vector.z + gamma * t.vertices[2].vector.z;
+				float finalZ = alpha * one.vector.z + beta * two.vector.z + gamma * three.vector.z;
 				if (zBuffer > finalZ) {
 					SetPixel(x, y, finalColor);
 					SetZBuffer(x, y, finalZ);
@@ -157,6 +182,6 @@ void Camera::LookAt(BMath::Vec4 pos, BMath::Vec4 target, BMath::Vec4 up) {
 	this->position = pos;
 	this->forward = target - pos;
 	this->forward.Normalize();
-	this->right = this->up.Cross(forward).Normalized();
+	this->right = up.Cross(forward).Normalized();
 	this->up = this->forward.Cross(right).Normalized();
 }

@@ -2,7 +2,6 @@
 
 Mesh::Mesh(const char * objFile, float size) {
 	LoadFromObjFile(objFile);
-	this->shader = new GourardShaderTextured();
 	this->size = size;
 }
 Mesh::Mesh(float size) { this->size = size; }
@@ -36,7 +35,7 @@ bool Mesh::LoadFromObjFile(const char * fileName) {
 			s >> junk >> faces[0] >> faces[1] >> faces[2];
 			size_t pos = 0;
 			std::string delimiter = "/";
-			Triangle t;
+			Vertex vert;
 			for (int i = 0; i < 3; i++) {
 				std::string token;
 				int index = 0;
@@ -50,24 +49,27 @@ bool Mesh::LoadFromObjFile(const char * fileName) {
 						}
 						int token_ = std::stoi(token);
 						if (index == 0) {
-							t.vertices[i].vector = this->vertices[token_ - 1];
+							vert.vector = this->vertices[token_ - 1];
+							this->indices.push_back(token_ - 1);
 						}
 						else if (index == 1) {
-							t.vertices[i].uv = this->textureCoords[token_ - 1];
+							vert.uv = this->textureCoords[token_ - 1];
 						}
 						faces[i].erase(0, pos + delimiter.length());
 						index++;
 					}
 					token = faces[i];
-					int token_ = std::stoi(token);
-					t.vertices[i].normal = this->normals[token_ - 1];
+					if (token != "") {
+						int token_ = std::stoi(token);
+						vert.normal = this->normals[token_ - 1];
+					}
 				}
 				else {
 					int index = std::stoi(faces[i]);
-					t.vertices[i].vector = this->vertices[index - 1];
+					vert.vector = this->normals[index - 1];
 				}
+				this->vertexes.push_back(vert);
 			}
-			this->triangles.push_back(t);
 		}
 
 

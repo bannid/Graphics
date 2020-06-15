@@ -465,6 +465,15 @@ void BEngine::DrawTriangle(Triangle & t) {
 	DrawLine(v2.x, v2.y, v3.x, v3.y, BColors::WHITE);
 	DrawLine(v3.x, v3.y, v1.x, v1.y, BColors::WHITE);
 }
+void BEngine::DrawTriangle(Vertex & one, Vertex & two, Vertex & three) {
+	auto & v1 = one.vector;
+	auto & v2 = two.vector;
+	auto & v3 = three.vector;
+
+	DrawLine(v1.x, v1.y, v2.x, v2.y, BColors::WHITE);
+	DrawLine(v2.x, v2.y, v3.x, v3.y, BColors::WHITE);
+	DrawLine(v3.x, v3.y, v1.x, v1.y, BColors::WHITE);
+}
 //Fill triangle - Scanline method
 void BEngine::FillTriangle(Triangle & t) {
 	auto & v1 = t.vertices[0].vector;

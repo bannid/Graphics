@@ -37,7 +37,7 @@ public:
 	virtual bool OnCreate() = 0;
 	virtual bool OnDestroy();
 public:
-	bool running;
+	volatile bool running;
 	POINT mouseInfo;
 	POINT mouseInfoOld;
 	float mouseDeltaX;
@@ -96,6 +96,7 @@ public:
 	//Triangle 
 	void FillTriangle(Triangle & t);
 	void DrawTriangle(Triangle & t);
+	void DrawTriangle(Vertex & one, Vertex & two, Vertex & three);
 	//Sprite - Affine transformations cannot be applied
 	void DrawSprite(Sprite & sprite, BMath::Vec2 pos);
 	//Functions to draw bezier curve in screen space.

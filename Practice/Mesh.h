@@ -4,16 +4,14 @@
 #include "Maths.h"
 #include "BEngine.h"
 #include "Shaders.h"
-class IShader;
 struct Mesh {
 	float size;
 	std::vector<BMath::Vec4> vertices;
 	std::vector<BMath::Vec4> normals;
 	std::vector<BMath::Vec4> textureCoords;
-	std::vector<int[3]> faces;
-	IShader * shader;
+	std::vector<Vertex> vertexes;
+	std::vector<int> indices;
 	Texture tex;
-	std::vector<Triangle> triangles;
 	BMath::Vec4 position;
 	BMath::Vec4 up = { 0,1,0,0 };
 	BMath::Vec4 right{ 1,0,0,0 };
