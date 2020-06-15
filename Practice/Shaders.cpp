@@ -22,7 +22,7 @@ void GourardShaderTextured::GetColor(Triangle & t,
 	float alpha, float beta, float gamma,
 	Mesh & mesh,
 	BColors::color_t & output) {
-	BMath::Vec4 lightDir = { 1,0,0,0 };
+	BMath::Vec4 lightDir = { 0,0,-1,0 };
 	lightDir.Normalize();
 	t.vertices[0].normal.Normalize();
 	t.vertices[1].normal.Normalize();

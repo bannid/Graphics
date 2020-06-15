@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AfricanHead.h" />
     <ClInclude Include="BEngine.h" />
     <ClInclude Include="BEngine3D.h" />
     <ClInclude Include="BouncingBall.h" />

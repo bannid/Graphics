@@ -45,10 +45,10 @@ class EarthAndLuna : public BEngine3D {
 		
 		if (GetKey(VK_LBUTTON).keyDown) {
 			if (std::abs(mouseDeltaX) > std::abs(mouseDeltaY)) {
-				this->cam.Yaw(mouseDeltaX * elapsedTime);
+				this->cam.Yaw(-mouseDeltaX * elapsedTime);
 			}
 			else {
-				this->cam.Pitch(-mouseDeltaY * elapsedTime);
+				this->cam.Pitch(mouseDeltaY * elapsedTime);
 			}
 			
 		}

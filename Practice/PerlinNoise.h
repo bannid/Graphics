@@ -9,7 +9,7 @@ class Perlin : public BEngine {
 	int outY;
 	int screenHeight = 800;
 	int screenWidth = 800;
-	int cellSizeL = 20;
+	int cellSizeL = 8;
 	std::vector<BMath::Vec2> gradientVecs;
 	LerpMethod m = &Perlin::CosineInterpolation;
 	float randomValues[800];
