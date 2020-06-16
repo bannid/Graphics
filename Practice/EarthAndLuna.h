@@ -5,6 +5,8 @@
 #include "BEngine3D.h"
 #include "Mesh.h"
 #include "Common.h"
+#include "Utils.h"
+
 using namespace BMath;
 class EarthAndLuna : public BEngine3D {
 	Mesh earth;
@@ -15,10 +17,10 @@ class EarthAndLuna : public BEngine3D {
 	virtual bool OnCreate() override {
 		earth = Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\sphere.obj", 1000);
 		luna = Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\sphere.obj", 270);
-		LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\earth.png", &earth.tex, true);
-		LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\moon.png", &luna.tex, true);
+		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\earth.png", &earth.tex);
+		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\moon.png", &luna.tex);
 
-		LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\galaxy.png", &galaxy, true);
+		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\galaxy.png", &galaxy);
 
 		earth.position.z = 12000;
 		earth.position.x = 0;

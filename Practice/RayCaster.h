@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "BEngine.h"
+#include "Utils.h"
 
 #define DEBUG_DRAW 1
 #define TAU 6.28318530718
@@ -142,7 +143,7 @@ class RayCaster : public BEngine {
 			int startingY = windowHeight / 2 + segmentHeight / 2;
 			for (int y = startingY; y > startingY - segmentHeight; y--) {
 				float yTextureCoord = (float)std::abs(y - startingY) / segmentHeight;
-				BColors::color_t color = GetColorFromTexture(remappedTextureCoord, yTextureCoord, &walls);
+				BColors::color_t color = BUtils::GetColorFromTexture(remappedTextureCoord, yTextureCoord, &walls);
 				float alpha = (c / 20) * 0.3;
 				color.red = (color.red * (1 - alpha));
 				color.green = (color.green * (1 - alpha));
@@ -208,7 +209,7 @@ class RayCaster : public BEngine {
 					float normalizedY = (float)(y - startingY) / (endingY - startingY);
 					float percentageOfOneTexture = (float)64 / monstersTex.width;
 					normalizedX = normalizedX / 4.0f + percentageOfOneTexture * it->indexInTexture;
-					BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, &monstersTex);
+					BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, &monstersTex);
 					SetBlendingMode(ALPHA);
 					if (depth[x] < monsterDistance)continue;
 					SetPixel(x, y, color);
@@ -275,8 +276,8 @@ class RayCaster : public BEngine {
 		rectangleHeight = 10;
 		rectangleWidth = 10;
 		PopulateNonPlayerCharacters();
-		return LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\walltext.png", &walls, true) &&
-			LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\monsters.png", &monstersTex, true);
+		return BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\walltext.png", &walls) &&
+			BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\monsters.png", &monstersTex);
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {

@@ -249,7 +249,7 @@ bool BEngine::Construct(int windowWidth, int windowHeight, int pixelDimensions) 
 	this->windowHeight = windowHeight;
 	pixelDimension = pixelDimensions;
 
-	if (!this->LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\Fonts.png", &this->fontsTexture, true)) {
+	if (!BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\Fonts.png", &this->fontsTexture)) {
 		//Implement a way to know why it failed
 		return false;
 	}
@@ -752,26 +752,6 @@ void BEngine::ProcessKeys() {
 	mouseDeltaY = mouseInfo.y - mouseInfoOld.y;
 }
 //######################### end input #####################
-//###################### Assets loading ####################
-bool BEngine::LoadTexturePNG(const char * fileName, Texture * output, bool loadAlpha) {
-		if (!loadAlpha) {
-			bool success = lodepng_decode24_file(&output->data,
-				&output->width,
-				&output->height,
-				fileName) == 0;
-			output->bytesPerPixel = 3;
-			return success;
-		}
-		else {
-			bool success = lodepng_decode32_file(&output->data,
-				&output->width,
-				&output->height,
-				fileName) == 0;
-			output->bytesPerPixel = 4;
-			return success;
-		}
-}
-//############################ End assets ########################3
 //######################### Debug ######################
 void BEngine::WriteTimingOutput() {
 	NSDebug::WriteTimingDataOut(&this->timingData);

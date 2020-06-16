@@ -68,8 +68,6 @@ public:
 	//Returns the state of the key - key -> 0 to 0xff
 	BInput::Key GetKey(unsigned int key);
 	POINT GetMouseInfo();
-	//Assets
-	bool LoadTexturePNG(const char * fileName, Texture * output, bool loadAlpha);
 	//Drawing routines
 	//Draw line
 	void DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color);

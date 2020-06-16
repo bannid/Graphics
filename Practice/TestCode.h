@@ -1,11 +1,12 @@
 #pragma once
 #include "BEngine.h"
 #include "Debug.h"
+#include "Utils.h"
 //Extend the BEngine class
 class Test : public BEngine {
 	void TestCodeForTextureLoading() {
-		bool textureLoaded = LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\Fonts.png",
-			space,true);
+		bool textureLoaded = BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\Fonts.png",
+			space);
 		if (textureLoaded) {
 			OutputDebugString(L"Texture loaded");
 		}
@@ -31,17 +32,7 @@ class Test : public BEngine {
 	bool TestCodeForLoadObjFile() {
 		return true;// return LoadOBJFile("C:\\Users\\Winny-Banni\\Desktop\\videos\\teapot.obj");
 	}
-	void TestCodeForLerp() {
-		BMath::Vec2 point1 = { 0,500 };
-		BMath::Vec2 point2 = { 500,500 };
-		for (float t = 0; t < 1; t += 0.001) {
-			auto temp = Lerp(point1, point2, t);
-			BColors::color_t c = { 255,255,255 };
-			SetPixel(temp.x, temp.y,c);
-		}
-		BColors::color_t r = { 255,0,0 };
-		DrawLine(0, 500, 500, 500,r);
-	}
+	
 	void TestCodeForBezierCurveRecursive() {
 		BColors::color_t b = { 0,0,0 };
 		BColors::color_t white = { 255,255,255 };
@@ -77,7 +68,7 @@ class Test : public BEngine {
 			for (int y = 0; y < screenHeight; y+=pixelDimensions) {
 				float normalizedX =(float) x / screenWidth;
 				float normalizedY = (float)y / screenHeight;
-				BColors::color_t color = GetColorFromTexture(normalizedX, normalizedY, space);
+				BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, space);
 				SetPixel(x, y, color);
 		}
 		}
@@ -112,7 +103,7 @@ class Test : public BEngine {
 		return TestCodeForLoadObjFile();
 	}
 private:
-	TEXID space;
+	Texture * space;
 	Sprite * spaceShip;
 	BMath::Vec2 spaceShipPos;
 };

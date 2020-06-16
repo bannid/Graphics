@@ -1,5 +1,6 @@
 #pragma once
 #include "BEngine.h"
+#include "Utils.h"
 #include <stdlib.h>
 #include <chrono>
 #define DEBUG_DRAW 0
@@ -66,12 +67,12 @@ class SpaceWars : public BEngine {
 	int enemyShipRadius = 50;
 	//############### End enemy ships ##############
 	bool LoadTextureFiles() {
-		if (LoadTexturePNG(spaceShipTextureFile,
-			&spaceShipTex, true) &&
-			LoadTexturePNG(bulletTextureFile,
-				&bulletTex, true) &&
-			LoadTexturePNG(enemyShipTextureFile,
-				&enemyShipTex, true)) {
+		if (BUtils::LoadTexturePNG(spaceShipTextureFile,
+			&spaceShipTex) &&
+			BUtils::LoadTexturePNG(bulletTextureFile,
+				&bulletTex) &&
+			BUtils::LoadTexturePNG(enemyShipTextureFile,
+				&enemyShipTex)) {
 			spaceShip = new Sprite(&spaceShipTex, spaceShipHeight, spaceShipWidth, spaceShipScale);
 			bullet = new Sprite(&bulletTex, bulletHeight, bulletWidth, 1);
 			enemyShip = new Sprite(&enemyShipTex, enemyShipRadius, enemyShipRadius, 1);
