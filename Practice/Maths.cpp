@@ -79,12 +79,11 @@ namespace BMath {
 		}
 	}
 	void Mat4::Transpose() {
-		Swap(this->m[0][1], this->m[1][0]);
-		Swap(this->m[0][2], this->m[2][0]);
-		Swap(this->m[0][3], this->m[3][0]);
-		Swap(this->m[1][2], this->m[2][1]);
-		Swap(this->m[1][3], this->m[3][1]);
-		Swap(this->m[2][3], this->m[3][2]);
+		for (int row = 0; row < 4; row++) {
+			for (int col = 0; col < 4; col++) {
+				Swap(this->m[row][col], this->m[col][row]);
+			}
+		}
 	}
 	
 	Mat4 Mat4::Transposed() {
@@ -95,35 +94,15 @@ namespace BMath {
 
 	Mat4 Mat4::operator*(Mat4 & that) {
 		Mat4 mat;
-		Vec4 row1 = { this->m[0][0],this->m[0][1],this->m[0][2],this->m[0][3] };
-		Vec4 row2 = { this->m[1][0],this->m[1][1],this->m[1][2],this->m[1][3] };
-		Vec4 row3 = { this->m[2][0],this->m[2][1],this->m[2][2],this->m[2][3] };
-		Vec4 row4 = { this->m[3][0],this->m[3][1],this->m[3][2],this->m[3][3] };
-
-		Vec4 col1 = { that.m[0][0],that.m[1][0],that.m[2][0],that.m[3][0] };
-		Vec4 col2 = { that.m[0][1],that.m[1][1],that.m[2][1],that.m[3][1] };
-		Vec4 col3 = { that.m[0][2],that.m[1][2],that.m[2][2],that.m[3][2] };
-		Vec4 col4 = { that.m[0][3],that.m[1][3],that.m[2][3],that.m[3][3] };
-
-		mat.m[0][0] = row1 * col1;
-		mat.m[0][1] = row1 * col2;
-		mat.m[0][2] = row1 * col3;
-		mat.m[0][3] = row1 * col4;
-
-		mat.m[1][0] = row2 * col1;
-		mat.m[1][1] = row2 * col2;
-		mat.m[1][2] = row2 * col3;
-		mat.m[1][3] = row2 * col4;
-
-		mat.m[2][0] = row3 * col1;
-		mat.m[2][1] = row3 * col2;
-		mat.m[2][2] = row3 * col3;
-		mat.m[2][3] = row3 * col4;
-
-		mat.m[3][0] = row4 * col1;
-		mat.m[3][1] = row4 * col2;
-		mat.m[3][2] = row4 * col3;
-		mat.m[3][3] = row4 * col4;
+		for (int row = 0; row < 4; row++) {
+			for (int col = 0; col < 4; col++) {
+				float sum = 0.0f;
+				for (int k = 0; k < 4; k++) {
+					sum += this->m[row][k] * that.m[k][col];
+				}
+				mat.m[row][col] = sum;
+			}
+		}
 		return mat;
 	}
 	void GetCofactors(int row, int col, float * mat, float * output, int N) {
@@ -175,16 +154,15 @@ namespace BMath {
 	void Mat4::Invert() {
 		int dim = 4;
 		float determinant;
-		BMath::Mat4 mat;
-		Adjugate(this->m[0], mat.m[0], dim);
+		BMath::Mat4 adjugate;
+		Adjugate(this->m[0], adjugate.m[0], dim);
 		determinant = Determinant(this->m[0], dim);
 		assert(determinant);
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
-				mat.m[i][j] *= 1 / determinant;
+				this->m[i][j] = adjugate.m[i][j] * (1 / determinant);
 			}
 		}
-		*this = mat;
 	}
 	Mat4 Mat4::Inverted() {
 		Mat4 mat = *this;
