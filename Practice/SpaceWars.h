@@ -103,7 +103,7 @@ class SpaceWars : public BEngine {
 	}
 	inline void DrawPlayerShip() {
 #if DEBUG_DRAW
-		DrawCircle(spaceShipPos, spaceShipWidth * 0.5, BColors::WHITE);
+		DrawCircle(spaceShipPos, spaceShipWidth * 0.5, WHITE);
 #endif
 		if (!gameOver) {
 			DrawSprite(*spaceShip, spaceShipPos);
@@ -144,7 +144,7 @@ class SpaceWars : public BEngine {
 		for(int i = 0; i< numberOfShips; i++){
 			DrawSprite(*enemyShip, enemyShips[i]);
 #if DEBUG_DRAW
-			DrawCircle(enemyShips[i], enemyShipRadius * 0.6, BColors::WHITE);
+			DrawCircle(enemyShips[i], enemyShipRadius * 0.6, WHITE);
 #endif
 			auto velocityScaled = shipsVelocity * elapsedTime;
 			enemyShips[i].Add(velocityScaled);
@@ -182,7 +182,7 @@ class SpaceWars : public BEngine {
 		for (int i = 0; i < numberOfActiveExplosions; i++) {
 			auto exp = this->exp[i];
 			if (exp.active) {
-				BColors::color_t color = IntToColor(BColors::RED);
+				BColor color = IntToColor(RED);
 				float elapsedTime = exp.GetElapsedTime();
 				if (elapsedTime < exp.duration) {
 					float intensity = (exp.duration - elapsedTime) / exp.duration;
@@ -224,7 +224,7 @@ class SpaceWars : public BEngine {
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen(BColors::BLACK);
+		ClearScreen(BLACK);
 		DrawPlayerShip();
 		UpdatePlayerShip(elapsedTime);
 		DrawBullets();

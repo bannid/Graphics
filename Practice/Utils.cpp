@@ -1,11 +1,11 @@
 #include "Utils.h"
 #include "lodepng.h"
 
-BColors::color_t BUtils::GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture) {
+BColor BUtils::GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture) {
 	if (normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
 		return { 0,0,0,0 };
 	}
-	BColors::color_t color;
+	BColor color;
 
 	int width = texture->width;
 	int height = texture->height;

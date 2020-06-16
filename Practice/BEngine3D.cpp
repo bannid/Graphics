@@ -8,13 +8,11 @@ void BEngine3D::DrawMesh(Mesh & mesh) {
 	auto m = cam.GetViewMatrix();
 	BMath::Mat4 viewMatrix = m.Inverted();
 	auto vertices = mesh.vertexes;
+	BMath::Mat4 M = modelMat * viewMatrix * projectionMatrix * viewPortMatrix;
 	for (auto it = vertices.begin(); it != vertices.end(); it++) {
-		it->vector = it->vector * modelMat;
 		auto mat = modelMat;;
 		it->normal = it->normal * mat;
-		it->vector = it->vector * viewMatrix;
-		it->vector = it->vector * projectionMatrix;
-		it->vector = it->vector * viewPortMatrix;
+		it->vector = it->vector * M;
 	}
 	for (int i = 0; i < mesh.indices.size(); i += 3) {
 		FillTriangleBC(vertices[i], vertices[i + 1], vertices[i + 2], mesh);
@@ -28,7 +26,7 @@ void BEngine3D::Initialise() {
 }
 
 void TempGetColor(float alpha, float beta, float gamma,
-	Vertex one, Vertex two, Vertex three, Mesh & mesh, BColors::color_t & output) {
+	Vertex one, Vertex two, Vertex three, Mesh & mesh, BColor & output) {
 	BMath::Vec4 lightDir = { 0,0,-1,0 };
 	lightDir.Normalize();
 	one.normal.Normalize();
@@ -96,7 +94,7 @@ void BEngine3D::FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh
 
 			float value = 0 - 0.01;
 			if (alpha > value && beta > value && gamma > value) {
-				BColors::color_t finalColor;
+				BColor finalColor;
 				TempGetColor(alpha, beta, gamma, one, two, three, mesh, finalColor);
 				float zBuffer = GetZBuffer(x, y);
 				float finalZ = alpha * one.vector.z + beta * two.vector.z + gamma * three.vector.z;

@@ -4,8 +4,8 @@
 
 class BouncingBall : public BEngine {
 	BMath::Vec2 pos;
-	BColors::color_t black = { 0,0,0 };
-	BColors::color_t ballColor = { 0,255,0 };
+	BColor black = { 0,0,0 };
+	BColor ballColor = { 0,255,0 };
 	int radius;
 	BMath::Vec2 velocity;
 	float angle = 0;

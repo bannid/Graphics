@@ -24,10 +24,10 @@ class Perlin : public BEngine {
 		int leftTopY = 100;
 		int height = 400;
 		int width = 400;
-		BColors::color_t colorOnLeftEdge = { 255,0,0 };
-		BColors::color_t colorOnRightEdge = { 0,255,0 };
-		BColors::color_t colorOnLowerEdge = { 0,0,255 };
-		BColors::color_t colorOnLowerRightEdge = { 255,255,0 };
+		BColor colorOnLeftEdge = { 255,0,0 };
+		BColor colorOnRightEdge = { 0,255,0 };
+		BColor colorOnLowerEdge = { 0,0,255 };
+		BColor colorOnLowerRightEdge = { 255,255,0 };
 		for (int x = leftTopX; x < leftTopX + width; x++) {
 			for (int y = leftTopY; y < leftTopY + height; y++) {
 				float alphaX = 1 - (float)(x - leftTopX) / width;
@@ -35,9 +35,9 @@ class Perlin : public BEngine {
 					alphaX = CosineInterpolation(alphaX);
 				}
 				float betaX = 1 - alphaX;
-				BColors::color_t upperColor;
-				BColors::color_t lowerColor;
-				BColors::color_t finalColor;
+				BColor upperColor;
+				BColor lowerColor;
+				BColor finalColor;
 				upperColor.red = alphaX * colorOnLeftEdge.red + betaX * colorOnRightEdge.red;
 				upperColor.green = alphaX * colorOnLeftEdge.green + betaX * colorOnRightEdge.green;
 				upperColor.blue = alphaX * colorOnLeftEdge.blue + betaX * colorOnRightEdge.blue;
@@ -199,7 +199,7 @@ class Perlin : public BEngine {
 		return (fNoise / fScaleAcc);
 	}
 	virtual bool OnUpdate(float elapsedTime) {
-		ClearScreen(BColors::BLACK);
+		ClearScreen(BLACK);
 		DrawPerlinNoise();
 		return true;
 	}

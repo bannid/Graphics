@@ -1,6 +1,12 @@
 #include <assert.h>
 #include "Maths.h"
 #include "Common.h"
+/*
+TODO: Right now to make the matrix inversion dynamic,
+we are doing some memory allocations on the heap.  It can 
+be a major bottle neck for our applications. We have to either use 
+templates or just have inverse for 4x4 matrices.
+*/
 namespace BMath {
 	void Swap(float & a, float & b) {
 		float temp = a;

@@ -12,14 +12,14 @@ class Test : public BEngine {
 		}
 	}
 	void TestDrawCircle() {
-		BColors::color_t c = { 255,255,255 };
+		BColor c = { 255,255,255 };
 		FillCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 50, c);
 	}
 	void TestDrawRectangle() {
 		
 		int x = GetScreenWidth()/2;
 		int y = GetScreenHeight()/2;
-		BColors::color_t c = { 255,255,255 };
+		BColor c = { 255,255,255 };
 		DrawRectangle(x,y,x+100,y+100,c);
 	}
 	void TestDrawTriangle() {
@@ -34,8 +34,8 @@ class Test : public BEngine {
 	}
 	
 	void TestCodeForBezierCurveRecursive() {
-		BColors::color_t b = { 0,0,0 };
-		BColors::color_t white = { 255,255,255 };
+		BColor bBColor0,0 };
+		BColor white = { 255,255,255 };
 		ClearScreen(b);
 		int screenHeight = GetScreenHeight();
 		int screenWidth = GetScreenWidth();
@@ -54,8 +54,8 @@ class Test : public BEngine {
 		}
 	}
 	void TestCodeForMousePos() {
-		BColors::color_t black = { 0,0,0 };
-		BColors::color_t white = { 255,255,255 };
+		BColor black = { 0,0,0 };
+		BColor white = { 255,255,255 };
 		auto mouseCoords = GetMouseInfo();
 		ClearScreen(black);
 		DrawLine(0, 0, mouseCoords.x, mouseCoords.y - 31, white);
@@ -68,13 +68,13 @@ class Test : public BEngine {
 			for (int y = 0; y < screenHeight; y+=pixelDimensions) {
 				float normalizedX =(float) x / screenWidth;
 				float normalizedY = (float)y / screenHeight;
-				BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, space);
+				BColor color = BUtils::GetColorFromTexture(normalizedX, normalizedY, space);
 				SetPixel(x, y, color);
 		}
 		}
 	}
 	void TestCodeForDrawingSprite() {
-		BColors::color_t black = { 255,255,255 };
+		BColor black = { 255,255,255 };
 		ClearScreen(black);
 		int velocity = 3;
 		DrawSprite(*spaceShip, spaceShipPos);

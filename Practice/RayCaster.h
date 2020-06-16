@@ -40,12 +40,12 @@ class RayCaster : public BEngine {
 	//Field of view in radians
 	float fov = 1.0f;
 	std::vector<int> colors = {
-		BColors::MAROON,
-		BColors::RED,
-		BColors::GREEN,
-		BColors::YELLOW,
-		BColors::RED,
-		BColors::BLUE
+		MAROON,
+		RED,
+		GREEN,
+		YELLOW,
+		RED,
+		BLUE
 	};
 	Texture walls;
 	Texture monstersTex;
@@ -143,7 +143,7 @@ class RayCaster : public BEngine {
 			int startingY = windowHeight / 2 + segmentHeight / 2;
 			for (int y = startingY; y > startingY - segmentHeight; y--) {
 				float yTextureCoord = (float)std::abs(y - startingY) / segmentHeight;
-				BColors::color_t color = BUtils::GetColorFromTexture(remappedTextureCoord, yTextureCoord, &walls);
+				BColor color = BUtils::GetColorFromTexture(remappedTextureCoord, yTextureCoord, &walls);
 				float alpha = (c / 20) * 0.3;
 				color.red = (color.red * (1 - alpha));
 				color.green = (color.green * (1 - alpha));
@@ -159,11 +159,11 @@ class RayCaster : public BEngine {
 #if DEBUG_DRAW
 			int remappedX = playerX * rectangleWidth;//Remapped X and Y to our world which is 16x16
 			int remappedY = playerY * rectangleHeight;
-			FillRectangle(remappedX, remappedY, remappedX + playerSize, remappedY + playerSize, BColors::WHITE);
+			FillRectangle(remappedX, remappedY, remappedX + playerSize, remappedY + playerSize, WHITE);
 
-			DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::WHITE);
+			DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), WHITE);
 			if (std::abs(a - playerAngle) < 0.01) {
-				DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), BColors::RED);
+				DrawLine(remappedX, remappedY, remappedX + (c * gazeDirectionX* rectangleWidth), remappedY + (c *gazeDirectionY* rectangleHeight), RED);
 			}
 #endif
 		}
@@ -209,7 +209,7 @@ class RayCaster : public BEngine {
 					float normalizedY = (float)(y - startingY) / (endingY - startingY);
 					float percentageOfOneTexture = (float)64 / monstersTex.width;
 					normalizedX = normalizedX / 4.0f + percentageOfOneTexture * it->indexInTexture;
-					BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, &monstersTex);
+					BColor color = BUtils::GetColorFromTexture(normalizedX, normalizedY, &monstersTex);
 					SetBlendingMode(ALPHA);
 					if (depth[x] < monsterDistance)continue;
 					SetPixel(x, y, color);
@@ -218,7 +218,7 @@ class RayCaster : public BEngine {
 			}
 			int remappedXForMonster = it->x * rectangleWidth;
 			int remppaedYForMonster = it->y * rectangleHeight;
-			FillRectangle(remappedXForMonster, remppaedYForMonster, remappedXForMonster + playerSize, remppaedYForMonster + playerSize, BColors::RED);
+			FillRectangle(remappedXForMonster, remppaedYForMonster, remappedXForMonster + playerSize, remppaedYForMonster + playerSize, RED);
 		}
 
 	}
@@ -281,14 +281,14 @@ class RayCaster : public BEngine {
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen(BColors::GRAY);
+		ClearScreen(GRAY);
 
 		DrawPlayer();
 #if DEBUG_DRAW
 		DrawMap();
 #endif
 		HandleInput(elapsedTime);
-		DrawString(toDraw, 0, 0, 50, BColors::WHITE);
+		DrawString(toDraw, 0, 0, 50, WHITE);
 		return true;
 	}
 	virtual bool OnDestroy() {

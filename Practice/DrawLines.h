@@ -3,8 +3,8 @@
 #include "BEngine.h"
 class DrawLines : public BEngine {
 	std::vector<BMath::Vec2> points;
-	BColors::color_t black = { 0,0,0 };
-	BColors::color_t white = { 255,255,255,125 };
+	BColor black = { 0,0,0 };
+	BColor white = { 255,255,255,125 };
 	virtual bool OnUpdate(float elapsedTime) override{
 		ClearScreen(black);
 		auto mouseInfo = GetMouseInfo();

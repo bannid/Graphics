@@ -1,5 +1,6 @@
 #include "BEngine.h"
 #include "Utils.h"
+#include "Common.h"
 static BEngine * static_enginePtr = nullptr;
 static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 	UINT message,
@@ -292,7 +293,7 @@ BEngine::~BEngine()
 
 }
 //Getters
-BInput::Key BEngine::GetKey(unsigned int key) {
+BKey BEngine::GetKey(unsigned int key) {
 	assert(key > 0 && key < 0xFF);
 	return this->keys[key];
 }
@@ -314,7 +315,7 @@ POINT BEngine::GetMouseInfo() {
 }
 //Setters
 void BEngine::SetBlendingMode(BLENDING_MODE mode) { this->blendMode = mode; }
-void BEngine::SetPixelInternal(int x, int y, BColors::color_t & color) {
+void BEngine::SetPixelInternal(int x, int y, BColor & color) {
 	if (x < 0 || x >= this->screenInfo.bitmapWidth || y < 0 || y >= this->screenInfo.bitmapHeight) {
 		return;
 	}
@@ -338,7 +339,7 @@ void BEngine::SetPixelInternal(int x, int y, BColors::color_t & color) {
 	}
 	}
 }
-void BEngine::SetPixel(int x, int y, BColors::color_t color) {
+void BEngine::SetPixel(int x, int y, BColor color) {
 	for (int i = x; i < x + this->pixelDimension; i++) {
 		for (int k = y; k < y + this->pixelDimension; k++) {
 			SetPixelInternal(i, k, color);
@@ -352,7 +353,7 @@ void BEngine::SetZBuffer(int x, int y, float value) {
 	float * ptr = (float*)this->screenInfo.zBuffer;
 	ptr[x + y * this->screenInfo.bitmapWidth] = value;
 }
-void BEngine::ClearScreen(BColors::color_t & color) {
+void BEngine::ClearScreen(BColor & color) {
 	unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 	unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 	for (unsigned int i = 0; i < memorySize; i++) {
@@ -367,7 +368,7 @@ void BEngine::ClearScreenWithTexture(Texture * texture) {
 		for (int y = 0; y < screenHeight; y++) {
 			float normalizedX = (float)x / screenWidth;
 			float normalizedY = (float)y / screenHeight;
-			BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, texture);
+			BColor color = BUtils::GetColorFromTexture(normalizedX, normalizedY, texture);
 			SetPixel(x, y, color);
 		}
 	}
@@ -381,11 +382,11 @@ void BEngine::ClearZBuffer() {
 	}
 }
 void BEngine::ClearScreen(int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	ClearScreen(color);
 }
 //############################## Circles ###############################
-void BEngine::DrawCircle(int x, int y, int radius, BColors::color_t & color) {
+void BEngine::DrawCircle(int x, int y, int radius, BColor & color) {
 	float tau = 6.28318530718;
 	for (float t = 0; t < 1; t += 0.001) {
 		int x1 = std::cos(t * tau) * radius;
@@ -394,28 +395,28 @@ void BEngine::DrawCircle(int x, int y, int radius, BColors::color_t & color) {
 	}
 }
 void BEngine::DrawCircle(int x, int y, int radius, int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	DrawCircle(x, y, radius, color);
 }
-void BEngine::DrawCircle(BMath::Vec2 & point, int radius, BColors::color_t & color) {
+void BEngine::DrawCircle(BMath::Vec2 & point, int radius, BColor & color) {
 	DrawCircle(point.x, point.y, radius, color);
 }
 void BEngine::DrawCircle(BMath::Vec2 & pos, int radius, int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	DrawCircle(pos.x, pos.y, radius, color);
 }
-void BEngine::FillCircle(const BMath::Vec2 & point, int radius, BColors::color_t & color) {
+void BEngine::FillCircle(const BMath::Vec2 & point, int radius, BColor & color) {
 	this->FillCircle(point.x, point.y, radius, color);
 }
 void BEngine::FillCircle(const BMath::Vec2 & pos, int radius, int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	this->FillCircle(pos.x, pos.y, radius, color);
 }
 void BEngine::FillCircle(int x, int y, int radius, int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	this->FillCircle(x, y, radius, color);
 }
-void BEngine::FillCircle(int x, int y, int radius, BColors::color_t & color) {
+void BEngine::FillCircle(int x, int y, int radius, BColor & color) {
 	int x1 = x - radius;
 	int y1 = y - radius;
 	int x2 = radius + x;
@@ -432,26 +433,26 @@ void BEngine::FillCircle(int x, int y, int radius, BColors::color_t & color) {
 }
 //############################### End Circles ############################
 //############################## Rectangle ############################
-void BEngine::DrawRectangle(int x1, int y1, int x2, int y2, BColors::color_t & color) {
+void BEngine::DrawRectangle(int x1, int y1, int x2, int y2, BColor & color) {
 	DrawLine(x1, y1, x2, y1, color);
 	DrawLine(x1, y1, x1, y2, color);
 	DrawLine(x1, y2, x2, y2, color);
 	DrawLine(x2, y1, x2, y2, color);
 }
 void BEngine::DrawRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	DrawLine(xTop, yTop, xBottom, yTop, color);
 	DrawLine(xTop, yTop, xTop, yBottom, color);
 	DrawLine(xTop, yBottom, xBottom, yBottom, color);
 	DrawLine(xBottom, yTop, xBottom, yBottom, color);
 }
-void BEngine::FillRectangle(int x1, int y1, int x2, int y2, BColors::color_t & color) {
+void BEngine::FillRectangle(int x1, int y1, int x2, int y2, BColor & color) {
 	for (int y = y1; y < y2; y++) {
 		DrawLine(x1, y, x2, y, color);
 	}
 }
 void BEngine::FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	FillRectangle(xTop, yTop, xBottom, yBottom, color);
 }
 //############################## End rectangle #################################
@@ -461,18 +462,18 @@ void BEngine::DrawTriangle(Triangle & t) {
 	auto & v2 = t.vertices[1].vector;
 	auto & v3 = t.vertices[2].vector;
 
-	DrawLine(v1.x, v1.y, v2.x, v2.y, BColors::WHITE);
-	DrawLine(v2.x, v2.y, v3.x, v3.y, BColors::WHITE);
-	DrawLine(v3.x, v3.y, v1.x, v1.y, BColors::WHITE);
+	DrawLine(v1.x, v1.y, v2.x, v2.y, WHITE);
+	DrawLine(v2.x, v2.y, v3.x, v3.y, WHITE);
+	DrawLine(v3.x, v3.y, v1.x, v1.y, WHITE);
 }
 void BEngine::DrawTriangle(Vertex & one, Vertex & two, Vertex & three) {
 	auto & v1 = one.vector;
 	auto & v2 = two.vector;
 	auto & v3 = three.vector;
 
-	DrawLine(v1.x, v1.y, v2.x, v2.y, BColors::WHITE);
-	DrawLine(v2.x, v2.y, v3.x, v3.y, BColors::WHITE);
-	DrawLine(v3.x, v3.y, v1.x, v1.y, BColors::WHITE);
+	DrawLine(v1.x, v1.y, v2.x, v2.y, WHITE);
+	DrawLine(v2.x, v2.y, v3.x, v3.y, WHITE);
+	DrawLine(v3.x, v3.y, v1.x, v1.y, WHITE);
 }
 //Fill triangle - Scanline method
 void BEngine::FillTriangle(Triangle & t) {
@@ -517,10 +518,10 @@ void BEngine::FillTriangle(Triangle & t) {
 //######################## End triangle##################################
 //######################### Lines and Curves ############################
 void BEngine::DrawLine(int x1, int y1, int x2, int y2, int colorPacked) {
-	BColors::color_t color = IntToColor(colorPacked);
+	BColor color = IntToColor(colorPacked);
 	DrawLine(x1, y1, x2, y2, color);
 }
-void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color) {
+void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColor & color) {
 	bool steep = false;
 	//TODO: Remove once clipping is done.
 	x1 = BUtils::Max(0, x1);
@@ -561,7 +562,7 @@ void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColors::color_t & color)
 		}
 	}
 }
-void BEngine::DrawBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, BColors::color_t & color) {
+void BEngine::DrawBezierCurve(BMath::Vec2 p1, BMath::Vec2 cp, BMath::Vec2 p2, BColor & color) {
 	auto currentPoint = p1;
 	for (float t = 0; t <= 1.05; t += 0.05f) {
 		BMath::Vec2 temp2(0, 0);
@@ -631,7 +632,7 @@ void BEngine::BezierCurveRecursive(std::vector<BMath::Vec2> points,
 //############################ End lines and curves #####################
 //######################## End interpolation #########################
 //######################## String and sprite drawing ############################
-void BEngine::DrawString(std::string string, int posX, int posY, int size, BColors::color_t color) {
+void BEngine::DrawString(std::string string, int posX, int posY, int size, BColor color) {
 	for (int pq = 0; pq < string.size(); pq++) {
 		char c = string[pq];
 		int drawingX = posX + pq * size * 0.6;
@@ -661,7 +662,7 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, BColo
 				int jToScale = normalizedY * pixelsPerFont;
 
 				//Then we get the color from the texture and set the pixel
-				BColors::color_t colorFromTexture = BUtils::GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
+				BColor colorFromTexture = BUtils::GetColorFromTexture((float)(i + iToScale) / fontsTexture.width, (float)(j + jToScale) / fontsTexture.height, &fontsTexture);
 				if (colorFromTexture.alpha > 0) {
 					SetBlendingMode(ALPHA);
 					SetPixel(x1, y1, color);
@@ -672,7 +673,7 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, BColo
 	}
 	
 }
-void BEngine::DrawString(const char * constString, int posX, int posY, int size, BColors::color_t color) {
+void BEngine::DrawString(const char * constString, int posX, int posY, int size, BColor color) {
 	std::string string;
 	string.append(constString);
 	DrawString(string, posX, posY, size, color);
@@ -683,7 +684,7 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, int c
 void BEngine::DrawString(const char * constString, int posX, int posY, int size, int colorPacked) {
 	DrawString(constString, posX, posY, size, IntToColor(colorPacked));
 }
-void BEngine::DrawVector(int posX, int posY,int size, BMath::Vec4 & vector, BColors::color_t color) {
+void BEngine::DrawVector(int posX, int posY,int size, BMath::Vec4 & vector, BColor color) {
 	DrawString(std::to_string(vector.x), posX, posY, size, color);
 	DrawString(std::to_string(vector.y), posX, posY + size, size, color);
 	DrawString(std::to_string(vector.z), posX, posY + size * 2, size, color);
@@ -707,7 +708,7 @@ void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
 		for (int y = startingY; y < endingY; y += pixelDimension) {
 			float normalizedX = 1.0f - ((float)(endingX - x) / width);
 			float normalizedY = 1.0f - ((float)(endingY - y) / height);
-			BColors::color_t color = BUtils::GetColorFromTexture(normalizedX, normalizedY, sprite.tex);
+			BColor color = BUtils::GetColorFromTexture(normalizedX, normalizedY, sprite.tex);
 			if (sprite.tint) {
 				float t = sprite.tintingPercentage;
 				float t2 = 1 - t;
@@ -758,8 +759,8 @@ void BEngine::WriteTimingOutput() {
 }
 //###################### End debug #######################
 //###################### Helper functions ################
-BColors::color_t BEngine::IntToColor(int color) {
-	BColors::color_t toReturn;
+BColor BEngine::IntToColor(int color) {
+	BColor toReturn;
 	toReturn.red = color >> 16 & 0xFF;
 	toReturn.green = color >> 8 & 0xFF;
 	toReturn.blue = color & 0xFF;
@@ -778,7 +779,7 @@ Sprite::Sprite(Texture * t, int height, int width, float scale) {
 	this->width = width;
 	this->scale = scale;
 }
-void Sprite::SetTinting(BColors::color_t color, float percentage) {
+void Sprite::SetTinting(BColor color, float percentage) {
 	this->tinting = color;
 	this->tintingPercentage = percentage;
 	this->tint = true;

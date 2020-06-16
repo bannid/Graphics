@@ -93,7 +93,7 @@ class TestMath : public BEngine {
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen(BColors::WHITE);
+		ClearScreen(WHITE);
 		VectorMatMul();
 		return true;
 	}

@@ -152,7 +152,7 @@ class SSloyRT : public BEngine {
 				float y = -(2 * (j + 0.5) / (float)height - 1)*tan(fov / 2.);
 				Vec3f dir = Vec3f(x, y, -1).normalize();
 				Vec3f color = cast_ray(Vec3f(0, 0, 0), dir, spheres, lights);
-				BColors::color_t finalColor;
+				BColor finalColor;
 				finalColor.red = color.x * 255;
 				finalColor.green = color.y * 255;
 				finalColor.blue = color.z * 255;

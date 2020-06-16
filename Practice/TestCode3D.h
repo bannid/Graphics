@@ -22,7 +22,7 @@ class TestCode3D : public BEngine3D {
 	}
 
 	virtual bool OnUpdate(float elapsedTime) override {
-		ClearScreen(BColors::BLACK);
+		ClearScreen(BLACK);
 		ClearZBuffer();
 		this->DrawMesh(*this->earth);
 		this->DrawMesh(*this->moon);
