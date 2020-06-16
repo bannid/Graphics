@@ -35,7 +35,6 @@ namespace BMath {
 		Mat4 Inverted();
 		void Invert();
 		Mat4 operator*(Mat4 & that);
-		void ReduceToZero(int pivotRow, int pivotCol, int targetRow, int targetCol, Mat4&);
 	};
 	struct Vec4 {
 		float x;

@@ -7,7 +7,6 @@ namespace BMath {
 		a = b;
 		b = temp;
 	}
-
 	Mat4::Mat4() {
 		for (int row = 0; row < 4; row++) {
 			for (int col = 0; col < 4; col++) {
@@ -127,69 +126,65 @@ namespace BMath {
 		mat.m[3][3] = row4 * col4;
 		return mat;
 	}
-	void Mat4::ReduceToZero(int pivotRow, int pivotCol, int targetRow, int targetCol, Mat4 & mAugmented) {
-
-
-		if (this->m[targetRow][targetCol] != 0) {
-
-			float a = this->m[targetRow][targetCol];
-			float b = this->m[pivotRow][pivotCol];
-
-			this->m[targetRow][0] *= b;
-			this->m[targetRow][1] *= b;
-			this->m[targetRow][2] *= b;
-			this->m[targetRow][3] *= b;
-
-			mAugmented.m[targetRow][0] *= b;
-			mAugmented.m[targetRow][1] *= b;
-			mAugmented.m[targetRow][2] *= b;
-			mAugmented.m[targetRow][3] *= b;
-
-			this->m[targetRow][0] -= this->m[pivotRow][0] * a;
-			this->m[targetRow][1] -= this->m[pivotRow][1] * a;
-			this->m[targetRow][2] -= this->m[pivotRow][2] * a;
-			this->m[targetRow][3] -= this->m[pivotRow][3] * a;
-
-			mAugmented.m[targetRow][0] -= mAugmented.m[pivotRow][0] * a;
-			mAugmented.m[targetRow][1] -= mAugmented.m[pivotRow][1] * a;
-			mAugmented.m[targetRow][2] -= mAugmented.m[pivotRow][2] * a;
-			mAugmented.m[targetRow][3] -= mAugmented.m[pivotRow][3] * a;
-			assert(this->m[targetRow][targetCol] == 0);
+	void GetCofactors(int row, int col, float * mat, float * output, int N) {
+		int rowTemp = 0;
+		int colTemp = 0;
+		int NOutput = N - 1;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (i != row && j != col) {
+					output[colTemp + rowTemp * NOutput] = mat[j + i * N];
+					colTemp++;
+					if (colTemp == NOutput) {
+						colTemp = 0;
+						rowTemp++;
+					}
+				}
+			}
 		}
 	}
-	void Mat4::Invert() {
-		//This funciton will fail if we are doing some 
-		//non-uniform scaling. i.e. if we need to swap the rows.
-		Mat4 mAugmented;
-		ReduceToZero(0, 0, 1, 0, mAugmented);
-		ReduceToZero(0, 0, 2, 0, mAugmented);
-		ReduceToZero(0, 0, 3, 0, mAugmented);
-
-		ReduceToZero(1, 1, 0, 1, mAugmented);
-		ReduceToZero(1, 1, 2, 1, mAugmented);
-		ReduceToZero(1, 1, 3, 1, mAugmented);
-
-		ReduceToZero(2, 2, 0, 2, mAugmented);
-		ReduceToZero(2, 2, 1, 2, mAugmented);
-		ReduceToZero(2, 2, 3, 2, mAugmented);
-
-		ReduceToZero(3, 3, 0, 3, mAugmented);
-		ReduceToZero(3, 3, 1, 3, mAugmented);
-		ReduceToZero(3, 3, 2, 3, mAugmented);
-
-		for (int i = 0; i < 4; i++) {
-			float pivot = this->m[i][i];
-			this->m[i][0] /= pivot;
-			this->m[i][1] /= pivot;
-			this->m[i][2] /= pivot;
-			this->m[i][3] /= pivot;
-
-			mAugmented.m[i][0] /= pivot;
-			mAugmented.m[i][1] /= pivot;
-			mAugmented.m[i][2] /= pivot;
-			mAugmented.m[i][3] /= pivot;
+	float Determinant(float * mat, int dim) {
+		float D = 0.0f;
+		int sign = 1;
+		if (dim == 1) {
+			return mat[0];
 		}
-		*this = mAugmented;
+		for (int i = 0; i < dim; i++) {
+			float * output = new float[(dim - 1) * (dim - 1)];
+			GetCofactors(0, i, mat, output, dim);
+			D += (mat[i] * Determinant(output, dim - 1)) * sign;
+			sign = -sign;
+			delete output;
+		}
+		return D;
+	}
+	void Adjugate(float * mat, float * output, int dim) {
+		float * output2 = new float[(dim - 1)*(dim - 1)];
+		int sign = 1;
+		for (int row = 0; row < dim; row++) {
+			for (int col = 0; col < dim; col++) {
+				GetCofactors(row, col, mat, output2, dim);
+				float D = Determinant(output2, (dim - 1));
+				sign = (row + col) % 2 == 0 ? 1 : -1;
+				D *= sign;
+				output[row + col * dim] = D;//Swap the rows and columns to transpose
+			}
+		}
+		delete output2;
+	}
+	void Mat4::Invert() {
+		int dim = 4;
+		float determinant;
+		BMath::Mat4 mat;
+		Adjugate(this->m[0], mat.m[0], dim);
+		determinant = Determinant(this->m[0], dim);
+		assert(determinant);
+		for (int i = 0; i < dim; i++) {
+			for (int j = 0; j < dim; j++) {
+				mat.m[i][j] *= 1 / determinant;
+			}
+		}
+		*this = mat;
 	}
 	Mat4 Mat4::Inverted() {
 		Mat4 mat = *this;

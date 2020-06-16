@@ -18,8 +18,18 @@ class AfricanHead : public BEngine3D {
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(0);
 		ClearZBuffer();
-		BMath::Mat4 mat = BMath::RotationY(1);
-		offset = offset * mat;
+		if (GetKey(VK_SPACE).keyDown) {
+			BMath::Mat4 mat = BMath::RotationY(1);
+			offset = offset * mat;
+		}
+		if (GetKey('A').keyReleased) {
+			BMath::Mat4 mat = BMath::RotationY(1);
+			offset = offset * mat;
+		}
+		if (GetKey('W').keyReleased) {
+			BMath::Mat4 mat = BMath::RotationY(-1);
+			offset = offset * mat;
+		}
 		cam.LookAt(africanHead.position - offset, africanHead.position, { 0.0f,1.0f,0.0f,0.0f });
 		DrawMesh(this->africanHead);
 		if (GetKey(VK_DOWN).keyDown) {
