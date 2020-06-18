@@ -9,7 +9,7 @@ class AfricanHead : public BEngine3D {
 	bool rotate = true;
 	virtual bool OnCreate() override {
 		africanHead = Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj", 1);
-		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head_diffuse.png", &africanHead.tex);
+		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\african_head_diffuse.tga", &africanHead.tex);
 		africanHead.position.z = 10.0f;
 		africanHead.position.w = 1.0f;
 		this->Initialise();

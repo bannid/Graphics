@@ -1,5 +1,4 @@
 #include "Utils.h"
-#include "lodepng.h"
 
 BColor BUtils::GetColorFromTexture(float normalizedX, float normalizedY, Texture * texture) {
 	if (normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
@@ -22,11 +21,8 @@ BColor BUtils::GetColorFromTexture(float normalizedX, float normalizedY, Texture
 	return color;
 }
 bool BUtils::LoadTexturePNG(const char * fileName, Texture * output) {
-	bool success = lodepng_decode32_file(&output->data,
-		&output->width,
-		&output->height,
-		fileName) == 0;
-	return success;
+	output->data = stbi_load(fileName, (int*)&output->width, (int*)&output->height, (int*)&output->bytesPerPixel, 4);
+	return output->data != NULL;
 }
 float BUtils::Min(float a, float b) {
 	return a < b ? a : b;

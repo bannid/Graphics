@@ -165,7 +165,6 @@
     <ClInclude Include="DrawFonts.h" />
     <ClInclude Include="DrawLines.h" />
     <ClInclude Include="EarthAndLuna.h" />
-    <ClInclude Include="lodepng.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PerlinNoise.h" />
@@ -174,6 +173,7 @@
     <ClInclude Include="SpaceWars.h" />
     <ClInclude Include="SSloyGeometry.h" />
     <ClInclude Include="SSloyRayTracing.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="TestCode.h" />
     <ClInclude Include="TestCode3D.h" />
     <ClInclude Include="TestMathLib.h" />
@@ -184,10 +184,10 @@
     <ClCompile Include="BEngine3D.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Shaders.cpp" />
+    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Win32Main.cpp" />
   </ItemGroup>

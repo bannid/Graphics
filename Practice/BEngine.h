@@ -11,7 +11,6 @@
 #include "Maths.h"
 #include "Debug.h"
 #include "Mesh.h"
-#include "lodepng.h"
 
 
 class BEngine
