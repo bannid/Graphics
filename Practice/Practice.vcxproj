@@ -182,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="BEngine.cpp" />
     <ClCompile Include="BEngine3D.cpp" />
+    <ClCompile Include="Common.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="Maths.cpp" />

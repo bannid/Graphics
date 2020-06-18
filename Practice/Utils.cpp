@@ -15,10 +15,10 @@ BColor BUtils::GetColorFromTexture(float normalizedX, float normalizedY, Texture
 	if (mappedY != 0) mappedY--;
 	unsigned int * intData = (unsigned int*)texture->data;
 	int value = intData[mappedX + mappedY * width];
-	color.alpha = value >> 24 & 0xFF;
-	color.blue = value >> 16 & 0xFF;
-	color.green = value >> 8 & 0xFF;
-	color.red = value & 0xFF;
+	color.alpha = (float)(value >> 24 & 0xFF)/255.0f;
+	color.blue = (float)(value >> 16 & 0xFF)/255.0f;
+	color.green = (float)(value >> 8 & 0xFF)/255.0f;
+	color.red = (float)(value & 0xFF)/255.0f;
 	return color;
 }
 bool BUtils::LoadTexturePNG(const char * fileName, Texture * output) {

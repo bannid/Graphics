@@ -319,21 +319,26 @@ void BEngine::SetPixelInternal(int x, int y, BColor & color) {
 	if (x < 0 || x >= this->screenInfo.bitmapWidth || y < 0 || y >= this->screenInfo.bitmapHeight) {
 		return;
 	}
+	int colorRed = color.red * 255;
+	int colorGreen = color.green * 255;
+	int colorBlue = color.blue * 255;
+	int colorAlpha = color.alpha * 255;
 	switch (blendMode) {
 	case NORMAL:
 	{
+		
 		unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
-		pixel[x + this->screenInfo.bitmapWidth * y] = (((color.red << 8) | color.green) << 8) | color.blue;
+		pixel[x + this->screenInfo.bitmapWidth * y] = (((colorRed << 8) | colorGreen) << 8) | colorBlue;
 		break;
 	}
 	case ALPHA: {
 		unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 		unsigned int pixelValue = pixel[x + this->screenInfo.bitmapWidth * y];
-		float alpha = color.alpha / 255.0f;
+		float alpha = color.alpha;
 		float alpha2 = 1 - alpha;
-		int finalRed = alpha * color.red + alpha2 * (pixelValue >> 16 & 0xFF);
-		int finalGreen = alpha * color.green + alpha2 * (pixelValue >> 8 & 0xFF);
-		int finalBlue = alpha * color.blue + alpha2 * (pixelValue & 0xFF);
+		int finalRed = alpha * colorRed + alpha2 * (pixelValue >> 16 & 0xFF);
+		int finalGreen = alpha * colorGreen + alpha2 * (pixelValue >> 8 & 0xFF);
+		int finalBlue = alpha * colorBlue + alpha2 * (pixelValue & 0xFF);
 		pixel[x + this->screenInfo.bitmapWidth * y] = (((finalRed << 8) | finalGreen) << 8) | finalBlue;
 		break;
 	}
@@ -356,8 +361,11 @@ void BEngine::SetZBuffer(int x, int y, float value) {
 void BEngine::ClearScreen(BColor & color) {
 	unsigned int memorySize = this->screenInfo.bitmapWidth * this->screenInfo.bitmapHeight;
 	unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
+	int colorRed = color.red * 255;
+	int colorGreen = color.green * 255;
+	int colorBlue = color.blue * 255;
 	for (unsigned int i = 0; i < memorySize; i++) {
-		*pixel = (((color.red << 8) | color.green) << 8) | color.blue;
+		*pixel = (((colorRed << 8) | colorGreen) << 8) | colorBlue;
 		pixel++;
 	}
 }
@@ -761,34 +769,10 @@ void BEngine::WriteTimingOutput() {
 //###################### Helper functions ################
 BColor BEngine::IntToColor(int color) {
 	BColor toReturn;
-	toReturn.red = color >> 16 & 0xFF;
-	toReturn.green = color >> 8 & 0xFF;
-	toReturn.blue = color & 0xFF;
+	toReturn.red = (float)(color >> 16 & 0xFF) / 255.0f;
+	toReturn.green = (float)(color >> 8 & 0xFF) / 255.0f;
+	toReturn.blue = (float)(color & 0xFF)/255.0f;
 	return toReturn;
 }
 //###################### End helper functions
-//####################### Sprites implementation
-Sprite::Sprite(Texture * t) {
-	this->tex = t;
-	this->width = tex->width;
-	this->height = tex->height;
-}
-Sprite::Sprite(Texture * t, int height, int width, float scale) {
-	this->tex = t;
-	this->height = height;
-	this->width = width;
-	this->scale = scale;
-}
-void Sprite::SetTinting(BColor color, float percentage) {
-	this->tinting = color;
-	this->tintingPercentage = percentage;
-	this->tint = true;
-}
-void Sprite::ScaleSprite(float newScaleValue) { this->scale = newScaleValue; }
-unsigned int Sprite::GetHeight() {
-	return this->height * this->scale;
-}
-unsigned int Sprite::GetWidth() {
-	return this->width * scale;
-}
-//################ end Sprites ########################
+

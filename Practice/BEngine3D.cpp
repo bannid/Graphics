@@ -27,14 +27,15 @@ void BEngine3D::Initialise() {
 
 void TempGetColor(float alpha, float beta, float gamma,
 	Vertex one, Vertex two, Vertex three, Mesh & mesh, BColor & output) {
-	BMath::Vec4 lightDir = { 0,0,-1,0 };
-	lightDir.Normalize();
+	//Temp light
+	LightDirectional light;
+	light.direction = { 0, 0, -1, 0 };
 	one.normal.Normalize();
 	two.normal.Normalize();
 	three.normal.Normalize();
-	float dotAlpha = one.normal * lightDir;
-	float dotBeta =  two.normal * lightDir;
-	float dotGamma = three.normal * lightDir;
+	float dotAlpha = one.normal * light.direction;
+	float dotBeta =  two.normal * light.direction;
+	float dotGamma = three.normal * light.direction;
 
 	float uvXAlpha = one.uv.x;
 	float uvYAlpha = one.uv.y;
@@ -49,6 +50,9 @@ void TempGetColor(float alpha, float beta, float gamma,
 	float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
 	output = BUtils::GetColorFromTexture(finalUVx, 1 - finalUVy, &mesh.tex);
 	float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
+	output.red *= light.color.red;
+	output.green *= light.color.green;
+	output.blue *= light.color.blue;
 	if (intensityFinal < 0.05) {
 		intensityFinal = 0.05f;
 	}

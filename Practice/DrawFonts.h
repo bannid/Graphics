@@ -9,9 +9,9 @@ class DrawFonts : public BEngine {
 	}
 	virtual bool OnUpdate(float elapsedTime) override {
 		ClearScreen(WHITE);
-		DrawString("QWERTYUIOPASDFGHJKLZXCVBNM1234567890:", 0, 0, 40, { 255,0,0,100 });
-		DrawString("QWERTYUIOPASDFGHJKLZXCVBNM1234567890:", 0, 40, 40, { 255,0,0,100 });
-		DrawString("QWERTYUIOPASDFGHJKLZXCVBNM1234567890:", 0, 80, 40, { 255,0,0,100 });
+		DrawString("QWERTYUIOPASDFGHJKLZXCVBNM1234567890:", 0, 0, 40, { 1.0f,0,0,0.5f });
+		DrawString("QWERTYUIOPASDFGHJKLZXCVBNM1234567890:", 0, 40, 40, { 1.0f,0,0,0.5f });
+		DrawString("QWERTYUIOPASDFGHJKLZXCVBNM1234567890:", 0, 80, 40, { 1.0f,0,0,0.5f });
 		return true;
 	}
 };

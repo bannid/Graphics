@@ -10,7 +10,7 @@ class BezierCurves : public BEngine {
 	std::vector<Bezier> bezierCurves;
 	BMath::Vec2 * selector = nullptr;
 	BColor black = { 0,0,0 };
-	BColor white = { 255,255,255 };
+	BColor white = { 1.0f,1.0f,1.0f };
 	virtual bool OnCreate() override {
 		Bezier b;
 		b.p1 = BMath::Vec2(10, GetScreenHeight() / 2);

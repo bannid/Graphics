@@ -14,23 +14,23 @@ struct BKey {
 	bool keyHeld = false;
 };
 struct BColor {
-	int red;
-	int green;
-	int blue;
-	int alpha;
+	float red;
+	float green;
+	float blue;
+	float alpha;
 	BColor() {
 		this->red = 0;
 		this->green = 0;
 		this->blue = 0;
-		this->alpha = 0xFF;
+		this->alpha = 1.0f;
 	}
-	BColor(int red, int green, int blue) {
+	BColor(float red, float green, float blue) {
 		this->green = green;
 		this->blue = blue;
 		this->red = red;
-		this->alpha = 0xFF;
+		this->alpha = 1.0f;
 	}
-	BColor(int red, int green, int blue, int alpha) {
+	BColor(float red, float green, float blue, float alpha) {
 		this->green = green;
 		this->blue = blue;
 		this->red = red;
@@ -78,5 +78,31 @@ struct Sprite {
 	unsigned int GetHeight();
 	unsigned int GetWidth();
 
+};
+struct Ray {
+	BMath::Vec4 direction;
+	BMath::Vec4 origin;
+};
+struct Line {
+	BMath::Vec4 destination;
+	BMath::Vec4 origin;
+};
+struct LightDirectional {
+	BMath::Vec4 direction;
+	BColor color = { 1.0f,1.0f,0.0f };
+	float intensity;
+};
+struct LightPostitional {
+	BMath::Vec4 position;
+	BColor color;
+	float intensity;
+};
+struct Plane {
+	//The plane equation is - normal, and known point on the plane 
+	BMath::Vec4 normal;
+	BMath::Vec4 pointOnPlane;
+	Plane(BMath::Vec4 normal, BMath::Vec4 pointOnPlane);
+	float IntersectWithRay(Ray ray);
+	float IntersectWithLine(Line line);
 };
 enum BLENDING_MODE { ALPHA, NORMAL };

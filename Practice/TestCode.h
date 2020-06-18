@@ -12,14 +12,14 @@ class Test : public BEngine {
 		}
 	}
 	void TestDrawCircle() {
-		BColor c = { 255,255,255 };
+		BColor c = { 1.0f,1.0f,1.0f };
 		FillCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 50, c);
 	}
 	void TestDrawRectangle() {
 		
 		int x = GetScreenWidth()/2;
 		int y = GetScreenHeight()/2;
-		BColor c = { 255,255,255 };
+		BColor c = { 1.0f,1.0f,1.0f };
 		DrawRectangle(x,y,x+100,y+100,c);
 	}
 	void TestDrawTriangle() {
@@ -34,9 +34,9 @@ class Test : public BEngine {
 	}
 	
 	void TestCodeForBezierCurveRecursive() {
-		BColor bBColor0,0 };
-		BColor white = { 255,255,255 };
-		ClearScreen(b);
+		BColor bBColor = { 0.0f,0.0f,0.0f };
+		BColor white = { 1.0f,1.0f,1.0f };
+		ClearScreen(bBColor);
 		int screenHeight = GetScreenHeight();
 		int screenWidth = GetScreenWidth();
 		std::vector<BMath::Vec2> temp = {
@@ -55,7 +55,7 @@ class Test : public BEngine {
 	}
 	void TestCodeForMousePos() {
 		BColor black = { 0,0,0 };
-		BColor white = { 255,255,255 };
+		BColor white = { 1.0f,1.0f,1.0f };
 		auto mouseCoords = GetMouseInfo();
 		ClearScreen(black);
 		DrawLine(0, 0, mouseCoords.x, mouseCoords.y - 31, white);
@@ -74,7 +74,7 @@ class Test : public BEngine {
 		}
 	}
 	void TestCodeForDrawingSprite() {
-		BColor black = { 255,255,255 };
+		BColor black = { 1.0f,1.0f,1.0f };
 		ClearScreen(black);
 		int velocity = 3;
 		DrawSprite(*spaceShip, spaceShipPos);

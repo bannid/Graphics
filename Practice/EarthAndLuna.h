@@ -65,9 +65,9 @@ class EarthAndLuna : public BEngine3D {
 		DrawVector(300, 0, 25, this->cam.forward);
 		DrawVector(450, 0, 25, this->cam.position);
 		
-		DrawString(std::to_string(this->cam.pitch), 600, 0,25, { 255,255,255 });
-		DrawString(std::to_string(this->cam.yaw), 750, 0, 25, { 255,255,255 });
-		DrawString(std::to_string(this->cam.roll), 900, 0, 25, { 255,255,255 });
+		DrawString(std::to_string(this->cam.pitch), 600, 0,25, { 1.0f,1.0f,1.0f });
+		DrawString(std::to_string(this->cam.yaw), 750, 0, 25, { 1.0f,1.0f,1.0f });
+		DrawString(std::to_string(this->cam.roll), 900, 0, 25, { 1.0f,1.0f,1.0f });
 		frame++;
 		return true;
 	}

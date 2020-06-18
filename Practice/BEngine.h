@@ -76,7 +76,7 @@ public:
 	void DrawString(const char * constString, int posX, int posY, int size, BColor color = { 0,0,0 });
 	void DrawString(std::string string, int x, int y, int size, int colorPacked = BLACK);
 	void DrawString(const char * constString, int posX, int posY, int size, int colorPacked = BLACK);
-	void DrawVector(int posX, int posY, int size,BMath::Vec4 & vector, BColor = { 255,255,255 });
+	void DrawVector(int posX, int posY, int size,BMath::Vec4 & vector, BColor = { 1.0f,1.0f,1.0f });
 	//Circle
 	void DrawCircle(int x, int y, int radius, BColor & color);
 	void DrawCircle(int x, int y, int radius, int colorPacked);

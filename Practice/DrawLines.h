@@ -4,7 +4,7 @@
 class DrawLines : public BEngine {
 	std::vector<BMath::Vec2> points;
 	BColor black = { 0,0,0 };
-	BColor white = { 255,255,255,125 };
+	BColor white = { 1.0f,1.0f,1.0f,0.5f };
 	virtual bool OnUpdate(float elapsedTime) override{
 		ClearScreen(black);
 		auto mouseInfo = GetMouseInfo();

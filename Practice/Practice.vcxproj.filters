@@ -124,5 +124,8 @@
     <ClCompile Include="Shaders.cpp">
       <Filter>BEngine3D</Filter>
     </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>BEngine</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
