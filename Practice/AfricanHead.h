@@ -61,6 +61,7 @@ public:
 
 class AfricanHead : public BEngine3D {
 	Mesh africanHead;
+	Texture africanHeadTexture;
 	Camera cam;
 	BMath::Vec4 offset = { 0.0f,2.0f,5.0f,0.0f };
 	bool rotate = true;
@@ -70,11 +71,11 @@ class AfricanHead : public BEngine3D {
 		BMath::LookAt(cam.position, cam.position + cam.forward, { 0,1,0,0 }, shader->uniformViewMatrix);
 		shader->uniformProjMatrix = BMath::PerspectiveProjection(50.0f, 100.0f, 1.0f, 1.0f);
 		shader->uniformNormalMatrix = shader->uniformModelMatrix.Inverted().Transposed();
-		shader->texture = &africanHead.tex;
+		shader->texture = &africanHeadTexture;
 	}
 	virtual bool OnCreate() override {
 		africanHead = Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\african_head.obj", 1);
-		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\african_head_diffuse.tga", &africanHead.tex);
+		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\african_head_diffuse.tga", &africanHeadTexture);
 		africanHead.position.z = 10.0f;
 		africanHead.position.w = 1.0f;
 		cam.position = { 0,0,0,1 };
