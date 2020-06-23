@@ -236,6 +236,7 @@ bool BEngine::Start() {
 	this->uct1 = std::chrono::steady_clock::now();
 	this->uct2 = std::chrono::steady_clock::now();
 	this->ConfineCursor();
+	this->HideCursor();
 	while (running)
 	{
 		TIMED_DATA;
@@ -806,6 +807,9 @@ void BEngine::ConfineCursor() {
 }
 void BEngine::FreeCursor() {
 	ClipCursor(nullptr);
+}
+void BEngine::HideCursor() {
+	while (ShowCursor(FALSE) >= 0);
 }
 //######################### end input #####################
 //######################### Debug ######################

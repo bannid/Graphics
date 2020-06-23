@@ -101,8 +101,8 @@ class AfricanHead : public BEngine3D {
 		if (GetKey(VK_LEFT).keyDown) {
 			cam.position = cam.position - (cam.right * cam.speed * elapsedTime);
 		}
-		cam.Yaw(mouseDeltaX * 0.1f);
-		cam.Pitch(mouseDeltaY * 0.1f);
+		cam.Yaw(mouseDeltaX);
+		cam.Pitch(mouseDeltaY);
 		BMath::LookAt(cam.position, cam.position + cam.forward, { 0,1,0,0 }, static_cast<Shader*>(this->shader)->uniformViewMatrix);
 		return true;
 	}

@@ -116,6 +116,7 @@ public:
 	void ProcessKeys();
 	void ConfineCursor();
 	void FreeCursor();
+	void HideCursor();
 	//Debug
 	void WriteTimingOutput();
 	
