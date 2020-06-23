@@ -36,8 +36,8 @@ class EarthAndLuna : public BEngine3D {
 
 		ClearScreenWithTexture(&galaxy);
 		ClearZBuffer();
-		DrawMesh(luna);
-		DrawMesh(earth);
+		Draw(luna);
+		Draw(earth);
 		float rotationInDegrees = 1;
 		luna.RotateY(rotationInDegrees);
 		earth.RotateY(rotationInDegrees);

@@ -734,7 +734,7 @@ void BEngine::DrawSprite(Sprite & sprite, BMath::Vec2 pos) {
 void BEngine::ProcessKeys() {
 	//Note: This function sometimes can take upto 5ms even in release mode,
 	//and may lead to drop in frame rate.  Maybe we should
-	//only cater for less keys or run this function in a 
+	// cater for less keys or run this function in a 
 	//completely different thread.
 	for (int key = 0; key < 0xff; key++) {
 		if (!this->keys[key].keyDown) {

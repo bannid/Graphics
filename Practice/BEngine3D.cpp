@@ -1,8 +1,23 @@
 #include "BEngine3D.h"
 #include "Utils.h"
-void BEngine3D::DrawMesh(Mesh & mesh) {
+void BEngine3D::Draw(Mesh & mesh) {
 	auto vertices = mesh.vertexes;
-	this->shader->VertexShader(vertices);
+	int screenHeightHalf = GetScreenHeight() / 2;
+	int screenWidthHalf = GetScreenWidth() / 2;
+	for (int i = 0; i < vertices.size(); i++) {
+		this->shader->VertexShader(&vertices[i]);
+		if (vertices[i].vector.w != 0.0f) {
+			vertices[i].vector.x /= vertices[i].vector.w;
+			vertices[i].vector.y /= vertices[i].vector.w;
+			vertices[i].vector.z /= vertices[i].vector.w;
+			vertices[i].vector.w /= vertices[i].vector.w;
+		}
+		//Translation to viewport
+		vertices[i].vector.x *= screenWidthHalf;
+		vertices[i].vector.y *= screenHeightHalf;
+		vertices[i].vector.x += screenWidthHalf;
+		vertices[i].vector.y += screenHeightHalf;
+	}
 	for (int i = 0; i < mesh.indices.size(); i += 3) {
 		FillTriangleBC(vertices[i], vertices[i + 1], vertices[i + 2], mesh);
 	}

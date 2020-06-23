@@ -3,7 +3,7 @@
 #include "Common.h"
 class IShader {
 public:
-	virtual void VertexShader(std::vector<Vertex> & vertices) = 0;
+	virtual void VertexShader(Vertex * vertex) = 0;
 	virtual void FragmentShader(float alpha,
 		float beta,
 		float gamma,
