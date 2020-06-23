@@ -90,18 +90,19 @@ class AfricanHead : public BEngine3D {
 		ClearZBuffer();
 		Draw(this->africanHead);
 		if (GetKey(VK_UP).keyDown) {
-			cam.position.z+=cam.speed * elapsedTime;
+			cam.position = cam.position + (cam.forward * cam.speed * elapsedTime);
 		}
 		if (GetKey(VK_DOWN).keyDown) {
-			cam.position.z -= cam.speed * elapsedTime;
+			cam.position = cam.position - (cam.forward * cam.speed * elapsedTime);
 		}
 		if (GetKey(VK_RIGHT).keyDown) {
-			cam.position.x += cam.speed * elapsedTime;
+			cam.position = cam.position + (cam.right * cam.speed * elapsedTime);
 		}
 		if (GetKey(VK_LEFT).keyDown) {
-			cam.position.x -= cam.speed * elapsedTime;
+			cam.position = cam.position - (cam.right * cam.speed * elapsedTime);
 		}
-		cam.Yaw(mouseDeltaX * 0.1);
+		cam.Yaw(mouseDeltaX * 0.1f);
+		cam.Pitch(mouseDeltaY * 0.1f);
 		BMath::LookAt(cam.position, cam.position + cam.forward, { 0,1,0,0 }, static_cast<Shader*>(this->shader)->uniformViewMatrix);
 		return true;
 	}

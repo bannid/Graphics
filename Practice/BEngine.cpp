@@ -10,6 +10,29 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 
 	switch (message)
 	{
+	case WM_INPUT: {
+		UINT dwSize;
+
+		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize,
+			sizeof(RAWINPUTHEADER));
+		LPBYTE lpb = new BYTE[dwSize];
+		if (lpb == NULL)
+		{
+			return 0;
+		}
+
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize,
+			sizeof(RAWINPUTHEADER)) != dwSize)
+			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+
+		RAWINPUT* raw = (RAWINPUT*)lpb;
+		if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			static_enginePtr->mouseDeltaX = raw->data.mouse.lLastX;
+			static_enginePtr->mouseDeltaY = raw->data.mouse.lLastY;
+		}
+		break;
+	}
 	case WM_SIZE:
 	{
 		RECT clientRect;
@@ -19,6 +42,12 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 		static_enginePtr->Win32ResizeDIBSection(width, height);
 	} break;
 	case WM_KEYDOWN: {
+		switch (wParam) {
+		case VK_ESCAPE: {
+			static_enginePtr->running = false;
+			break;
+		}
+		}
 	}break;
 	case WM_CLOSE:
 	{
@@ -28,7 +57,7 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 
 	case WM_ACTIVATEAPP:
 	{
-		OutputDebugStringA("WM_ACTIVATEAPP\n");
+
 	} break;
 
 	case WM_DESTROY:
@@ -202,10 +231,11 @@ void BEngine::Win32ResizeDIBSection(int Width, int Height)
 bool BEngine::OnDestroy() {
 	return true;
 }
-bool BEngine::Start() {		
+bool BEngine::Start() {
 	if (!InitOpenGl()) { return false; }
 	this->uct1 = std::chrono::steady_clock::now();
 	this->uct2 = std::chrono::steady_clock::now();
+	this->ConfineCursor();
 	while (running)
 	{
 		TIMED_DATA;
@@ -232,10 +262,12 @@ bool BEngine::Start() {
 		std::string s = std::to_string(this->mouseInfo.x);
 		s.append(",");
 		s.append(std::to_string(this->mouseInfo.y));
-		SetWindowTextA(window,s.c_str());
+		SetWindowTextA(window, s.c_str());
 		HDC DC = GetDC(window);
 		Win32UpdateWindowOpenGL(DC, &clientRect, 0, 0, windowWidth, windowHeight);
 		ReleaseDC(window, DC);
+		mouseDeltaX = 0;
+		mouseDeltaY = 0;
 		if (!running) { running = !OnDestroy(); }
 	}
 	return true;
@@ -259,6 +291,14 @@ bool BEngine::Construct(int windowWidth, int windowHeight, int pixelDimensions) 
 	windowClass.lpfnWndProc = static_Win32MainWindowCallback;
 	windowClass.hInstance = GetModuleHandle(nullptr);
 	windowClass.lpszClassName = L"ConsoleClass";
+	RAWINPUTDEVICE rid[1];
+	rid[0].usUsagePage = 0x01;
+	rid[0].usUsage = 0x02;
+	rid[0].dwFlags = RIDEV_NOLEGACY;
+	rid[0].hwndTarget = 0;
+	if (RegisterRawInputDevices(rid, 1, sizeof(rid)) == FALSE) {
+		return false;
+	}
 	if (RegisterClass(&windowClass))
 	{
 		window =
@@ -326,7 +366,7 @@ void BEngine::SetPixelInternal(int x, int y, BColor & color) {
 	switch (blendMode) {
 	case NORMAL:
 	{
-		
+
 		unsigned int * pixel = (unsigned int *)this->screenInfo.bitmapMemory;
 		pixel[x + this->screenInfo.bitmapWidth * y] = (((colorRed << 8) | colorGreen) << 8) | colorBlue;
 		break;
@@ -550,7 +590,7 @@ void BEngine::DrawLine(int x1, int y1, int x2, int y2, BColor & color) {
 		std::swap(x2, x1);
 		std::swap(y2, y1);
 	}
-	
+
 	float dy = std::abs(y2 - y1);
 	float dx = std::abs(x2 - x1);
 	float slope = dy / dx;
@@ -679,7 +719,7 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, BColo
 			}
 		}
 	}
-	
+
 }
 void BEngine::DrawString(const char * constString, int posX, int posY, int size, BColor color) {
 	std::string string;
@@ -692,7 +732,7 @@ void BEngine::DrawString(std::string string, int posX, int posY, int size, int c
 void BEngine::DrawString(const char * constString, int posX, int posY, int size, int colorPacked) {
 	DrawString(constString, posX, posY, size, IntToColor(colorPacked));
 }
-void BEngine::DrawVector(int posX, int posY,int size, BMath::Vec4 & vector, BColor color) {
+void BEngine::DrawVector(int posX, int posY, int size, BMath::Vec4 & vector, BColor color) {
 	DrawString(std::to_string(vector.x), posX, posY, size, color);
 	DrawString(std::to_string(vector.y), posX, posY + size, size, color);
 	DrawString(std::to_string(vector.z), posX, posY + size * 2, size, color);
@@ -757,8 +797,15 @@ void BEngine::ProcessKeys() {
 	this->mouseInfoOld.y = mouseInfo.y;
 	GetCursorPos(&this->mouseInfo);
 	ScreenToClient(this->window, &this->mouseInfo);
-	mouseDeltaX = mouseInfo.x - mouseInfoOld.x;
-	mouseDeltaY = mouseInfo.y - mouseInfoOld.y;
+}
+void BEngine::ConfineCursor() {
+	RECT rect;
+	GetClientRect(window, &rect);
+	MapWindowPoints(window, nullptr, reinterpret_cast<POINT*>(&rect), 2);
+	ClipCursor(&rect);
+}
+void BEngine::FreeCursor() {
+	ClipCursor(nullptr);
 }
 //######################### end input #####################
 //######################### Debug ######################
@@ -771,7 +818,7 @@ BColor BEngine::IntToColor(int color) {
 	BColor toReturn;
 	toReturn.red = (float)(color >> 16 & 0xFF) / 255.0f;
 	toReturn.green = (float)(color >> 8 & 0xFF) / 255.0f;
-	toReturn.blue = (float)(color & 0xFF)/255.0f;
+	toReturn.blue = (float)(color & 0xFF) / 255.0f;
 	return toReturn;
 }
 //###################### End helper functions

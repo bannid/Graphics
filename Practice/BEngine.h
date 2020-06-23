@@ -114,6 +114,8 @@ public:
 	BColor IntToColor(int color);
 	//Input
 	void ProcessKeys();
+	void ConfineCursor();
+	void FreeCursor();
 	//Debug
 	void WriteTimingOutput();
 	

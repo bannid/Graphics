@@ -6,6 +6,7 @@ void BEngine3D::Draw(Mesh & mesh) {
 	int screenWidthHalf = GetScreenWidth() / 2;
 	for (int i = 0; i < vertices.size(); i++) {
 		this->shader->VertexShader(&vertices[i]);
+		if (vertices[i].vector.z < 1.0f)continue;
 		if (vertices[i].vector.w != 0.0f) {
 			vertices[i].vector.x /= vertices[i].vector.w;
 			vertices[i].vector.y /= vertices[i].vector.w;
