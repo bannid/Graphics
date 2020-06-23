@@ -7,6 +7,8 @@ namespace BMath {
 	Mat4 RotationZ(float angleInDegrees);
 	Mat4 RotationY(float angleInDegrees);
 	Mat4 RotationX(float angleInDegrees);
+	Mat4 PerspectiveProjection(float fov, float zFar, float zNear, float aspectRatio);
+	void LookAt(Vec4 pos, Vec4 target, Vec4 up, Mat4 & output);
 	struct Vec2 {
 		float x, y;
 		Vec2(float x, float y);

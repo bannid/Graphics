@@ -61,9 +61,6 @@
     <ClInclude Include="TestCode3D.h">
       <Filter>Testing</Filter>
     </ClInclude>
-    <ClInclude Include="Maths.h">
-      <Filter>BEngine</Filter>
-    </ClInclude>
     <ClInclude Include="BEngine.h">
       <Filter>BEngine</Filter>
     </ClInclude>
@@ -97,15 +94,18 @@
     <ClInclude Include="stb_image.h">
       <Filter>3rdParty</Filter>
     </ClInclude>
+    <ClInclude Include="Maths.h">
+      <Filter>BEngine3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>BEngine3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debug.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32Main.cpp" />
-    <ClCompile Include="Maths.cpp">
-      <Filter>BEngine</Filter>
-    </ClCompile>
     <ClCompile Include="BEngine.cpp">
       <Filter>BEngine</Filter>
     </ClCompile>
@@ -126,6 +126,12 @@
     </ClCompile>
     <ClCompile Include="stb_image.cpp">
       <Filter>3rdParty</Filter>
+    </ClCompile>
+    <ClCompile Include="Maths.cpp">
+      <Filter>BEngine3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>BEngine3D</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -202,6 +202,45 @@ namespace BMath {
 		mat.m[2][2] = cos(angleInRad);
 		return mat;
 	}
+	Mat4 PerspectiveProjection(float fov, float zFar, float zNear, float aspectRatio) {
+		BMath::Mat4 projectionMatrix;
+		float fovL = DEGREE_TO_RAD(fov);
+		float fovInverse = 1 / tanf(fovL / 2) * zNear;
+		projectionMatrix.m[0][0] = aspectRatio * fovInverse;
+		projectionMatrix.m[1][1] = fovInverse;
+		projectionMatrix.m[2][2] = zFar / (zFar - zNear);
+		projectionMatrix.m[3][2] = -zNear * zFar / (zFar - zNear);
+		projectionMatrix.m[2][3] = 1;
+		projectionMatrix.m[3][3] = 0;
+		return projectionMatrix;
+	}
+	void LookAt(Vec4 pos, Vec4 target, Vec4 up, Mat4 & output) {
+		Vec4 forward = target - pos;
+		forward.Normalize();
+		Vec4 right = up.Cross(forward);
+		right.Normalize();
+		up = forward.Cross(right);
+		up.Normalize();
+		output.m[0][0] = right.x;
+		output.m[0][1] = right.y;
+		output.m[0][2] = right.z;
+		output.m[0][3] = right.w;
+		
+		output.m[1][0] = up.x;
+		output.m[1][1] = up.y;
+		output.m[1][2] = up.z;
+		output.m[1][3] = up.w;
+		
+		output.m[2][0] = forward.x;
+		output.m[2][1] = forward.y;
+		output.m[2][2] = forward.z;
+		output.m[2][3] = forward.w;
+		
+		output.m[3][0] = pos.x;
+		output.m[3][1] = pos.y;
+		output.m[3][2] = pos.z;
+		output.m[3][3] = 1;//todo: make sure
+	}
 	//############################## VECTORS ####################
 	Vec4 Vec4::operator*(float scalar) {
 		return Vec4(this->x * scalar, this->y * scalar, this->z * scalar, this->w * scalar);
