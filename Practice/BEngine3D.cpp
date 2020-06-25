@@ -1,29 +1,175 @@
 #include "BEngine3D.h"
 #include "Utils.h"
 void BEngine3D::Draw(Mesh & mesh) {
-	auto vertices = mesh.vertexes;
-	int screenHeightHalf = GetScreenHeight() / 2;
-	int screenWidthHalf = GetScreenWidth() / 2;
+	std::vector<Vertex> vertices = mesh.vertexes;
+	std::vector<int> indices = mesh.indices;
 	for (int i = 0; i < vertices.size(); i++) {
 		this->shader->VertexShader(&vertices[i]);
-		if (vertices[i].vector.z < 1.0f)continue;
-		if (vertices[i].vector.w != 0.0f) {
-			vertices[i].vector.x /= vertices[i].vector.w;
-			vertices[i].vector.y /= vertices[i].vector.w;
-			vertices[i].vector.z /= vertices[i].vector.w;
-			vertices[i].vector.w /= vertices[i].vector.w;
-		}
-		//Translation to viewport
-		vertices[i].vector.x *= screenWidthHalf;
-		vertices[i].vector.y *= screenHeightHalf;
-		vertices[i].vector.x += screenWidthHalf;
-		vertices[i].vector.y += screenHeightHalf;
 	}
-	for (int i = 0; i < mesh.indices.size(); i += 3) {
-		FillTriangleBC(vertices[i], vertices[i + 1], vertices[i + 2], mesh);
+	std::vector<Triangle> triangles;
+	std::vector<Triangle> clippedTriangles;
+	for (int i = 0; i < indices.size(); i += 3) {
+		Triangle t(vertices[i], vertices[i + 1], vertices[i + 2]);
+		triangles.push_back(t);
+	}
+	ClipAndDehomogniseVertices(triangles, clippedTriangles);
+	for (int i = 0; i < clippedTriangles.size(); i++) {
+		FillTriangle(clippedTriangles[i]);
 	}
 }
+void Dehomoginise(Vertex & vertex) {
+		vertex.vector.x /= vertex.vector.z;
+		vertex.vector.y /= vertex.vector.z;
+		vertex.vector.z /= vertex.vector.z;
+		//vertex.vector.w /= vertex.vector.z;
+}
+void ScaleToViewport(Vertex & vertex, int x, int y) {
+	vertex.vector.x *= x;
+	vertex.vector.y *= y;
+	vertex.vector.x += x;
+	vertex.vector.y += y;
+}
+void ClipTwoVertcesOut(Vertex & outA, Vertex & outB, Vertex & inside,
+	Vertex & newA, Vertex & newB, Plane & plane) {
+	Line fromInsideToA;
+	fromInsideToA.origin = inside.vector;
+	fromInsideToA.destination = (outA.vector - inside.vector).Normalized();
+	float tForNewPoint1 = plane.IntersectWithLine(fromInsideToA);
+	BMath::Vec4 newPointA = inside.vector + ((fromInsideToA.destination) * std::abs(tForNewPoint1));
 
+	Line fromInsideToB;
+	fromInsideToB.origin = inside.vector;
+	fromInsideToB.destination = (outB.vector - inside.vector).Normalized();
+	float tForNewPoint2 = plane.IntersectWithLine(fromInsideToB);
+	BMath::Vec4 newPointb = inside.vector + ((fromInsideToB.destination) * std::abs(tForNewPoint2));
+	newA = outA;
+	newB = outB;
+	newA.vector = newPointA;
+	newB.vector = newPointb;
+}
+void ClipOneVerticeOut(Vertex & outside, Vertex & insideA, Vertex & insideB, Vertex & newA, Vertex & newB,
+	Plane & plane) {
+	Line fromPointA;
+	fromPointA.origin = insideA.vector;
+	fromPointA.destination = (outside.vector - insideA.vector).Normalized();
+	float tForNewPoint1 = plane.IntersectWithLine(fromPointA);
+	BMath::Vec4 newPointA = insideA.vector + ((fromPointA.destination) * std::abs(tForNewPoint1));
+
+	Line fromPointB;
+	fromPointB.origin = insideB.vector;
+	fromPointB.destination = (outside.vector - insideB.vector).Normalized();
+	float tForNewPoint2 = plane.IntersectWithLine(fromPointB);
+	
+	BMath::Vec4 newPointB = insideB.vector + ((fromPointB.destination) * std::abs(tForNewPoint2));
+	newA = outside;
+	newB = outside;
+	newA.vector = newPointA;
+	newB.vector = newPointB;
+}
+void ClipVertices(Triangle & t, std::vector<Triangle> & output) {
+	Plane plane({ 0,0,1,0 }, { 0,0,1,1 });
+	int pointsOutside = 0;
+	bool vertexOneOutside = false;
+	bool vertexTwoOutside = false;
+	bool vertexThreeOutside = false;
+	BMath::Vec4 dirOne = t.one.vector - plane.pointOnPlane;
+	BMath::Vec4 dirTwo = t.two.vector - plane.pointOnPlane;
+	BMath::Vec4 dirThree = t.three.vector - plane.pointOnPlane;
+	if (dirOne * plane.normal < 0) {
+		pointsOutside++;
+		vertexOneOutside = true;
+	}
+	if (dirTwo * plane.normal < 0) {
+		pointsOutside++;
+		vertexTwoOutside = true;
+	}
+	if (dirThree * plane.normal < 0) {
+		pointsOutside++;
+		vertexThreeOutside = true;
+	}
+	if (pointsOutside == 3) {
+		return;
+	}
+	if (pointsOutside == 2) {
+		if (vertexOneOutside && vertexTwoOutside) {
+			Vertex newA;
+			Vertex newB;
+			ClipTwoVertcesOut(t.one, t.two, t.three, newA, newB, plane);
+			Triangle newT(newA, newB, t.three);
+			newT.color = { 1.0f,1.0f,0.0f };
+			output.push_back(newT);
+		}
+		if (vertexOneOutside && vertexThreeOutside) {
+			Vertex newA;
+			Vertex newB;
+			ClipTwoVertcesOut(t.one, t.three, t.two, newA, newB, plane);
+			Triangle newT(newA, t.two, newB);
+			newT.color = { 1.0f,1.0f,0.0f };
+			output.push_back(newT);
+		}
+		if (vertexTwoOutside && vertexThreeOutside) {
+			Vertex newA;
+			Vertex newB;
+			ClipTwoVertcesOut(t.two, t.three, t.one, newA, newB, plane);
+			Triangle newT(t.one, newA, newB);
+			newT.color = { 1.0f,1.0f,0.0f };
+			output.push_back(newT);
+		}
+	}
+	if (pointsOutside == 1) {
+		if (vertexOneOutside) {
+			Vertex newA;
+			Vertex newB;
+			ClipOneVerticeOut(t.one, t.two, t.three, newA, newB, plane);
+			Triangle tNew1(t.two, newA, t.three);
+			Triangle tNew2(t.three, newA, newB);
+			tNew1.color = { 1.0f,0.0f,0.0f };
+			tNew2.color = { 0.0f,0.0f,1.0f };
+			output.push_back(tNew1);
+			output.push_back(tNew2);
+		}
+		if (vertexTwoOutside) {
+			Vertex newA;
+			Vertex newB;
+			ClipOneVerticeOut(t.two, t.one, t.three, newA, newB, plane);
+			Triangle tNew1(t.one, newA, t.three);
+			Triangle tNew2(t.three, newA, newB);
+			tNew1.color = { 1.0f,0.0f,0.0f };
+			tNew2.color = { 0.0f,0.0f,1.0f };
+			output.push_back(tNew1);
+			output.push_back(tNew2);
+		}
+		if (vertexThreeOutside) {
+			Vertex newA;
+			Vertex newB;
+			ClipOneVerticeOut(t.three, t.one, t.two, newA, newB, plane);
+			Triangle tNew1(t.one, t.two, newB);
+			Triangle tNew2(t.one,newB,newA);
+			tNew1.color = { 1.0f,0.0f,0.0f };
+			tNew2.color = { 0.0f,0.0f,1.0f };
+			output.push_back(tNew1);
+			output.push_back(tNew2);
+		}
+	}
+	if (pointsOutside == 0) {
+		output.push_back(t);
+	}
+}
+void BEngine3D::ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, std::vector<Triangle> & output) {
+	int screenHeightHalf = GetScreenHeight() / 2;
+	int screenWidthHalf = GetScreenWidth() / 2;
+	for (int i = 0; i < triangles.size(); i++) {
+		ClipVertices(triangles[i], output);
+	}
+	for (int i = 0; i < output.size(); i++) {
+		Dehomoginise(output[i].one);
+		Dehomoginise(output[i].two);
+		Dehomoginise(output[i].three);
+		ScaleToViewport(output[i].one  ,screenWidthHalf,screenHeightHalf);
+		ScaleToViewport(output[i].two  ,screenWidthHalf,screenHeightHalf);
+		ScaleToViewport(output[i].three,screenWidthHalf,screenHeightHalf);
+	}
+}
 void BEngine3D::FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh) {
 	float minX = BUtils::Min(one.vector.x, BUtils::Min(two.vector.x, three.vector.x));
 	float minY = BUtils::Min(one.vector.y, BUtils::Min(two.vector.y, three.vector.y));

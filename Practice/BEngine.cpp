@@ -15,22 +15,18 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 
 		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize,
 			sizeof(RAWINPUTHEADER));
-		LPBYTE lpb = new BYTE[dwSize];
-		if (lpb == NULL)
-		{
-			return 0;
+		static_enginePtr->rawMouseInput.resize(dwSize);
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, (LPBYTE)&static_enginePtr->rawMouseInput[0], &dwSize,
+			sizeof(RAWINPUTHEADER)) != dwSize) {
+			break;
 		}
-
-		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize,
-			sizeof(RAWINPUTHEADER)) != dwSize)
-			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
-
-		RAWINPUT* raw = (RAWINPUT*)lpb;
+		RAWINPUT* raw = (RAWINPUT*)&static_enginePtr->rawMouseInput[0];
 		if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
 			static_enginePtr->mouseDeltaX = raw->data.mouse.lLastX;
 			static_enginePtr->mouseDeltaY = raw->data.mouse.lLastY;
 		}
+
 		break;
 	}
 	case WM_SIZE:
@@ -57,7 +53,8 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 
 	case WM_ACTIVATEAPP:
 	{
-
+		/*static_enginePtr->ConfineCursor();
+		static_enginePtr->HideCursor();*/
 	} break;
 
 	case WM_DESTROY:
@@ -235,8 +232,8 @@ bool BEngine::Start() {
 	if (!InitOpenGl()) { return false; }
 	this->uct1 = std::chrono::steady_clock::now();
 	this->uct2 = std::chrono::steady_clock::now();
-	this->ConfineCursor();
-	this->HideCursor();
+	/*this->ConfineCursor();
+	this->HideCursor();*/
 	while (running)
 	{
 		TIMED_DATA;
@@ -507,9 +504,9 @@ void BEngine::FillRectangle(int xTop, int yTop, int xBottom, int yBottom, int co
 //############################## End rectangle #################################
 //################################ Triangle ##############################
 void BEngine::DrawTriangle(Triangle & t) {
-	auto & v1 = t.vertices[0].vector;
-	auto & v2 = t.vertices[1].vector;
-	auto & v3 = t.vertices[2].vector;
+	auto & v1 = t.one.vector;
+	auto & v2 = t.two.vector;
+	auto & v3 = t.three.vector;
 
 	DrawLine(v1.x, v1.y, v2.x, v2.y, WHITE);
 	DrawLine(v2.x, v2.y, v3.x, v3.y, WHITE);
@@ -526,9 +523,9 @@ void BEngine::DrawTriangle(Vertex & one, Vertex & two, Vertex & three) {
 }
 //Fill triangle - Scanline method
 void BEngine::FillTriangle(Triangle & t) {
-	auto & v1 = t.vertices[0].vector;
-	auto & v2 = t.vertices[1].vector;
-	auto & v3 = t.vertices[2].vector;
+	auto & v1 = t.one.vector;
+	auto & v2 = t.two.vector;
+	auto & v3 = t.three.vector;
 	int x1 = v1.x, y1 = v1.y, x2 = v2.x, y2 = v2.y, x3 = v3.x, y3 = v3.y;
 	if (y1 > y2) {
 		std::swap(y1, y2);
@@ -552,7 +549,7 @@ void BEngine::FillTriangle(Triangle & t) {
 		float beta = (float)(y2 - y) / segmentHeight;
 		int xFirst = beta * x1 + (1.0f - beta) * x2 + percision;
 		int xSecond = alpha * x1 + (1.0f - alpha) * x3 + percision;
-		DrawLine(xFirst, y, xSecond, y, t.vertices[0].color);
+		DrawLine(xFirst, y, xSecond, y, t.color);
 	}
 	//Draw the lower part
 	segmentHeight = y3 - y2;
@@ -561,7 +558,7 @@ void BEngine::FillTriangle(Triangle & t) {
 		float beta = (float)(y3 - y) / segmentHeight;
 		int xSecond = alpha * x1 + (1 - alpha) * x3 + percision;
 		int xFirst = beta * x2 + (1 - beta) * x3 + percision;
-		DrawLine(xFirst, y, xSecond, y, t.vertices[0].color);
+		DrawLine(xFirst, y, xSecond, y, t.color);
 	}
 }
 //######################## End triangle##################################
@@ -794,8 +791,6 @@ void BEngine::ProcessKeys() {
 			}
 		}
 	}
-	this->mouseInfoOld.x = mouseInfo.x;
-	this->mouseInfoOld.y = mouseInfo.y;
 	GetCursorPos(&this->mouseInfo);
 	ScreenToClient(this->window, &this->mouseInfo);
 }

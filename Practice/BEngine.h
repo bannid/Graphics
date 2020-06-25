@@ -38,9 +38,9 @@ public:
 public:
 	volatile bool running;
 	POINT mouseInfo;
-	POINT mouseInfoOld;
 	float mouseDeltaX;
 	float mouseDeltaY;
+	std::vector<char> rawMouseInput;
 	//Debug
 	std::map<std::string, std::vector<int>> timingData;
 private:

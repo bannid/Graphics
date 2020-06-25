@@ -8,4 +8,5 @@ public:
 	IShader * shader;
 	void Draw(Mesh & mesh);
 	void FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh);
+	void ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, std::vector<Triangle> & output);
 };

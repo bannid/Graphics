@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <assert.h>
 #include "Maths.h"
 #define RGBC(r,g,b) (((r << 8) | g)<<8) | b
 #define M_PI 3.1415926535
@@ -49,13 +50,16 @@ enum COLORS {
 };
 struct Vertex {
 	BMath::Vec4 vector;
-	BColor color;
+	BColor color = { 1.0f,1.0f,1.0f };
 	BMath::Vec4 normal;
 	BMath::Vec4 uv;
 };
 struct Triangle {
-	Vertex vertices[3];
-	float Area();
+	Vertex one;
+	Vertex two;
+	Vertex three;
+	Triangle(Vertex one, Vertex two, Vertex three);
+	BColor color = { 1.0f,1.0f,1.0f };
 };
 struct Texture {
 	unsigned char * data;
