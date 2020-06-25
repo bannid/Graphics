@@ -18,10 +18,12 @@ void BEngine3D::Draw(Mesh & mesh) {
 	}
 }
 void Dehomoginise(Vertex & vertex) {
-		vertex.vector.x /= vertex.vector.z;
-		vertex.vector.y /= vertex.vector.z;
-		vertex.vector.z /= vertex.vector.z;
-		//vertex.vector.w /= vertex.vector.z;
+	if (vertex.vector.w != 0.0f) {
+		vertex.vector.x /= vertex.vector.w;
+		vertex.vector.y /= vertex.vector.w;
+		vertex.vector.z /= vertex.vector.w;
+		vertex.vector.w /= vertex.vector.w;
+	}
 }
 void ScaleToViewport(Vertex & vertex, int x, int y) {
 	vertex.vector.x *= x;
@@ -46,6 +48,12 @@ void ClipTwoVertcesOut(Vertex & outA, Vertex & outB, Vertex & inside,
 	newB = outB;
 	newA.vector = newPointA;
 	newB.vector = newPointb;
+	float alpha = (newA.vector - inside.vector).Magnitude() / (outA.vector - inside.vector).Magnitude();
+	float beta = 1.0f - alpha;
+	newA.vector.w = alpha * outA.vector.w + beta * inside.vector.w;
+	alpha = (newB.vector - inside.vector).Magnitude() / (outB.vector - inside.vector).Magnitude();
+	beta = 1.0f - alpha;
+	newB.vector.w = alpha * outB.vector.w + beta * inside.vector.w;
 }
 void ClipOneVerticeOut(Vertex & outside, Vertex & insideA, Vertex & insideB, Vertex & newA, Vertex & newB,
 	Plane & plane) {
@@ -59,12 +67,20 @@ void ClipOneVerticeOut(Vertex & outside, Vertex & insideA, Vertex & insideB, Ver
 	fromPointB.origin = insideB.vector;
 	fromPointB.destination = (outside.vector - insideB.vector).Normalized();
 	float tForNewPoint2 = plane.IntersectWithLine(fromPointB);
-	
+
 	BMath::Vec4 newPointB = insideB.vector + ((fromPointB.destination) * std::abs(tForNewPoint2));
 	newA = outside;
 	newB = outside;
 	newA.vector = newPointA;
 	newB.vector = newPointB;
+	
+	float alpha = (newA.vector - insideA.vector).Magnitude() / (outside.vector - insideA.vector).Magnitude();
+	float beta = 1.0f - alpha;
+	newA.vector.w = outside.vector.w * alpha + beta * insideA.vector.w;
+	
+	alpha = (newB.vector - insideB.vector).Magnitude() / (outside.vector - insideB.vector).Magnitude();
+	beta = 1.0f - alpha;
+	newB.vector.w = outside.vector.w * alpha + beta * insideB.vector.w;
 }
 void ClipVertices(Triangle & t, std::vector<Triangle> & output) {
 	Plane plane({ 0,0,1,0 }, { 0,0,1,1 });
@@ -144,7 +160,7 @@ void ClipVertices(Triangle & t, std::vector<Triangle> & output) {
 			Vertex newB;
 			ClipOneVerticeOut(t.three, t.one, t.two, newA, newB, plane);
 			Triangle tNew1(t.one, t.two, newB);
-			Triangle tNew2(t.one,newB,newA);
+			Triangle tNew2(t.one, newB, newA);
 			tNew1.color = { 1.0f,0.0f,0.0f };
 			tNew2.color = { 0.0f,0.0f,1.0f };
 			output.push_back(tNew1);
@@ -165,9 +181,9 @@ void BEngine3D::ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, st
 		Dehomoginise(output[i].one);
 		Dehomoginise(output[i].two);
 		Dehomoginise(output[i].three);
-		ScaleToViewport(output[i].one  ,screenWidthHalf,screenHeightHalf);
-		ScaleToViewport(output[i].two  ,screenWidthHalf,screenHeightHalf);
-		ScaleToViewport(output[i].three,screenWidthHalf,screenHeightHalf);
+		ScaleToViewport(output[i].one, screenWidthHalf, screenHeightHalf);
+		ScaleToViewport(output[i].two, screenWidthHalf, screenHeightHalf);
+		ScaleToViewport(output[i].three, screenWidthHalf, screenHeightHalf);
 	}
 }
 void BEngine3D::FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh) {
