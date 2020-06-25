@@ -23,6 +23,7 @@ class AfricanHead : public BEngine3D {
 		africanHead = Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\cube.obj", 10);
 		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\container.jpg", &africanHeadTexture);
 		africanHead.position.z = 50.0f;
+		africanHead.position.y = 10.0f;
 		africanHead.position.w = 1.0f;
 		cam.position = { 0,0,0,1 };
 		cam.forward = { 0,0,1,0 };

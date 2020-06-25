@@ -13,13 +13,11 @@ void BEngine3D::Draw(Mesh & mesh) {
 		triangles.push_back(t);
 	}
 	ClipAndDehomogniseVertices(triangles, clippedTriangles);
-	DrawString(std::to_string(clippedTriangles.size()), 0, 0, 25,{1.0f, 1.0f, 1.0f});
-	DrawString(std::to_string(triangles.size()), 0, 50, 25, { 1.0f, 1.0f, 1.0f });
 	for (int i = 0; i < clippedTriangles.size(); i++) {
+		FillTriangleBC(clippedTriangles[i].one, clippedTriangles[i].two, clippedTriangles[i].three, mesh);
 		if (GetKey(VK_SPACE).keyDown) {
 			FillTriangle(clippedTriangles[i]);
 		}
-		FillTriangleBC(clippedTriangles[i].one, clippedTriangles[i].two, clippedTriangles[i].three, mesh);
 	}
 }
 void Dehomoginise(Vertex & vertex) {
@@ -40,15 +38,15 @@ void ClipTwoVertcesOut(Vertex & outA, Vertex & outB, Vertex & inside,
 	Vertex & newA, Vertex & newB, Plane & plane) {
 	Line fromInsideToA;
 	fromInsideToA.origin = inside.vector;
-	fromInsideToA.destination = (outA.vector - inside.vector).Normalized();
+	fromInsideToA.direction = (outA.vector - inside.vector).Normalized();
 	float tForNewPoint1 = plane.IntersectWithLine(fromInsideToA);
-	BMath::Vec4 newPointA = inside.vector + ((fromInsideToA.destination) * std::abs(tForNewPoint1));
+	BMath::Vec4 newPointA = inside.vector + ((fromInsideToA.direction) * std::abs(tForNewPoint1));
 
 	Line fromInsideToB;
 	fromInsideToB.origin = inside.vector;
-	fromInsideToB.destination = (outB.vector - inside.vector).Normalized();
+	fromInsideToB.direction = (outB.vector - inside.vector).Normalized();
 	float tForNewPoint2 = plane.IntersectWithLine(fromInsideToB);
-	BMath::Vec4 newPointb = inside.vector + ((fromInsideToB.destination) * std::abs(tForNewPoint2));
+	BMath::Vec4 newPointb = inside.vector + ((fromInsideToB.direction) * std::abs(tForNewPoint2));
 	newA = outA;
 	newB = outB;
 	newA.vector = newPointA;
@@ -58,29 +56,29 @@ void ClipTwoVertcesOut(Vertex & outA, Vertex & outB, Vertex & inside,
 	//Interpolate w
 	newA.vector.w = alpha * outA.vector.w + beta * inside.vector.w;
 	//Interpolate uv coords
-	newA.uv.x = alpha * outA.uv.x + beta * inside.uv.x;
-	newA.uv.y = alpha * outA.uv.y + beta * inside.uv.y;
+	newA.uv.x = inside.uv.x + alpha * (outA.uv.x - inside.uv.x);
+	newA.uv.y = inside.uv.y + alpha * (outA.uv.y - inside.uv.y);
 
 	alpha = (newB.vector - inside.vector).Magnitude() / (outB.vector - inside.vector).Magnitude();
 	beta = 1.0f - alpha;
 	newB.vector.w = alpha * outB.vector.w + beta * inside.vector.w;
-	newB.uv.x = alpha * outB.uv.x + beta * inside.uv.x;
-	newB.uv.y = alpha * outB.uv.y + beta * inside.uv.y;
+	newB.uv.x = inside.uv.x + alpha * (outB.uv.x - inside.uv.x);
+	newB.uv.y = inside.uv.y + alpha * (outB.uv.y - inside.uv.y);
 }
 void ClipOneVerticeOut(Vertex & outside, Vertex & insideA, Vertex & insideB, Vertex & newA, Vertex & newB,
 	Plane & plane) {
 	Line fromPointA;
 	fromPointA.origin = insideA.vector;
-	fromPointA.destination = (outside.vector - insideA.vector).Normalized();
+	fromPointA.direction = (outside.vector - insideA.vector).Normalized();
 	float tForNewPoint1 = plane.IntersectWithLine(fromPointA);
-	BMath::Vec4 newPointA = insideA.vector + ((fromPointA.destination) * std::abs(tForNewPoint1));
+	BMath::Vec4 newPointA = insideA.vector + ((fromPointA.direction) * std::abs(tForNewPoint1));
 
 	Line fromPointB;
 	fromPointB.origin = insideB.vector;
-	fromPointB.destination = (outside.vector - insideB.vector).Normalized();
+	fromPointB.direction = (outside.vector - insideB.vector).Normalized();
 	float tForNewPoint2 = plane.IntersectWithLine(fromPointB);
 
-	BMath::Vec4 newPointB = insideB.vector + ((fromPointB.destination) * std::abs(tForNewPoint2));
+	BMath::Vec4 newPointB = insideB.vector + ((fromPointB.direction) * std::abs(tForNewPoint2));
 	newA = outside;
 	newB = outside;
 	newA.vector = newPointA;
@@ -88,17 +86,18 @@ void ClipOneVerticeOut(Vertex & outside, Vertex & insideA, Vertex & insideB, Ver
 	
 	float alpha = (newA.vector - insideA.vector).Magnitude() / (outside.vector - insideA.vector).Magnitude();
 	float beta = 1.0f - alpha;
+
 	newA.vector.w = outside.vector.w * alpha + beta * insideA.vector.w;
-	newA.uv.x = outside.uv.x * alpha + beta * insideA.uv.x;
-	newA.uv.y = outside.uv.y * alpha + beta * insideA.uv.y;
+	newA.uv.x = insideA.uv.x + alpha * (outside.uv.x - insideA.uv.x);
+	newA.uv.y = insideA.uv.y + alpha * (outside.uv.y - insideA.uv.y);
 
 	alpha = (newB.vector - insideB.vector).Magnitude() / (outside.vector - insideB.vector).Magnitude();
 	beta = 1.0f - alpha;
 	newB.vector.w = outside.vector.w * alpha + beta * insideB.vector.w;
-	newB.uv.x = outside.uv.x * alpha + beta * insideB.uv.x;
-	newB.uv.y = outside.uv.y * alpha + beta * insideB.uv.y;
+	newB.uv.x = insideB.uv.x + alpha * (outside.uv.x - insideB.uv.x);
+	newB.uv.y = insideB.uv.y + alpha * (outside.uv.y - insideB.uv.y);
 }
-void ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane & plane) {
+void BEngine3D::ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane & plane) {
 	int pointsOutside = 0;
 	bool vertexOneOutside = false;
 	bool vertexTwoOutside = false;
@@ -145,6 +144,21 @@ void ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane & plane) {
 			Triangle newT(t.one, newA, newB);
 			newT.color = { 1.0f,1.0f,0.0f };
 			output.push_back(newT);
+			DrawString(std::to_string(newA.uv.x), 0, 0, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(newA.uv.y), 200, 0, 25, { 1.0f,1.0f,1.0f });
+
+			DrawString(std::to_string(newB.uv.x), 0, 25, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(newB.uv.y), 200, 25, 25, { 1.0f,1.0f,1.0f });
+
+			DrawString(std::to_string(t.two.uv.x), 0, 50, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(t.two.uv.y), 200, 50, 25, { 1.0f,1.0f,1.0f });
+
+			DrawString(std::to_string(t.three.uv.x), 0, 100, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(t.three.uv.y), 200, 100, 25, { 1.0f,1.0f,1.0f });
+
+			DrawString(std::to_string(t.one.uv.x), 0, 150, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(t.one.uv.y), 200, 150, 25, { 1.0f,1.0f,1.0f });
+
 		}
 	}
 	if (pointsOutside == 1) {
@@ -180,6 +194,14 @@ void ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane & plane) {
 			tNew2.color = { 0.0f,0.0f,1.0f };
 			output.push_back(tNew1);
 			output.push_back(tNew2);
+			DrawString(std::to_string(newA.uv.x), 0, 0, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(newA.uv.y), 200, 0, 25, { 1.0f,1.0f,1.0f });
+
+			DrawString(std::to_string(newB.uv.x), 0, 25, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(newB.uv.y), 200, 25, 25, { 1.0f,1.0f,1.0f });
+
+			DrawString(std::to_string(t.three.uv.x), 0, 50, 25, { 1.0f,1.0f,1.0f });
+			DrawString(std::to_string(t.three.uv.y), 200, 50, 25, { 1.0f,1.0f,1.0f });
 		}
 	}
 	if (pointsOutside == 0) {
@@ -189,11 +211,23 @@ void ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane & plane) {
 void BEngine3D::ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, std::vector<Triangle> & output) {
 	int screenHeightHalf = GetScreenHeight() / 2;
 	int screenWidthHalf = GetScreenWidth() / 2;
-	Plane nearPlane({ 0,0,1,0 }, { 0,0,1,1 });
+	Plane nearPlane({ 0,0,1,0 }, { 0,0,30,1 });
 	for (int i = 0; i < triangles.size(); i++) {
 		ClipVertices(triangles[i], output, nearPlane);
 	}
 	for (int i = 0; i < output.size(); i++) {
+		Triangle & t = output[i];
+		t.one.zInverse = 1 / t.one.vector.w;
+		t.two.zInverse = 1 / t.two.vector.w;
+		t.three.zInverse = 1 / t.three.vector.w;
+		t.one.uv.x /= t.one.vector.w;
+		t.one.uv.y /= t.one.vector.w;
+
+		t.two.uv.x /= t.two.vector.w;
+		t.two.uv.y /= t.two.vector.w;
+
+		t.three.uv.x /= t.three.vector.w;
+		t.three.uv.y /= t.three.vector.w;
 		Dehomoginise(output[i].one);
 		Dehomoginise(output[i].two);
 		Dehomoginise(output[i].three);
@@ -237,13 +271,13 @@ void BEngine3D::FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh
 			alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
 			alpha /= mainTriangleArea;
 			//Error threshold
-			float value = 0 - 0.01;
-			if (alpha > value && beta > value && gamma > value) {
+			float value = 0;
+			if (alpha >= value && beta >= value && gamma >= value) {
 				BColor finalColor;
 				this->shader->FragmentShader(alpha, beta, gamma, one, two, three, finalColor);
 				float zBuffer = GetZBuffer(x, y);
 				float finalZ = alpha * one.vector.z + beta * two.vector.z + gamma * three.vector.z;
-				if (true) {
+				if (finalZ < zBuffer) {
 					SetPixel(x, y, finalColor);
 					SetZBuffer(x, y, finalZ);
 				}

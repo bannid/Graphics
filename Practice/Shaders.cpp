@@ -26,17 +26,22 @@ void Shader::FragmentShader(float alpha, float beta, float gamma,
 
 	float finalUVx = alpha * uvXAlpha + beta * uvXBeta + gamma * uvXGamma;
 	float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
+	float finalZInverse = one.zInverse * alpha + two.zInverse * beta + three.zInverse * gamma;
+	finalUVx *= 1.0f / finalZInverse;
+	finalUVy *= 1.0f / finalZInverse;
+
 	output = BUtils::GetColorFromTexture(finalUVx, 1 - finalUVy, texture);
 	float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
 	output.red *= light.color.red;
 	output.green *= light.color.green;
 	output.blue *= light.color.blue;
-	if (intensityFinal < 0.5) {
-		intensityFinal = 0.5f;
+	//output = one.color;
+	if (intensityFinal < 0.1) {
+		intensityFinal = 0.1f;
 	}
-	output.red *= intensityFinal;
+	/*output.red *= intensityFinal;
 	output.green *= intensityFinal;
-	output.blue *= intensityFinal;
+	output.blue *= intensityFinal;*/
 }
 
 void Shader::VertexShader(Vertex * vertex) {

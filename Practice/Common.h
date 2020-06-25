@@ -53,6 +53,7 @@ struct Vertex {
 	BColor color = { 1.0f,1.0f,1.0f };
 	BMath::Vec4 normal;
 	BMath::Vec4 uv;
+	float zInverse;
 };
 struct Triangle {
 	Vertex one;
@@ -88,7 +89,7 @@ struct Ray {
 	BMath::Vec4 origin;
 };
 struct Line {
-	BMath::Vec4 destination;
+	BMath::Vec4 direction;
 	BMath::Vec4 origin;
 };
 struct LightDirectional {

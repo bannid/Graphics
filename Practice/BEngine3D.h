@@ -9,4 +9,5 @@ public:
 	void Draw(Mesh & mesh);
 	void FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh);
 	void ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, std::vector<Triangle> & output);
+	void ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane & plane);
 };

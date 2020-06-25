@@ -44,7 +44,7 @@ float Plane::IntersectWithLine(Line line) {
 				* Di is the direction of the line segment
 */
 	float d = this->normal * this->pointOnPlane;
-	float t = ((-(normal * line.origin)) + d) / (normal * line.destination);
+	float t = ((-(normal * line.origin)) + d) / (normal * line.direction);
 	return t;
 }
 
