@@ -20,7 +20,7 @@ class AfricanHead : public BEngine3D {
 		shader->texture = &africanHeadTexture;
 	}
 	virtual bool OnCreate() override {
-		africanHead = Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\plane.obj", 10);
+		africanHead = Mesh("C:\\Users\\Winny-Banni\\Desktop\\videos\\cube.obj", 10);
 		BUtils::LoadTexturePNG("C:\\Users\\Winny-Banni\\Pictures\\container.jpg", &africanHeadTexture);
 		africanHead.position.z = 50.0f;
 		africanHead.position.w = 1.0f;

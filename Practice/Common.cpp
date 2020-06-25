@@ -45,9 +45,6 @@ float Plane::IntersectWithLine(Line line) {
 */
 	float d = this->normal * this->pointOnPlane;
 	float t = ((-(normal * line.origin)) + d) / (normal * line.destination);
-	if (t <= -1 && t >= 1.0f) {
-		DebugBreak();
-	}
 	return t;
 }
 

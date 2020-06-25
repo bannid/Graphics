@@ -28,10 +28,9 @@ void Shader::FragmentShader(float alpha, float beta, float gamma,
 	float finalUVy = alpha * uvYAlpha + beta * uvYBeta + gamma * uvYGamma;
 	output = BUtils::GetColorFromTexture(finalUVx, 1 - finalUVy, texture);
 	float intensityFinal = dotAlpha * alpha + dotBeta * beta + dotGamma * gamma;
-	/*output.red *= light.color.red;
+	output.red *= light.color.red;
 	output.green *= light.color.green;
-	output.blue *= light.color.blue;*/
-	output = one.color;
+	output.blue *= light.color.blue;
 	if (intensityFinal < 0.5) {
 		intensityFinal = 0.5f;
 	}

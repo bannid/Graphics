@@ -13,8 +13,13 @@ void BEngine3D::Draw(Mesh & mesh) {
 		triangles.push_back(t);
 	}
 	ClipAndDehomogniseVertices(triangles, clippedTriangles);
+	DrawString(std::to_string(clippedTriangles.size()), 0, 0, 25,{1.0f, 1.0f, 1.0f});
+	DrawString(std::to_string(triangles.size()), 0, 50, 25, { 1.0f, 1.0f, 1.0f });
 	for (int i = 0; i < clippedTriangles.size(); i++) {
-		FillTriangle(clippedTriangles[i]);
+		if (GetKey(VK_SPACE).keyDown) {
+			FillTriangle(clippedTriangles[i]);
+		}
+		FillTriangleBC(clippedTriangles[i].one, clippedTriangles[i].two, clippedTriangles[i].three, mesh);
 	}
 }
 void Dehomoginise(Vertex & vertex) {
@@ -50,10 +55,17 @@ void ClipTwoVertcesOut(Vertex & outA, Vertex & outB, Vertex & inside,
 	newB.vector = newPointb;
 	float alpha = (newA.vector - inside.vector).Magnitude() / (outA.vector - inside.vector).Magnitude();
 	float beta = 1.0f - alpha;
+	//Interpolate w
 	newA.vector.w = alpha * outA.vector.w + beta * inside.vector.w;
+	//Interpolate uv coords
+	newA.uv.x = alpha * outA.uv.x + beta * inside.uv.x;
+	newA.uv.y = alpha * outA.uv.y + beta * inside.uv.y;
+
 	alpha = (newB.vector - inside.vector).Magnitude() / (outB.vector - inside.vector).Magnitude();
 	beta = 1.0f - alpha;
 	newB.vector.w = alpha * outB.vector.w + beta * inside.vector.w;
+	newB.uv.x = alpha * outB.uv.x + beta * inside.uv.x;
+	newB.uv.y = alpha * outB.uv.y + beta * inside.uv.y;
 }
 void ClipOneVerticeOut(Vertex & outside, Vertex & insideA, Vertex & insideB, Vertex & newA, Vertex & newB,
 	Plane & plane) {
@@ -77,13 +89,16 @@ void ClipOneVerticeOut(Vertex & outside, Vertex & insideA, Vertex & insideB, Ver
 	float alpha = (newA.vector - insideA.vector).Magnitude() / (outside.vector - insideA.vector).Magnitude();
 	float beta = 1.0f - alpha;
 	newA.vector.w = outside.vector.w * alpha + beta * insideA.vector.w;
-	
+	newA.uv.x = outside.uv.x * alpha + beta * insideA.uv.x;
+	newA.uv.y = outside.uv.y * alpha + beta * insideA.uv.y;
+
 	alpha = (newB.vector - insideB.vector).Magnitude() / (outside.vector - insideB.vector).Magnitude();
 	beta = 1.0f - alpha;
 	newB.vector.w = outside.vector.w * alpha + beta * insideB.vector.w;
+	newB.uv.x = outside.uv.x * alpha + beta * insideB.uv.x;
+	newB.uv.y = outside.uv.y * alpha + beta * insideB.uv.y;
 }
-void ClipVertices(Triangle & t, std::vector<Triangle> & output) {
-	Plane plane({ 0,0,1,0 }, { 0,0,1,1 });
+void ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane & plane) {
 	int pointsOutside = 0;
 	bool vertexOneOutside = false;
 	bool vertexTwoOutside = false;
@@ -137,8 +152,8 @@ void ClipVertices(Triangle & t, std::vector<Triangle> & output) {
 			Vertex newA;
 			Vertex newB;
 			ClipOneVerticeOut(t.one, t.two, t.three, newA, newB, plane);
-			Triangle tNew1(t.two, newA, t.three);
-			Triangle tNew2(t.three, newA, newB);
+			Triangle tNew1(newB, newA, t.two);
+			Triangle tNew2(newB, t.two, t.three);
 			tNew1.color = { 1.0f,0.0f,0.0f };
 			tNew2.color = { 0.0f,0.0f,1.0f };
 			output.push_back(tNew1);
@@ -174,8 +189,9 @@ void ClipVertices(Triangle & t, std::vector<Triangle> & output) {
 void BEngine3D::ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, std::vector<Triangle> & output) {
 	int screenHeightHalf = GetScreenHeight() / 2;
 	int screenWidthHalf = GetScreenWidth() / 2;
+	Plane nearPlane({ 0,0,1,0 }, { 0,0,1,1 });
 	for (int i = 0; i < triangles.size(); i++) {
-		ClipVertices(triangles[i], output);
+		ClipVertices(triangles[i], output, nearPlane);
 	}
 	for (int i = 0; i < output.size(); i++) {
 		Dehomoginise(output[i].one);
@@ -227,7 +243,7 @@ void BEngine3D::FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh
 				this->shader->FragmentShader(alpha, beta, gamma, one, two, three, finalColor);
 				float zBuffer = GetZBuffer(x, y);
 				float finalZ = alpha * one.vector.z + beta * two.vector.z + gamma * three.vector.z;
-				if (zBuffer > finalZ) {
+				if (true) {
 					SetPixel(x, y, finalColor);
 					SetZBuffer(x, y, finalZ);
 				}

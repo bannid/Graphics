@@ -7,7 +7,7 @@ struct Camera {
 	BMath::Vec4 up = { 0.0f,1.0f,0.0f,0.0f };
 	BMath::Vec4 right = { 1.0f,0.0f,0.0f,0.0f };
 	BMath::Vec4 position = { 0.0f,0.0f,0.0f,1.0f };
-	float speed = 3.0f;
+	float speed = 20.0f;
 	float pitch;
 	float yaw;
 	void Yaw(float anlgeInDegrees);
