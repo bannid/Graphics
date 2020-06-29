@@ -38,16 +38,7 @@ struct BColor {
 		this->alpha = alpha;
 	}
 };
-enum COLORS {
-	BLACK = 0,
-	RED = RGBC(255, 0, 0),
-	BLUE = RGBC(0, 0, 255),
-	GREEN = RGBC(0, 255, 0),
-	WHITE = RGBC(255, 255, 255),
-	GRAY = RGBC(211, 211, 211),
-	YELLOW = RGBC(255, 255, 0),
-	MAROON = RGBC(128, 0, 0)
-};
+
 struct Vertex {
 	BMath::Vec4 vector;
 	BColor color = { 1.0f,1.0f,1.0f };
@@ -111,3 +102,18 @@ struct Plane {
 	float IntersectWithLine(Line line);
 };
 enum BLENDING_MODE { ALPHA, NORMAL };
+enum COLORS {
+	BLACK = 0,
+	RED = RGBC(255, 0, 0),
+	BLUE = RGBC(0, 0, 255),
+	GREEN = RGBC(0, 255, 0),
+	WHITE = RGBC(255, 255, 255),
+	GRAY = RGBC(211, 211, 211),
+	YELLOW = RGBC(255, 255, 0),
+	MAROON = RGBC(128, 0, 0)
+};
+enum CULL {
+	NO_CULL,
+	FRONT_CULL,
+	BACK_CULL
+};

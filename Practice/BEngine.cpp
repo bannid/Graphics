@@ -53,8 +53,8 @@ static LRESULT CALLBACK static_Win32MainWindowCallback(HWND window,
 
 	case WM_ACTIVATEAPP:
 	{
-		/*static_enginePtr->ConfineCursor();
-		static_enginePtr->HideCursor();*/
+		static_enginePtr->ConfineCursor();
+		static_enginePtr->HideCursor();
 	} break;
 
 	case WM_DESTROY:
@@ -232,8 +232,8 @@ bool BEngine::Start() {
 	if (!InitOpenGl()) { return false; }
 	this->uct1 = std::chrono::steady_clock::now();
 	this->uct2 = std::chrono::steady_clock::now();
-	/*this->ConfineCursor();
-	this->HideCursor();*/
+	this->ConfineCursor();
+	this->HideCursor();
 	while (running)
 	{
 		TIMED_DATA;

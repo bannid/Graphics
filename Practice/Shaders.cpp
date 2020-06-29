@@ -39,9 +39,9 @@ void Shader::FragmentShader(float alpha, float beta, float gamma,
 	if (intensityFinal < 0.1) {
 		intensityFinal = 0.1f;
 	}
-	/*output.red *= intensityFinal;
+	output.red *= intensityFinal;
 	output.green *= intensityFinal;
-	output.blue *= intensityFinal;*/
+	output.blue *= intensityFinal;
 }
 
 void Shader::VertexShader(Vertex * vertex) {

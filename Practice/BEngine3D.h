@@ -4,6 +4,7 @@
 #include "Shaders.h"
 
 class BEngine3D : public BEngine {
+	CULL cullMode = NO_CULL;
 public:
 	IShader * shader;
 	void Draw(Mesh & mesh);

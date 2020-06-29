@@ -144,21 +144,6 @@ void BEngine3D::ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane
 			Triangle newT(t.one, newA, newB);
 			newT.color = { 1.0f,1.0f,0.0f };
 			output.push_back(newT);
-			DrawString(std::to_string(newA.uv.x), 0, 0, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(newA.uv.y), 200, 0, 25, { 1.0f,1.0f,1.0f });
-
-			DrawString(std::to_string(newB.uv.x), 0, 25, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(newB.uv.y), 200, 25, 25, { 1.0f,1.0f,1.0f });
-
-			DrawString(std::to_string(t.two.uv.x), 0, 50, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(t.two.uv.y), 200, 50, 25, { 1.0f,1.0f,1.0f });
-
-			DrawString(std::to_string(t.three.uv.x), 0, 100, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(t.three.uv.y), 200, 100, 25, { 1.0f,1.0f,1.0f });
-
-			DrawString(std::to_string(t.one.uv.x), 0, 150, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(t.one.uv.y), 200, 150, 25, { 1.0f,1.0f,1.0f });
-
 		}
 	}
 	if (pointsOutside == 1) {
@@ -194,14 +179,6 @@ void BEngine3D::ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane
 			tNew2.color = { 0.0f,0.0f,1.0f };
 			output.push_back(tNew1);
 			output.push_back(tNew2);
-			DrawString(std::to_string(newA.uv.x), 0, 0, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(newA.uv.y), 200, 0, 25, { 1.0f,1.0f,1.0f });
-
-			DrawString(std::to_string(newB.uv.x), 0, 25, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(newB.uv.y), 200, 25, 25, { 1.0f,1.0f,1.0f });
-
-			DrawString(std::to_string(t.three.uv.x), 0, 50, 25, { 1.0f,1.0f,1.0f });
-			DrawString(std::to_string(t.three.uv.y), 200, 50, 25, { 1.0f,1.0f,1.0f });
 		}
 	}
 	if (pointsOutside == 0) {
@@ -211,7 +188,7 @@ void BEngine3D::ClipVertices(Triangle & t, std::vector<Triangle> & output, Plane
 void BEngine3D::ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, std::vector<Triangle> & output) {
 	int screenHeightHalf = GetScreenHeight() / 2;
 	int screenWidthHalf = GetScreenWidth() / 2;
-	Plane nearPlane({ 0,0,1,0 }, { 0,0,30,1 });
+	Plane nearPlane({ 0,0,1,0 }, { 0,0,1,1 });
 	for (int i = 0; i < triangles.size(); i++) {
 		ClipVertices(triangles[i], output, nearPlane);
 	}
@@ -228,6 +205,7 @@ void BEngine3D::ClipAndDehomogniseVertices(std::vector<Triangle> & triangles, st
 
 		t.three.uv.x /= t.three.vector.w;
 		t.three.uv.y /= t.three.vector.w;
+
 		Dehomoginise(output[i].one);
 		Dehomoginise(output[i].two);
 		Dehomoginise(output[i].three);
@@ -246,30 +224,27 @@ void BEngine3D::FillTriangleBC(Vertex one, Vertex two, Vertex three, Mesh & mesh
 	minY = BUtils::Max(0, minY);
 	maxX = BUtils::Min(GetScreenWidth(), maxX);
 	maxY = BUtils::Min(GetScreenHeight(), maxY);
-
-	BMath::Vec2 pointA = { one.vector.x,one.vector.y };
-	BMath::Vec2 pointB = { two.vector.x,two.vector.y };
-	BMath::Vec2 pointC = { three.vector.x,three.vector.y };
-	BMath::Vec2 edge1 = pointB - pointA;
-	BMath::Vec2 edge2 = pointC - pointA;
-	BMath::Vec2 edge3 = pointA - pointC;
-	BMath::Vec2 edge4 = pointC - pointB;
-
-	float mainTriangleArea = std::abs((edge1.x * edge2.y - edge1.y * edge2.x) * 0.5f);
-	if (mainTriangleArea == 0)return;
+	BMath::Vec4 AB = two.vector - one.vector;
+	BMath::Vec4 AC = three.vector - one.vector;
+	float alpha, beta, gamma;
 	for (int x = minX; x < maxX; x++) {
 		for (int y = minY; y < maxY; y++) {
-			BMath::Vec2 point = { x,y };
-			float alpha, beta, gamma;
-			BMath::Vec2 vp1 = point - pointA;
-			gamma = (edge1.x * vp1.y - edge1.y * vp1.x) * 0.5f;
-			gamma /= mainTriangleArea;
-			BMath::Vec2 vp2 = point - pointC;
-			beta = (edge3.x * vp2.y - edge3.y * vp2.x) * 0.5;
-			beta /= mainTriangleArea;
-			BMath::Vec2 vp3 = point - pointB;
-			alpha = (edge4.x * vp3.y - edge4.y * vp3.x) * 0.5;
-			alpha /= mainTriangleArea;
+			BMath::Vec4 p2 = { x,y,0,0 };
+			BMath::Vec4 AP = one.vector - p2;
+			BMath::Vec4 o = { AB.x,AC.x,AP.x,0.0f };
+			BMath::Vec4 t = { AB.y, AC.y, AP.y,0.0f };
+			p2 = t.Cross(o);
+			if (this->cullMode == BACK_CULL) {
+				if (p2.z > 0.0f)return;
+			}
+			else if (this->cullMode == FRONT_CULL) {
+				if (p2.z < 0.0f)return;
+			}
+			p2.x /= p2.z;
+			p2.y /= p2.z;
+			beta = p2.x;
+			gamma = p2.y;
+			alpha = 1.0f - beta - gamma;
 			//Error threshold
 			float value = 0;
 			if (alpha >= value && beta >= value && gamma >= value) {
